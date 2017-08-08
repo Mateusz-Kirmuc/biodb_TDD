@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'projects',
     'robjects',
     'guardian',
+    'ckeditor',
 )
 
 MIDDLEWARE_CLASSES = (

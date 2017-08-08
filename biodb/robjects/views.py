@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from biodb.mixins import LoginRequiredMixin
-from django.views.generic import View
+from django.views.generic import View, DetailView
 from robjects.models import Robject
 from projects.models import Project
 from django.core.exceptions import PermissionDenied
@@ -38,3 +38,6 @@ class SearchRobjectsView(LoginRequiredMixin, View):
             author__username__icontains=query, project__name=project_name)
 
         return name_qs | author_qs
+
+class RobjectDetailView(DetailView):
+    model = Robject

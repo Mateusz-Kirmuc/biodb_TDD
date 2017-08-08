@@ -1,26 +1,10 @@
-from django.db import models
-from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
+from projects.models import Project
 from ckeditor.fields import RichTextField
-from simple_history.models import HistoricalRecords
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.db import models
+#from simple_history.models import HistoricalRecords
 from django.forms.models import model_to_dict
-
-
-class Project(models.Model):
-    name = models.SlugField(max_length=100, unique=True)
-
-
-    def clean(self):
-        allowed_name_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy\
-z0123456789_"
-        msg = "Name must be composed from letters, numbers or underscores."
-        for char in self.name:
-            if char not in allowed_name_chars:
-                raise ValidationError({"name": msg})
-
-
-    def get_absolute_url(self):
-        return "/projects/%s/robjects/" % self.name
 
 
 class Tag(models.Model):

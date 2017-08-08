@@ -3,6 +3,8 @@ from robjects.models import Robject
 from django.contrib.auth.models import User
 from projects.models import Project
 from django.db import models
+from ckeditor.fields import RichTextField
+
 
 
 class RobjectModelTestCase(TestCase):
@@ -24,6 +26,37 @@ class RobjectModelTestCase(TestCase):
 
         modify_by_field = Robject._meta.get_field("modify_by")
         self.assertIsInstance(modify_by_field, models.ForeignKey)
+
+        tags_field = Robject._meta.get_field("tags")
+        self.assertIsInstance(tags_field, models.ManyToManyField)
+
+        notes_field = Robject._meta.get_field("notes")
+        self.assertIsInstance(notes_field, models.RichTextField)
+
+        ligand_field = Robject._meta.get_field("ligand")
+        self.assertIsInstance(ligand_field, models.CharField)
+
+        receptor_field = Robject._meta.get_field("receptor")
+        self.assertIsInstance(receptor_field, models.CharField)
+
+        ref_seq_field = Robject._meta.get_field("ref_seq")
+        self.assertIsInstance(ref_seq_field, models.RichTextField)
+
+        mod_seq_field = Robject._meta.get_field("mod_seq")
+        self.assertIsInstance(mod_seq_field, models.RichTextField)
+
+        description_field = Robject._meta.get_field("description")
+        self.assertIsInstance(description_field, models.RichTextField)
+
+        bibliography_field = Robject._meta.get_field("bibliography")
+        self.assertIsInstance(bibliography_field, models.RichTextField)
+
+        ref_commercial_field = Robject._meta.get_field("ref_commercial")
+        self.assertIsInstance(ref_commercial_field, models.RichTextField)
+
+        ref_clinical_field = Robject._meta.get_field("ref_clinical")
+        self.assertIsInstance(ref_clinical_field, models.RichTextField)
+
 
     def test_str_method(self):
         robj = Robject(id=101)

@@ -1,0 +1,74 @@
+{% extends "biodb/base.html" %}
+
+{% block content %}
+
+<div class="names">
+  <h1>Name: {{ object.name }}</h1>
+</div>
+
+<div class="tags">
+    <h2>Tags:</h2>
+  <span class="tags">
+      {% for tag in object.tags.all %}
+      <span>{{ tag }},</span> {% endfor %}
+  </span>
+</div>
+<div class="general">
+    <h2>General:</h2>
+  <table id="general_table">
+    {% for field, value in object.get_general_fields %}
+    <tr>
+      <th>{{ field }}</th>
+      <td>{{ value }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="details">
+    <h2>Details:</h2>
+  <table id="detail_table">
+    {% for field, value in object.get_detail_fields %}
+    <tr>
+      <th>{{ field }}</th>
+      <td>{{value}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="section links">
+  <h2>Links:</h2>
+  <ul>
+    {% with request.resolver_match.kwargs.project_name as project_name %}
+
+      <li><a href="#">Edit</a></li>
+      <li><a href="#">Delete</a></li>
+      <li><a href="#">Add to library</a></li>
+
+    {% endwith %}
+  </ul>
+</div>
+<div class="section similarity">
+  <h2>Similarity</h2>
+  Add similarity here
+</div>
+
+<div class="section history">
+  <h2> History table </h2>
+  Add history table here
+
+</div>
+<div class="section sample_choose">
+  <h2> Samples </h2>
+    <div class="content">
+      {% for sample in object.get_sample %}
+      <a>{{ sample }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block sample %}{% endblock %}

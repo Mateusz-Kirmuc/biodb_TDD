@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from functional_tests.base import FunctionalTest
 from projects.models import Project
 from datetime import datetime
-from django.contrib.auth.models import User
 from robjects.models import Robject
 import time
 from selenium.common.exceptions import NoSuchElementException
@@ -24,7 +23,7 @@ class UserVisitRobjectsPage(FunctionalTest):
     def test_logged_user_visit_robjects_page___no_robjects_exists(self):
         user, proj = self.project_set_up_using_default_data()
 
-        # Logged user visit robjects page. He sees robjects table. Table has
+        # Logged user visits robjects page. He sees robjects table. Table has
         # several columns: robject id, robject name, robject create date,
         # robject author.
         self.browser.get(
@@ -40,7 +39,7 @@ class UserVisitRobjectsPage(FunctionalTest):
         self.assertIn("create date", table_columns_names)
         self.assertIn("modify by", table_columns_names)
 
-        # Table hasnt any rows
+        # Table doesen't have any rows
         robject_rows = self.browser.find_elements_by_css_selector(
             ".row.robject")
         self.assertEqual(len(robject_rows), 0)
