@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from projects.models import Project
+from robjects.models import Robject
 
 
 class FunctionalTest(TestCase):

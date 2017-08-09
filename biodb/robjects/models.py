@@ -32,7 +32,8 @@ class Robject(models.Model):
     name = models.CharField(max_length=100)
     create_by = models.ForeignKey(
         to=User, related_name="robjects_created_by_user", null=True)
-    create_date = models.DateTimeField(null=True)
+    create_date = models.DateTimeField (null=True, auto_now_add=True )
+    modify_date = models.DateTimeField(null=True, auto_now=)
     modify_by = models.ForeignKey(to=User, null=True)
     tags = models.ManyToManyField(Tag, blank=True, null=True)
     notes = RichTextField(null=True, blank=True)
@@ -57,10 +58,9 @@ class Robject(models.Model):
         Return dictionary with object fields: {field.verbose_name: field class, ...}
 
         Attrs:
-            fields (list): list of fields to include in dictionary
         """
         fields_dict = {field.verbose_name: getattr(
-            instance, field.name) for field in instance._meta.get_fields() if field.name in fields}
+            instance, field.name) for field in instance._meta.fields if field.name in fields}
         return sorted(fields_dict.items())
 
     def get_general_fields(self):

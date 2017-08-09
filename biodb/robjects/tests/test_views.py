@@ -62,8 +62,8 @@ class SearchRobjectsViewTests(FunctionalTest):
         robject_2 = Robject.objects.create(name="robject_2", project=proj)
 
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/search/", {"query": "_1"})  # part!
-
+            f"/projects/{proj.name}/robjects/search/", {"query": "_1"})
+        # part!
         queryset = Robject.objects.filter(name="robject_1")
 
         # comparison of two querysets
@@ -172,3 +172,14 @@ class SearchRobjectsViewTests(FunctionalTest):
             robj,
             list(resp.context["robject_list"])
         )
+
+
+class RObjectsDetailViewTests(FunctionalTest):
+    def test_template_used(self):
+        user, proj = self.default_set_up_for_robjects_page()
+        robj = Robject.objects.create(project=proj, name="robj")
+
+        resp = self.client.get(
+            f"/projects/{proj.name}/robjects/{robj.id}/details")
+
+        self.assertTemplateUsed("robject_detail.html")

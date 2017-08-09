@@ -6,7 +6,6 @@ from django.db import models
 from ckeditor.fields import RichTextField
 
 
-
 class RobjectModelTestCase(TestCase):
     def test_fields_classes(self):
         project_field = Robject._meta.get_field("project")
@@ -31,7 +30,7 @@ class RobjectModelTestCase(TestCase):
         self.assertIsInstance(tags_field, models.ManyToManyField)
 
         notes_field = Robject._meta.get_field("notes")
-        self.assertIsInstance(notes_field, models.RichTextField)
+        self.assertIsInstance(notes_field, RichTextField)
 
         ligand_field = Robject._meta.get_field("ligand")
         self.assertIsInstance(ligand_field, models.CharField)
@@ -40,23 +39,22 @@ class RobjectModelTestCase(TestCase):
         self.assertIsInstance(receptor_field, models.CharField)
 
         ref_seq_field = Robject._meta.get_field("ref_seq")
-        self.assertIsInstance(ref_seq_field, models.RichTextField)
+        self.assertIsInstance(ref_seq_field, RichTextField)
 
         mod_seq_field = Robject._meta.get_field("mod_seq")
-        self.assertIsInstance(mod_seq_field, models.RichTextField)
+        self.assertIsInstance(mod_seq_field, RichTextField)
 
         description_field = Robject._meta.get_field("description")
-        self.assertIsInstance(description_field, models.RichTextField)
+        self.assertIsInstance(description_field, RichTextField)
 
         bibliography_field = Robject._meta.get_field("bibliography")
-        self.assertIsInstance(bibliography_field, models.RichTextField)
+        self.assertIsInstance(bibliography_field, RichTextField)
 
         ref_commercial_field = Robject._meta.get_field("ref_commercial")
-        self.assertIsInstance(ref_commercial_field, models.RichTextField)
+        self.assertIsInstance(ref_commercial_field, RichTextField)
 
         ref_clinical_field = Robject._meta.get_field("ref_clinical")
-        self.assertIsInstance(ref_clinical_field, models.RichTextField)
-
+        self.assertIsInstance(ref_clinical_field, RichTextField)
 
     def test_str_method(self):
         robj = Robject(id=101)
@@ -89,3 +87,37 @@ class RobjectModelTestCase(TestCase):
         self.assertEqual(
             Robject._meta.get_field("create_by").related_query_name(),
             "robjects_created_by_user")
+
+    def test_get_detail_fields(self):
+        fields = ["ligand", "receptor", "ref_seq", "mod_seq", "description",
+                  "bibliography", "ref_commercial", "ref_clinical", "notes"]
+
+        # get a list of verbose names for each field
+        verbose_names = []
+        for field in fields:
+            robject_field = Robject._meta.get_field(field)
+            verbose_names.append(robject_field.verbose_name)
+        # get a list of detail fields from robject method
+        robj = Robject(name="testr1")
+        detail_fields = robj.get_detail_fields()
+        detail_names = list(zip(*detail_fields))[0]
+        detail_list = list(detail_names)
+        # check equal
+        self.assertCountEqual(verbose_names, detail_list)
+
+    def test_get_general_fields(self):
+        fields = ["id", "create_date", "create_by",
+                  "modify_date", "modify_by", "author"]
+
+        # get a list of verbose names for each field
+        verbose_names = []
+        for field in fields:
+            robject_field = Robject._meta.get_field(field)
+            verbose_names.append(robject_field.verbose_name)
+        # get a list of genral fields from robject method
+        robj = Robject(name="testr1")
+        general_fields = robj.get_general_fields()
+        general_names = list(zip(*general_fields))[0]
+        general_list = list(general_names)
+        # check equal
+        self.assertCountEqual(verbose_names, general_list)
