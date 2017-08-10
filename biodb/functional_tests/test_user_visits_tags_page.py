@@ -38,9 +38,8 @@ class UserVisitTagsPage(FunctionalTest):
         h1 = self.browser.find_element_by_tag_name("h1")
         self.assertIn("Tags:", h1.text)
 
-        tag_list = self.browser.find_elements_by_css_selector(
-            "li")
-        print (tag_list)
+        tags_section = self.browser.find_element_by_class_name("tag_list")
+        tag_list = tags_section.find_elements_by_tag_name("li")
         self.assertEqual(len(tag_list), 2)
 
     def test_logged_user_checks_only_current_project_tags(self):
@@ -65,6 +64,6 @@ class UserVisitTagsPage(FunctionalTest):
         h1 = self.browser.find_element_by_tag_name("h1")
         self.assertIn("Tags:", h1.text)
 
-        tag_list = self.browser.find_elements_by_css_selector(
-            "li")
+        tags_section = self.browser.find_element_by_class_name("tag_list")
+        tag_list = tags_section.find_elements_by_tag_name("li")
         self.assertEqual(len(tag_list), 2)
