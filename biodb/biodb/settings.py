@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'accounts',
     'projects',
     'robjects',
+    #'tags',
     'guardian',
     'ckeditor',
 )

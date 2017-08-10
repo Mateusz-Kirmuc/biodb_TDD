@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from biodb.mixins import LoginRequiredMixin
-from django.views.generic import View, DetailView
-from robjects.models import Robject
+from django.views.generic import View, DetailView, ListView
 from projects.models import Project
+from robjects.models import Robject
+from robjects.models import Tag
 from django.core.exceptions import PermissionDenied
 
 # Create your views here.
@@ -15,7 +16,6 @@ def robjects_list_view(request, project_name):
     robject_list = Robject.objects.filter(project=project)
     return render(request, "projects/robjects_list.html",
                   {"robject_list": robject_list, "project_name": project_name})
-
 
 class SearchRobjectsView(LoginRequiredMixin, View):
     def get(self, request, project_name):

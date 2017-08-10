@@ -1,26 +1,10 @@
-from projects.models import Project
+from projects.models import Project, Tag
 from ckeditor.fields import RichTextField
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 #from simple_history.models import HistoricalRecords
 from django.forms.models import model_to_dict
-
-
-class Tag(models.Model):
-    """
-        Model for keywords assigned to a Robject
-        Require: name unique for a project.
-    """
-    name = models.CharField(max_length=100, unique=True)
-    project = models.ForeignKey(Project, null=True)
-
-    def __str__(self):
-        return self.name
-
-    def __unicode__(self):
-        return self.name
-
 
 class Robject(models.Model):
     """
@@ -32,10 +16,10 @@ class Robject(models.Model):
     name = models.CharField(max_length=100)
     create_by = models.ForeignKey(
         to=User, related_name="robjects_created_by_user", null=True)
-    create_date = models.DateTimeField (null=True, auto_now_add=True )
-    modify_date = models.DateTimeField(null=True, auto_now=)
+    create_date = models.DateTimeField (null=True, auto_now_add=True)
+    modify_date = models.DateTimeField(null=True, auto_now=True)
     modify_by = models.ForeignKey(to=User, null=True)
-    tags = models.ManyToManyField(Tag, blank=True, null=True)
+    tags = models.ManyToManyField(Tag)
     notes = RichTextField(null=True, blank=True)
     ligand = models.CharField(max_length=100, blank=True, null=True)
     receptor = models.CharField(max_length=100, blank=True, null=True)
