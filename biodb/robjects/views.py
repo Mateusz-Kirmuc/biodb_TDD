@@ -7,10 +7,12 @@ from django.db.models import TextField
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
-from django.views.generic import View
+from biodb.mixins import LoginRequiredMixin
+from django.views.generic import View, DetailView, ListView
 from projects.models import Project
 from robjects.models import Robject
-
+from robjects.models import Tag
+from django.core.exceptions import PermissionDenied
 
 # Create your views here.
 
@@ -112,4 +114,7 @@ class SearchRobjectsView(LoginRequiredMixin, View):
                     qs = qs | qs_query
         # project reqired
 
-        return self.model.objects.filter(qs, project__name=project_name)
+        return name_qs | author_qs
+
+class RobjectDetailView(DetailView):
+    model = Robject
