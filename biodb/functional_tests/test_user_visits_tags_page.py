@@ -30,14 +30,16 @@ class UserVisitTagsPage(FunctionalTest):
             author=usr1, project=proj1, name="robject_1")
 
         # Create sample Tag class objects and conect it to proejct
-        tag1 = Tag.objects.get_or_create(name = 'Tag1', project = proj1)
-        tag2 = Tag.objects.get_or_create(name = 'Tag2', project = proj1)
+        tag1 = Tag.objects.get_or_create(name='Tag1', project=proj1)
+        tag2 = Tag.objects.get_or_create(name='Tag2', project=proj1)
 
         self.browser.get(self.live_server_url + f"/projects/{proj1.name}/tags/")
 
+        # user checks header
         h1 = self.browser.find_element_by_tag_name("h1")
         self.assertIn("Tags:", h1.text)
 
+        # user checks if all added tags to prject are visable
         tags_section = self.browser.find_element_by_class_name("tag_list")
         tag_list = tags_section.find_elements_by_tag_name("li")
         self.assertEqual(len(tag_list), 2)
@@ -52,8 +54,8 @@ class UserVisitTagsPage(FunctionalTest):
             author=usr1, project=proj1, name="robject_1")
 
         # Create sample Tag class objects and conect it to proejct
-        tag1 = Tag.objects.get_or_create(name = 'Tag1', project = proj1)
-        tag2 = Tag.objects.get_or_create(name = 'Tag2', project = proj1)
+        tag1 = Tag.objects.get_or_create(name='Tag1', project=proj1)
+        tag2 = Tag.objects.get_or_create(name='Tag2', project=proj1)
 
         # Create other project and add tag to it
         other_project, created = Project.objects.get_or_create(name="test1")
@@ -61,9 +63,11 @@ class UserVisitTagsPage(FunctionalTest):
 
         self.browser.get(self.live_server_url + f"/projects/{proj1.name}/tags/")
 
+        # user checks header
         h1 = self.browser.find_element_by_tag_name("h1")
         self.assertIn("Tags:", h1.text)
 
+        # user checks if tags are from current project
         tags_section = self.browser.find_element_by_class_name("tag_list")
         tag_list = tags_section.find_elements_by_tag_name("li")
         self.assertEqual(len(tag_list), 2)
