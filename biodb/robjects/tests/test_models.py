@@ -121,3 +121,19 @@ class RobjectModelTestCase(TestCase):
         general_list = list(general_names)
         # check equal
         self.assertCountEqual(verbose_names, general_list)
+
+    def test_get_fields(self):
+        inst = Robject(name='random_robject')
+        fields = ["id", "create_date", "create_by",
+                  "modify_date", "modify_by", "author",
+                  "ligand", "receptor", "ref_seq", "mod_seq", "description",
+                  "bibliography", "ref_commercial", "ref_clinical", "notes"
+                  ]
+        fields1 = len(Robject._meta.get_fields())
+
+        fields2 = len((Robject.get_fields(inst, fields)))
+        self.assertEqual(fields1, fields2)
+
+
+    def test_get_absolute_url(self):
+        pass
