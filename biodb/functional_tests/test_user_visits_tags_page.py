@@ -1,15 +1,16 @@
 # import time
 # from datetime import datetime
+import time
+from datetime import datetime
 from django.contrib.auth.models import User
+from django.test import tag
 from functional_tests.base import FunctionalTest
 from projects.models import Project
 from projects.models import Tag
-from datetime import datetime
 from robjects.models import Robject
-import time
 from selenium.common.exceptions import NoSuchElementException
 
-
+@tag('slow')
 class UserVisitTagsPage(FunctionalTest):
     def test_annonymous_user_visit_tags_page(self):
         # To visit any robjects page, project object needed.
