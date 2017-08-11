@@ -44,7 +44,7 @@ class Robject(models.Model):
         Attrs:
         """
         fields_dict = {field.verbose_name: getattr(
-            instance, field.name) for field in instance._meta.fields if field.name in fields}
+            instance, field.name) for field in instance._meta.get_fields() if field.name in fields}
         return sorted(fields_dict.items())
 
     def get_general_fields(self):
