@@ -6,8 +6,8 @@ from selenium.common.exceptions import NoSuchElementException
 # from selenium.webdriver.common.keys import Keys
 
 
+@tag('slow')
 class UserLogoutTests(FunctionalTest):
-    @tag('slow')
     def test_logged_user_logs_out(self):
         # Create active user.
 
@@ -34,7 +34,6 @@ class UserLogoutTests(FunctionalTest):
         body_element = self.browser.find_element_by_tag_name("body")
         self.assertEqual(body_element.text, "403 Forbidden")
 
-    @tag('slow')
     def test_annonymous_user_cant_find_logout_button(self):
         # Annonymous user goes to page he has access to. He looks for logout
         # button but he cant find it.
@@ -46,7 +45,6 @@ class UserLogoutTests(FunctionalTest):
         with self.assertRaises(NoSuchElementException):
             self.browser.find_element_by_id("logout_button")
 
-    @tag('slow')
     def test_annonymous_user_cant_get_to_logout_url(self):
         # Annonymous user wants to visit logout url. He is automatically
         # redirect to login page.

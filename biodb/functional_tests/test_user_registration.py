@@ -6,8 +6,8 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 
 
+@tag('slow')
 class UserRegistrationTests(FunctionalTest):
-    @tag('slow')
     def setUp(self):
         super(UserRegistrationTests, self).setUp()
 
@@ -24,7 +24,6 @@ class UserRegistrationTests(FunctionalTest):
         self.submit_button = lambda: sign_up_form().find_element_by_id(
             "submit_button")
 
-    @tag('slow')
     def test_user_use_sign_up_form_without_problems(self):
         # User heard about biodb app and decide to visit this website. Received
         # adress leads him to welcome page. Welcome page contains link to sign
@@ -88,7 +87,6 @@ class UserRegistrationTests(FunctionalTest):
             self.live_server_url + "/accounts/login/"
         )
 
-    @tag('slow')
     def test_user_encounters_required_validation(self):
         # User goes stright to sign-up form page.
         self.browser.get(self.live_server_url + "/accounts/sign-up/")
@@ -122,7 +120,6 @@ class UserRegistrationTests(FunctionalTest):
                         )
                     )
 
-    @tag('slow')
     def test_user_encounters_duplication_validation(self):
         # User goes to registration page of biodb.
         self.browser.get(self.live_server_url + "/accounts/sign-up/")
@@ -183,7 +180,6 @@ class UserRegistrationTests(FunctionalTest):
             "User with such username or email already exists"
         )
 
-    @tag('slow')
     def test_user_encounters_password_validation(self):
         # User goes to sign-up page.
         self.browser.get(self.live_server_url + "/accounts/sign-up/")
@@ -206,7 +202,6 @@ class UserRegistrationTests(FunctionalTest):
         )
         self.assertEqual(error, "Passwords doesn't match.")
 
-    @tag('slow')
     def test_user_encounters_duplication_and_password_validation(self):
         # User goes to sign-up page.
         self.browser.get(self.live_server_url + "/accounts/sign-up/")
@@ -239,7 +234,6 @@ class UserRegistrationTests(FunctionalTest):
         self.assertIn(
             "User with such username or email already exists", errors)
 
-    @tag('slow')
     def test_user_register_and_try_to_login(self):
         # User goes to register site. He enters all valid data and is redirect
         # to login page.

@@ -10,6 +10,7 @@ from projects.models import Tag
 from robjects.models import Robject
 from selenium.common.exceptions import NoSuchElementException
 
+
 @tag('slow')
 class UserVisitTagsPage(FunctionalTest):
     def test_annonymous_user_visit_tags_page(self):

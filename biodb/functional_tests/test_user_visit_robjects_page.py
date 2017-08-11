@@ -370,10 +370,8 @@ class SearchEngineTests(FunctionalTest):
 
         self.assertEqual(len(table_rows), 2)
 
-    @tag('slow')
     def test_user_limits_number_of_fields_to_search(self):
         pass
 
-    @tag('slow')
     def test_user_narrows_the_search_to_the_date_range(self):
         pass
