@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'projects',
     'robjects',
     'guardian',
+    'django_addanother',
 )
 
 MIDDLEWARE_CLASSES = (

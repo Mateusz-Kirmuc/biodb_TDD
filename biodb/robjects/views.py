@@ -1,6 +1,7 @@
 """Views for robject search."""
 import re
 from biodb.mixins import LoginRequiredMixin
+from django_addanother.views import CreatePopupMixin
 from django.db.models import CharField
 from django.db.models import ForeignKey
 from django.db.models import TextField
@@ -8,8 +9,12 @@ from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 from django.views.generic import View
+from django.views.generic import FormView
+from django.views.generic import CreateView
 from projects.models import Project
+from robjects.forms import RobjectForm
 from robjects.models import Robject
+from robjects.models import Name
 
 
 # Create your views here.
@@ -102,7 +107,7 @@ class SearchRobjectsView(LoginRequiredMixin, View):
             # exted queries by foreign fields
             if foreign_models_fields:
                 for foreign_field, model_fields \
-                 in foreign_models_fields.items():
+                        in foreign_models_fields.items():
                     queries += [Q(**{'%s__%s__icontains' %
                                      (foreign_field.name, f.name): term})
                                 for f in model_fields]
@@ -113,3 +118,12 @@ class SearchRobjectsView(LoginRequiredMixin, View):
         # project reqired
 
         return self.model.objects.filter(qs, project__name=project_name)
+
+
+class CreateNameView(CreatePopupMixin, CreateView):
+    model = Name
+    fields = ['name']
+
+class CreateRobjectView(FormView):
+    form_class = RobjectForm
+    template_name = 'robjects/create_robject.html'
