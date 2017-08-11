@@ -151,18 +151,20 @@ class RobjectModelTestCase(TestCase):
                      "bibliography", "ref_commercial", "ref_clinical", "notes"
                      ]
 
-        fields1 = []
+        fields_verbose = []
         fields = Robject._meta.get_fields()
+        # get list of verbose_names from fields
         for field in fields:
-            fields1.append(field.verbose_name)
+            fields_verbose.append(field.verbose_name)
         # get a list of genral fields from robject method
 
         method_fields = Robject.get_fields(rob_instance, my_fields)
-        fields_names = list(zip(*method_fields))[0]
-        fields2 = list(fields_names)
-        # check equal
+        method_fields_names = list(zip(*method_fields))[0]
+        # create list from set
+        method_fields_names_list = list(method_fields_names)
 
-        self.assertCountEqual(fields1, fields2)
+        # check equal
+        self.assertCountEqual(fields_verbose, method_fields_names_list)
 
     def test_get_absolute_url(self):
         proj = Project(name="project_101")
