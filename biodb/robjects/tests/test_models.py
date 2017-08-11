@@ -2,6 +2,7 @@ from django.test import TestCase
 from robjects.models import Robject
 from django.contrib.auth.models import User
 from projects.models import Project
+from projects.models import Tag
 from django.db import models
 from ckeditor.fields import RichTextField
 
@@ -40,6 +41,21 @@ class RobjectModelTestCase(TestCase):
 
         ref_seq_field = Robject._meta.get_field("ref_seq")
         self.assertIsInstance(ref_seq_field, RichTextField)
+
+        mod_seq_field = Robject._meta.get_field("mod_seq")
+        self.assertIsInstance(mod_seq_field, RichTextField)
+
+        description_field = Robject._meta.get_field("description")
+        self.assertIsInstance(description_field, RichTextField)
+
+        bibliography_field = Robject._meta.get_field("bibliography")
+        self.assertIsInstance(bibliography_field, RichTextField)
+
+        ref_commercial_field = Robject._meta.get_field("ref_commercial")
+        self.assertIsInstance(ref_commercial_field, RichTextField)
+
+        ref_clinical_field = Robject._meta.get_field("ref_clinical")
+        self.assertIsInstance(ref_clinical_field, RichTextField)
 
         mod_seq_field = Robject._meta.get_field("mod_seq")
         self.assertIsInstance(mod_seq_field, RichTextField)
@@ -123,17 +139,34 @@ class RobjectModelTestCase(TestCase):
         self.assertCountEqual(verbose_names, general_list)
 
     def test_get_fields(self):
-        inst = Robject(name='random_robject')
-        fields = ["id", "create_date", "create_by",
-                  "modify_date", "modify_by", "author",
-                  "ligand", "receptor", "ref_seq", "mod_seq", "description",
-                  "bibliography", "ref_commercial", "ref_clinical", "notes"
-                  ]
-        fields1 = len(Robject._meta.get_fields())
+        proj_instance = Project.objects.create(name='proj1_instance')
+        rob_instance = Robject.objects.create(
+            name='random1_robject', project=proj_instance)
+        tag_instance = Tag.objects.create(
+            name='tag1_instance', project=proj_instance)
+        # get a list of verbose names for each field
+        my_fields = ["name", "project", "tags", "id", "create_date", "create_by",
+                     "modify_date", "modify_by", "author",
+                     "ligand", "receptor", "ref_seq", "mod_seq", "description",
+                     "bibliography", "ref_commercial", "ref_clinical", "notes"
+                     ]
 
-        fields2 = len((Robject.get_fields(inst, fields)))
-        self.assertEqual(fields1, fields2)
+        fields1 = []
+        fields = Robject._meta.get_fields()
+        for field in fields:
+            fields1.append(field.verbose_name)
+        # get a list of genral fields from robject method
 
+        method_fields = Robject.get_fields(rob_instance, my_fields)
+        fields_names = list(zip(*method_fields))[0]
+        fields2 = list(fields_names)
+        # check equal
+
+        self.assertCountEqual(fields1, fields2)
 
     def test_get_absolute_url(self):
-        pass
+        proj = Project(name="project_101")
+        robj = Robject(project=proj, id=101, name="robj")
+
+        self.assertEqual(robj.get_absolute_url(),
+                         "/projects/project_101/robjects/101/details")
