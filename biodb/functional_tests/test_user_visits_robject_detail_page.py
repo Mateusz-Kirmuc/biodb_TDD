@@ -5,9 +5,9 @@ from robjects.models import Robject
 from robjects.models import Tag
 from django.contrib.auth.models import User
 from django.test import tag
-
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
+
 
 @tag('slow')
 class UserVisitRobjectDetailPage(FunctionalTest):

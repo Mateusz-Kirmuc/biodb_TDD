@@ -3,10 +3,9 @@ from projects.views import ProjectListView, TagsListView, TagCreateView, TagEdit
 
 urlpatterns = [
     url(r"^$", ProjectListView.as_view(), name="projects_list"),
-    url(r"^$", ProjectListView.as_view(), name="projects_list"),
     url(r"^(\w+)/robjects/", include("robjects.urls")),
-    url(r"^(\w+)/tags/", TagsListView.as_view(), name="tag_list"),
-    url(r"^(\w+)/tags/create", TagCreateView.as_view(), name="tag_create"),
+    url(r"^(\w+)/tags/$", TagsListView.as_view(), name="tag_list"),
+    url(r"^(\w+)/tags/create/$", TagCreateView.as_view(), name="tag_form"),
     url(r'^(?P<pk>[0-9]+)/edit/$', TagEditView.as_view(), name="tag_edit"),
-    url(r'^(?P<pk>[0-9]+)/de/$', TagDeleteView.as_view(), name="tag_delete"),
+    url(r'^(?P<pk>[0-9]+)/delete/$', TagDeleteView.as_view(), name="tag_delete"),
     ]

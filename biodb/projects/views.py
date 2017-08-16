@@ -1,13 +1,18 @@
+from biodb.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+#from django.core.exceptions import DoesNotExist
+from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ValidationError
+from django.http import Http404
+from django.http import HttpResponse
 from django.shortcuts import render
+from django.views.generic import View
+from django.views.generic import CreateView
+from django.views.generic import DeleteView
+from django.views.generic import UpdateView
 from django.views.generic.list import ListView
 from projects.models import Project
 from projects.models import Tag
-from django.core.exceptions import PermissionDenied
-from biodb.mixins import LoginRequiredMixin
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
-from django.views.generic import View, CreateView, DeleteView, UpdateView
 # Create your views here.
 
 
@@ -42,8 +47,30 @@ class TagsListView(LoginRequiredMixin, ListView):
         return self.render_to_response(context)
 
 
-class TagCreateView(CreateView):
-    pass
+class TagCreateView(LoginRequiredMixin, CreateView):
+    model = Tag
+    fields = ['name']
+
+    def get(self, request, project_name, *args, **kwargs):
+        try:
+            project = Project.objects.get(name=project_name)
+        except Project.DoesNotExist:
+            raise Http404
+
+        return super(TagCreateView, self).get(self, request, project_name, *args, **kwargs)
+
+    def form_valid(self, form):
+        if self.args:
+            project_name = self.args[0]
+            try:
+                project = Project.objects.get(name=project_name)
+                form.instance.project = project
+            except Project.DoesNotExist:
+                raise Http404
+        else:
+            raise ValidationError
+
+        return super(TagCreateView, self).form_valid(form)
 
 
 class TagEditView(UpdateView):
