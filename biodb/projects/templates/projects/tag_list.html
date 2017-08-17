@@ -1,20 +1,16 @@
-{% extends "biodb/base.html" %}
-{% block content %}
+{% extends "biodb/base.html" %} {% block content %}
 
 <h1>Tags:</h1>
-  <ul class="tag_list">
-    <ul>
-      {{object.get_tags}}
-
-      {% for tag in tag_list %}
-      <li>{{ tag }}
-        {%endfor %}
-    </li>
-    </ul>
+<ul class="tag_list">
+  <ul>
+    {{object.get_tags}} {% for tag in tag_list %}
+    <li>{{ tag }}</li>
+    {%endfor %}
   </ul>
+</ul>
 <div class="actions">
-    <li><a href="/">Edit</a></li>
-    <li><a href="/">Delete</a></li>
-    <li><a href="/">Add</a></li>
+  <li><a href="/">Add</a></li>
+  <li><a href="#">Delete</a></li>
+  <li><a href="{{object.get_absolute_url}}">Edit</a></li>
 </div>
 {% endblock %}
