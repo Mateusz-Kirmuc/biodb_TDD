@@ -17,12 +17,14 @@ from projects.models import Project
 from projects.models import Tag
 # Create your views here.
 
+
 class ProjectListView(LoginRequiredMixin, ListView):
     model = Project
 
 
 class TagsListView(LoginRequiredMixin, ListView):
     model = Tag
+    template_name = "tags/tag_list.html"
 
     def get(self, request, project_name, *args, **kwargs):
         """A base view for displaying a list of objects."""
@@ -45,10 +47,16 @@ class TagsListView(LoginRequiredMixin, ListView):
         # return filtered qs by project
         return qs.filter(project=self.project)
 
+    def get_context_data(self, **kwargs):
+        context = super(TagsListView, self).get_context_data(**kwargs)
+        context['project'] = self.project
+        return context
+
 
 class TagCreateView(LoginRequiredMixin, CreateView):
     model = Tag
     fields = ['name']
+    template_name = "tags/tag_create.html"
 
     def get(self, request, project_name, *args, **kwargs):
         try:
@@ -72,9 +80,12 @@ class TagCreateView(LoginRequiredMixin, CreateView):
 class TagEditView(UpdateView):
     model = Tag
     fields = ['name']
-    template_name_suffix = '_update_form'
+    template_name = "tags/tag_update.html"
 
 
-class TagDeleteView(LoginRequiredMixin, DeleteView):
+
+@method_decorator(login_required, name='dispatch')
+class TagDeleteView(DeleteView):
     model = Tag
+    template_name = "tags/tag_delete.html"
     #success_url = "/projects/%s/tags/" % (self.project.name)
