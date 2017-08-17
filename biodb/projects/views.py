@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.generic import View
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
@@ -14,7 +16,6 @@ from django.views.generic.list import ListView
 from projects.models import Project
 from projects.models import Tag
 # Create your views here.
-
 
 class ProjectListView(LoginRequiredMixin, ListView):
     model = Project
@@ -67,9 +68,13 @@ class TagCreateView(LoginRequiredMixin, CreateView):
         return super(TagCreateView, self).form_valid(form)
 
 
+@method_decorator(login_required, name='dispatch')
 class TagEditView(UpdateView):
-    pass
+    model = Tag
+    fields = ['name']
+    template_name_suffix = '_update_form'
 
 
-class TagDeleteView(DeleteView):
-    pass
+class TagDeleteView(LoginRequiredMixin, DeleteView):
+    model = Tag
+    #success_url = "/projects/%s/tags/" % (self.project.name)
