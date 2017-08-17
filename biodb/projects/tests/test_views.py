@@ -1,9 +1,7 @@
-# from django.contrib.auth.models import User
-# from django.test import TestCase
 from django.http import Http404
 from projects.models import Project
-from projects.models import Tag
 from robjects.models import Robject
+from projects.models import Tag
 from unit_tests.base import FunctionalTest
 
 
@@ -78,6 +76,7 @@ class TagCreateViewTestCase(FunctionalTest):
         self.assertTemplateUsed(response, "projects/tag_form.html")
 
     def test_login_requirement(self):
+        # Using LoginRequiredMixin, it returns 403 Forbiden error
         proj1 = Project.objects.create(name="project_1")
         response = self.client.get("/projects/project_1/tags/create/")
         self.assertEqual(response.status_code, 403)
@@ -98,11 +97,14 @@ class TagCreateViewTestCase(FunctionalTest):
         # expected rediect stsus 302
         self.login_default_user()
         proj1 = Project.objects.create(name="project_1")
-        response = self.client.post(
+        response1 = self.client.post(
             "/projects/project_1/tags/create/", {'name': 'same_tag'})
-        response = self.client.post(
+        self.assertNotIn('Tag with this Name already exists', str(response1.content))
+        response2 = self.client.post(
             "/projects/project_1/tags/create/", {'name': 'same_tag'})
-        self.assertEqual(response.status_code, 200)
+        self.assertIn('Tag with this Name already exists', str(response2.content))
+        tags = Tag.objects.all()
+        self.assertEqual(len(tags), 1)
 
 
 class TagEditViewTest(FunctionalTest):
@@ -145,6 +147,17 @@ class TagEditViewTest(FunctionalTest):
             f"/projects/project_1/tags/{tag1.id}/edit/", {'name': 'tag1_name'})
         # Check if status is correct and template
         self.assertEqual(response.status_code, 302)
+        self.assertTemplateUsed('/projects/project_1/tags/')
+
+
+    def test_tag_with_not_existed_project_name(self):
+        proj1 = Project.objects.create(name="project_1")
+        self.login_default_user()
+        tag1, created = Tag.objects.get_or_create(name='Tag1', project=proj1)
+        response = self.client.post(
+            f"/projects/projedsadct_1/tags/{tag1.id}/edit/", {'name': 'tag1_name'})
+        # Check if status is correct and template
+        self.assertEqual(response.status_code, 404)
         self.assertTemplateUsed('/projects/project_1/tags/')
 
     def test_get_status_302_for_editing_tag_name_that_already_exists(self):
