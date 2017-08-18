@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.generic import View
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
@@ -22,6 +24,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
 class TagsListView(LoginRequiredMixin, ListView):
     model = Tag
+    template_name = "tags/tag_list.html"
 
     def get(self, request, project_name, *args, **kwargs):
         """A base view for displaying a list of objects."""
@@ -44,10 +47,16 @@ class TagsListView(LoginRequiredMixin, ListView):
         # return filtered qs by project
         return qs.filter(project=self.project)
 
+    def get_context_data(self, **kwargs):
+        context = super(TagsListView, self).get_context_data(**kwargs)
+        context['project'] = self.project
+        return context
+
 
 class TagCreateView(LoginRequiredMixin, CreateView):
     model = Tag
     fields = ['name']
+    template_name = "tags/tag_create.html"
 
     def get(self, request, project_name, *args, **kwargs):
         try:
@@ -67,9 +76,16 @@ class TagCreateView(LoginRequiredMixin, CreateView):
         return super(TagCreateView, self).form_valid(form)
 
 
+@method_decorator(login_required, name='dispatch')
 class TagEditView(UpdateView):
-    pass
+    model = Tag
+    fields = ['name']
+    template_name = "tags/tag_update.html"
 
 
+
+@method_decorator(login_required, name='dispatch')
 class TagDeleteView(DeleteView):
-    pass
+    model = Tag
+    template_name = "tags/tag_delete.html"
+    #success_url = "/projects/%s/tags/" % (self.project.name)
