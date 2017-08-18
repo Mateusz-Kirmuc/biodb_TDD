@@ -67,7 +67,7 @@ class UserCreatesTag(FunctionalTest):
         self.assertIn('updated_tag_name', content.text)
 
     def test_user_updates_tag_to_repeated_tag_name(self):
-
+        # Create sample user, project
         usr1, proj1 = self.project_set_up_using_default_data()
 
         # Create sample tag
@@ -90,7 +90,6 @@ class UserCreatesTag(FunctionalTest):
 
         # User is redirected to tags list page
         # Check if tag is in tags list view.
-        print (self.browser.find_element_by_tag_name('body').text)
         error_message = self.browser.find_element_by_css_selector('.errorlist')
         self.assertEqual('Tag with this Name already exists.',
                          error_message.text)
@@ -189,4 +188,4 @@ class UserCreatesTag(FunctionalTest):
         button.click()
 
         content = self.browser.find_element_by_tag_name("ul")
-        self.assertEqual('12345678901234567890', content.text)
+        self.assertIn('12345678901234567890', content.text)

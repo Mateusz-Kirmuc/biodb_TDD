@@ -61,7 +61,7 @@ class UserCreatesTag(FunctionalTest):
 
         # Check if tag is in tags list view.
         content = self.browser.find_element_by_tag_name("ul")
-        self.assertIn(content.text, 'qwerty')
+        self.assertIn('qwerty', content.text)
 
     def test_user_creates_two_correct_tags_and_saves_them(self):
         # Create sample user, project
@@ -192,7 +192,7 @@ class UserCreatesTag(FunctionalTest):
         button.click()
 
         content = self.browser.find_element_by_tag_name("ul")
-        self.assertEqual('12345678901234567890', content.text)
+        self.assertIn('12345678901234567890', content.text)
 
     def test_user_creates_incorrect_tag_name(self):
 
