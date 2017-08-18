@@ -1,14 +1,14 @@
 from biodb.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-#from django.core.exceptions import DoesNotExist
-from django.core.exceptions import PermissionDenied
-from django.core.exceptions import ValidationError
+# from django.core.exceptions import DoesNotExist
+# from django.core.exceptions import PermissionDenied
+# from django.core.exceptions import ValidationError
 from django.http import Http404
-from django.http import HttpResponse
-from django.shortcuts import render
-from django.urls import reverse_lazy
+# from django.http import HttpResponse
+# from django.shortcuts import render
+# from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import View
+# from django.views.generic import View
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
 from django.views.generic import UpdateView
@@ -35,7 +35,8 @@ class TagsListView(LoginRequiredMixin, ListView):
             self.project = project
         except Project.DoesNotExist:
             raise Http404
-        return super(TagsListView, self).get(self, request, project_name, *args, **kwargs)
+        return super(TagsListView, self).get(self, request, project_name,
+                                             *args, **kwargs)
 
     def get_queryset(self):
         """
@@ -64,7 +65,8 @@ class TagCreateView(LoginRequiredMixin, CreateView):
         except Project.DoesNotExist:
             raise Http404
 
-        return super(TagCreateView, self).get(self, request, project_name, *args, **kwargs)
+        return super(TagCreateView, self).get(self, request, project_name,
+                                              *args, **kwargs)
 
     def form_valid(self, form):
         project_name = self.args[0]
@@ -83,9 +85,8 @@ class TagEditView(UpdateView):
     template_name = "tags/tag_update.html"
 
 
-
 @method_decorator(login_required, name='dispatch')
 class TagDeleteView(DeleteView):
     model = Tag
     template_name = "tags/tag_delete.html"
-    #success_url = "/projects/%s/tags/" % (self.project.name)
+    # success_url = "/projects/%s/tags/" % (self.project.name)
