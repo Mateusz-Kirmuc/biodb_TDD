@@ -25,7 +25,7 @@ class UserVisitsDeleteTagPage(FunctionalTest):
         # type correct tag name in name form.
         input_form = self.browser.find_element_by_css_selector('#id_name')
         input_form.send_keys("qwerty")
-        
+
 
 @tag('slow')
 class UserCreatesTag(FunctionalTest):
