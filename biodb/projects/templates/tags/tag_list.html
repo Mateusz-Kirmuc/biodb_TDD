@@ -6,9 +6,8 @@
 <ul class="tag_list">
   <ul>
     {% for tag in tag_list %}
-      <li><a href="{% url 'projects:tag_edit' project.name tag.id %}">{{ tag }} </a> &nbsp
-      <a class="delete" href="{% url 'projects:tag_delete' project.name tag.id %}"> delete </a> &nbsp
-      <a class="edit" href="{% url 'projects:tag_edit' project.name tag.id %}"> edit </a></li>
+      <li><a class="edit" href="{% url 'projects:tag_edit' project.name tag.id %}">{{ tag }} </a> &nbsp
+      <a class="delete" href="{% url 'projects:tag_delete' project.name tag.id %}"> delete </a>
     {% endfor %}
   </ul>
 </ul>

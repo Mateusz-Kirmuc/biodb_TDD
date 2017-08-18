@@ -60,8 +60,6 @@ class UserGoesThrowAllTagPages(FunctionalTest):
         button = self.browser.find_element_by_css_selector(
             'input[type="submit"]')
         button.click()
-        self.browser.assertTemplateUsed('tags/tag_list.html')
         # User checks if tag name is not on page
         body = self.browser.find_element_by_tag_name('body')
         self.assertNotIn('updated_tag_name', body.text)
-        self.assertTemplateUsed("projects/tag_list.html")
