@@ -79,7 +79,7 @@ class UserDeletesTag(FunctionalTest):
         body = self.browser.find_element_by_tag_name('body')
         self.assertNotIn('Tag_name', body.text)
 
-    @tag('now')
+
     def test_user_cretes_two_objetcs_and_deletes_one(self):
         # Create sample user, project
         usr1, proj1 = self.project_set_up_using_default_data()
