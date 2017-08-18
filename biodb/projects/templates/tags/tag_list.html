@@ -7,13 +7,14 @@
   <ul>
     {% for tag in tag_list %}
       <li><a href="{% url 'projects:tag_edit' project.name tag.id %}">{{ tag }} </a> &nbsp
-      <a class="delete" href="{% url 'projects:tag_delete' project.name tag.id %}"> delete </a></li>
+      <a class="delete" href="{% url 'projects:tag_delete' project.name tag.id %}"> delete </a> &nbsp
+      <a class="edit" href="{% url 'projects:tag_edit' project.name tag.id %}"> edit </a></li>
     {% endfor %}
   </ul>
 </ul>
 <div class="actions">
   {% if tag_create_url %}
-    <li><a href="{{ tag_create_url }}">Add</a></li>
+    <li><a id="add_button" href="{{ tag_create_url }}">Add</a></li>
   {% endif %}
 </div>
 {% endblock %}
