@@ -35,7 +35,8 @@ class UserVisitTagsPage(FunctionalTest):
         tag1 = Tag.objects.get_or_create(name='Tag1', project=proj1)
         tag2 = Tag.objects.get_or_create(name='Tag2', project=proj1)
 
-        self.browser.get(self.live_server_url + f"/projects/{proj1.name}/tags/")
+        self.browser.get(self.live_server_url +
+                         f"/projects/{proj1.name}/tags/")
 
         # user checks header
         h1 = self.browser.find_element_by_tag_name("h1")
@@ -63,7 +64,8 @@ class UserVisitTagsPage(FunctionalTest):
         other_project, created = Project.objects.get_or_create(name="test1")
         tag3 = Tag.objects.create(name='Tag3', project=other_project)
 
-        self.browser.get(self.live_server_url + f"/projects/{proj1.name}/tags/")
+        self.browser.get(self.live_server_url +
+                         f"/projects/{proj1.name}/tags/")
 
         # user checks header
         h1 = self.browser.find_element_by_tag_name("h1")
