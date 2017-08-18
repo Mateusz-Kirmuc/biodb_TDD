@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from projects.views import ProjectListView
 
+app_name = "biodb"
 urlpatterns = [
     # Examples:
     # url(r'^$', 'biodb.views.home', name='home'),

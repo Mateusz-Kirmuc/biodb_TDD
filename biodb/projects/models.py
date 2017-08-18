@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 # Create your models here.
 
 
@@ -17,3 +18,24 @@ z0123456789_"
 
     def get_absolute_url(self):
         return "/projects/%s/robjects/" % self.name
+
+
+class Tag(models.Model):
+    """
+        Model for keywords assigned to a Robject
+        Require: name unique for a project.
+    """
+    name = models.SlugField(max_length=20, unique=True)
+    project = models.ForeignKey(to=Project)
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+    def clean(self):
+        self.name = slugify(self.name)
+
+    def get_absolute_url(self):
+        return "/projects/%s/tags/" % (self.project.name)

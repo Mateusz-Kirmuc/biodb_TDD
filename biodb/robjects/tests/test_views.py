@@ -3,7 +3,6 @@ from robjects.models import Robject
 from projects.models import Project
 from django.contrib.auth.models import User
 
-
 class RObjectsListViewTests(FunctionalTest):
     def test_anonymous_user_gets_robjects_page(self):
         Project.objects.create(name="PROJECT_1")
@@ -26,7 +25,6 @@ class RObjectsListViewTests(FunctionalTest):
 
         self.assertIn(robj1, response.context["robject_list"])
         self.assertIn(robj2, response.context["robject_list"])
-
 
 class SearchRobjectsViewTests(FunctionalTest):
     def test_view_renders_robjects_page_template(self):

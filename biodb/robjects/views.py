@@ -7,10 +7,12 @@ from django.db.models import TextField
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
-from django.views.generic import View
+from biodb.mixins import LoginRequiredMixin
+from django.views.generic import View, DetailView, ListView
 from projects.models import Project
 from robjects.models import Robject
-
+from robjects.models import Tag
+from django.core.exceptions import PermissionDenied
 
 # Create your views here.
 
@@ -102,7 +104,7 @@ class SearchRobjectsView(LoginRequiredMixin, View):
             # exted queries by foreign fields
             if foreign_models_fields:
                 for foreign_field, model_fields \
-                 in foreign_models_fields.items():
+                        in foreign_models_fields.items():
                     queries += [Q(**{'%s__%s__icontains' %
                                      (foreign_field.name, f.name): term})
                                 for f in model_fields]
@@ -110,6 +112,11 @@ class SearchRobjectsView(LoginRequiredMixin, View):
             if queries:
                 for qs_query in queries:
                     qs = qs | qs_query
-        # project reqired
 
+
+        # project reqired
         return self.model.objects.filter(qs, project__name=project_name)
+
+
+class RobjectDetailView(DetailView):
+    model = Robject
