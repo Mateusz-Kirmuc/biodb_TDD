@@ -181,3 +181,63 @@ class TagEditViewTest(FunctionalTest):
         # Check if succesfully posted request
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(tag1.name, 'more_than_20_characters_string')
+
+
+class TagDeleteViewTest(FunctionalTest):
+    def test_renders_given_template(self):
+        proj1 = Project.objects.create(name="project_1")
+        tag1 = Tag.objects.create(name='Tag1', project=proj1)
+        self.login_default_user()
+        response = self.client.get(f"/projects/project_1/tags/{tag1.id}/delete/")
+        self.assertTemplateUsed(response, "tags/tag_delete.html")
+
+    def test_login_requirement(self):
+        proj1 = Project.objects.create(name="project_1")
+        tag1 = Tag.objects.create(name='Tag1', project=proj1)
+        response = self.client.get(f"/projects/project_1/tags/{tag1.id}/delete/")
+        # New in Django 1.11. Imstead of LoginRequiredMixin using method decorators
+        # It redirects to permited page, expected status code 302
+        self.assertEqual(response.status_code, 302)
+        # added extra asssertion to check redirect page
+        self.assertTemplateUsed('accounts/login.html')
+
+    def test_get_return_404_for_no_tagid(self):
+        self.login_default_user()
+        proj1 = Project.objects.create(name="project_1")
+        response = self.client.post(
+            "/projects/project_1/tags//delete/", {'name': 'tag_name'})
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_return_404_for_not_created_tagid(self):
+        self.login_default_user()
+        proj1 = Project.objects.create(name="project_1")
+        response = self.client.post(
+            f"/projects/project_1/tags/12345/delete/", {'name': 'tag_name'})
+        self.assertEqual(response.status_code, 404)
+
+    def test_tag_with_not_existed_project_name(self):
+        proj1 = Project.objects.create(name="project_1")
+        self.login_default_user()
+        tag1, created = Tag.objects.get_or_create(name='Tag1', project=proj1)
+        response = self.client.post(
+            f"/projects/random_project/tags/{tag1.id}/delete/", {'name': 'tag1_name'})
+        # Check if status is correct, template
+        self.assertEqual(response.status_code, 302)
+        self.assertTemplateUsed('/tags/tag_list.html')
+
+    def test_tag_was_deleted_from_tag_list(self):
+        proj1 = Project.objects.create(name="project_1")s
+        self.login_default_user()
+        tag1, created = Tag.objects.get_or_create(name='Tag1', project=proj1)
+        response = self.client.post(
+            f"/projects/{proj1.name}/tags/{tag1.id}/delete/", {'name': 'tag1_name'})
+        # Check id status is 302 - redirect to tag_list page
+        self.assertNotContains(response, 'Tag1', status_code=302)
+        self.assertTemplateUsed('/tags/tag_list.html')
+
+    def test_get_succes_url(self):
+        proj = Project.objects.create(name="top_secret")
+        tag = Tag.objects.create(name="Tag1", project=proj)
+        response = self.client.post(
+            f"/projects/{proj.name}/tags/{tag.id}/delete/", {'name': 'tag'})
+        self.assertTemplateUsed('/tags/tag_list.html')
