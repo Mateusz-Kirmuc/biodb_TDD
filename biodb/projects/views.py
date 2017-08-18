@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 # from django.http import HttpResponse
 # from django.shortcuts import render
-# from django.urls import reverse_lazy
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 # from django.views.generic import View
 from django.views.generic import CreateView
@@ -89,4 +89,6 @@ class TagEditView(UpdateView):
 class TagDeleteView(DeleteView):
     model = Tag
     template_name = "tags/tag_delete.html"
-    # success_url = "/projects/%s/tags/" % (self.project.name)
+
+    def get_success_url(self):
+        return reverse('projects:tag_list', args=[self.object.project.name])
