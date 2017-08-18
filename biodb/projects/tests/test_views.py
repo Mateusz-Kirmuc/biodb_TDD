@@ -34,7 +34,7 @@ class TagsListViewTestCase(FunctionalTest):
         proj1 = Project.objects.create(name="project_1")
         self.login_default_user()
         response = self.client.get("/projects/project_1/tags/")
-        self.assertTemplateUsed(response, "projects/tag_list.html")
+        self.assertTemplateUsed(response, "tags/tag_list.html")
 
     def test_tags_in_correct_project(self):
         proj1 = Project.objects.create(name="project_1")
@@ -73,7 +73,7 @@ class TagCreateViewTestCase(FunctionalTest):
         proj1 = Project.objects.create(name="project_1")
         self.login_default_user()
         response = self.client.get("/projects/project_1/tags/create/")
-        self.assertTemplateUsed(response, "projects/tag_form.html")
+        self.assertTemplateUsed(response, "tags/tag_create.html")
 
     def test_login_requirement(self):
         # Using LoginRequiredMixin, it returns 403 Forbiden error
@@ -115,7 +115,7 @@ class TagEditViewTest(FunctionalTest):
         tag1 = Tag.objects.create(name='Tag1', project=proj1)
         self.login_default_user()
         response = self.client.get(f"/projects/project_1/tags/{tag1.id}/edit/")
-        self.assertTemplateUsed(response, "projects/tag_create.html")
+        self.assertTemplateUsed(response, "tags/tag_update.html")
 
     def test_login_requirement(self):
         proj1 = Project.objects.create(name="project_1")
@@ -156,10 +156,10 @@ class TagEditViewTest(FunctionalTest):
         self.login_default_user()
         tag1, created = Tag.objects.get_or_create(name='Tag1', project=proj1)
         response = self.client.post(
-            f"/projects/projedsadct_1/tags/{tag1.id}/edit/", {'name': 'tag1_name'})
-        # Check if status is correct and template
-        self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed('/projects/project_1/tags/')
+            f"/projects/random_project/tags/{tag1.id}/edit/", {'name': 'tag1_name'})
+        # Check if status is correct, template
+        self.assertEqual(response.status_code, 302)
+        self.assertTemplateUsed('/tags/tag_list.html')
 
     def test_get_status_302_for_editing_tag_name_that_already_exists(self):
         proj1 = Project.objects.create(name="project_1")
