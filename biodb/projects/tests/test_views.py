@@ -99,10 +99,12 @@ class TagCreateViewTestCase(FunctionalTest):
         proj1 = Project.objects.create(name="project_1")
         response1 = self.client.post(
             "/projects/project_1/tags/create/", {'name': 'same_tag'})
-        self.assertNotIn('Tag with this Name already exists', str(response1.content))
+        self.assertNotIn('Tag with this Name already exists',
+                         str(response1.content))
         response2 = self.client.post(
             "/projects/project_1/tags/create/", {'name': 'same_tag'})
-        self.assertIn('Tag with this Name already exists', str(response2.content))
+        self.assertIn('Tag with this Name already exists',
+                      str(response2.content))
         tags = Tag.objects.all()
         self.assertEqual(len(tags), 1)
 
@@ -113,7 +115,7 @@ class TagEditViewTest(FunctionalTest):
         tag1 = Tag.objects.create(name='Tag1', project=proj1)
         self.login_default_user()
         response = self.client.get(f"/projects/project_1/tags/{tag1.id}/edit/")
-        self.assertTemplateUsed(response, "projects/tag_update_form.html")
+        self.assertTemplateUsed(response, "projects/tag_create.html")
 
     def test_login_requirement(self):
         proj1 = Project.objects.create(name="project_1")
@@ -148,7 +150,6 @@ class TagEditViewTest(FunctionalTest):
         # Check if status is correct and template
         self.assertEqual(response.status_code, 302)
         self.assertTemplateUsed('/projects/project_1/tags/')
-
 
     def test_tag_with_not_existed_project_name(self):
         proj1 = Project.objects.create(name="project_1")
