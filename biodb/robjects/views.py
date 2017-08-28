@@ -44,14 +44,13 @@ def robjects_pdf_view(request, *args, **kwargs):
 
     pdf_file = HTML(string=rendered_html).write_pdf(
         stylesheets=[CSS(settings.BASE_DIR + '/robjects' +
-                         settings.STATIC_URL + 'robjects/css/raport_pdf.css')]
+                         settings.STATIC_URL + 'robjects/css/raport_pdf.css')],
     )
-
     # Add file object to response
     http_response = HttpResponse(pdf_file, content_type='application/pdf')
     http_response['Content-Disposition'] = 'filename="robject_report.pdf"'
-    return http_response
     # return response
+    return http_response
 
 
 class SearchRobjectsView(LoginRequiredMixin, View):
