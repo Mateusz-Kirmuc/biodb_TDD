@@ -33,13 +33,11 @@ def robjects_pdf_view(request, *args, **kwargs):
     from weasyprint import HTML, CSS
 
     pk = (kwargs['pk'])
-    print(args, '\nargs')
     # create template from file
     html_template = get_template('robjects/robject_raport_pdf.html')
     # get user fro request
     # render template
     robject = Robject.objects.get(pk=pk)
-    project_name = robject.project.name
     rendered_html = html_template.render(
         {'pk': pk, 'object': robject}).encode(encoding="UTF-8")
     # generate pdf from rendered html
