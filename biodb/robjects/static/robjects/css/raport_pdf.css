@@ -1,0 +1,45 @@
+<style>
+html, body { font: 12pt/1.25 Fontin, serif !important; -weasy-hyphens: auto }
+body { text-align: justify; padding: 0 !important;
+       background: none !important; }
+hr.navbar { display: none }
+h1 { page-break-before: auto !important; -weasy-bookmark-level: none;
+     margin-top: 0 !important; }
+h1, h2, h3, h4 {
+    text-align: left;
+    font-family: inherit !important;
+    font-size: 20px
+}
+h1  {
+  text-align: center;
+  font-size: 24px
+
+}
+
+
+table {
+    border-collapse: collapse;
+    font-size: 12px;
+}
+caption, h3{
+    font-size: 14px;
+    padding: : 8px;
+    line-height: 1.8;
+    font-weight: bold;
+    border-bottom: solid 1px;
+}
+
+th {
+    text-align: left;
+    padding: 8px;
+    border-collapse: collapse;
+    width: 150px;
+    text-transform: capitalize;
+
+}
+td {
+    text-align: left;
+    padding: 8px;
+    border-collapse: collapse;
+    width: 80%;
+}
