@@ -2,19 +2,19 @@
 import re
 from biodb.mixins import LoginRequiredMixin
 from django.db.models import CharField
+from biodb.mixins import LoginRequiredMixin
 from django.db.models import ForeignKey
 from django.db.models import TextField
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import render
-from biodb.mixins import LoginRequiredMixin
-from django.views.generic import View, DetailView, ListView
+from django.views.generic import DetailView
+from django.views.generic import ListView
+from django.views.generic import View
 from projects.models import Project
-from easy_pdf.views import PDFTemplateResponseMixin
 from robjects.models import Robject
 from robjects.models import Tag
-from django.core.exceptions import PermissionDenied
 
 
 def robjects_list_view(request, project_name):
@@ -46,11 +46,12 @@ def robjects_pdf_view(request, *args, **kwargs):
         stylesheets=[CSS(settings.BASE_DIR + '/robjects' +
                          settings.STATIC_URL + 'robjects/css/raport_pdf.css')]
     )
+
     # Add file object to response
     http_response = HttpResponse(pdf_file, content_type='application/pdf')
     http_response['Content-Disposition'] = 'filename="robject_report.pdf"'
-    # return response
     return http_response
+    # return response
 
 
 class SearchRobjectsView(LoginRequiredMixin, View):
