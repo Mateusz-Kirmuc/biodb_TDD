@@ -6,15 +6,15 @@ from django.db.models import ForeignKey
 from django.db.models import TextField
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
 from django.shortcuts import render
 from biodb.mixins import LoginRequiredMixin
 from django.views.generic import View, DetailView, ListView
 from projects.models import Project
+from easy_pdf.views import PDFTemplateResponseMixin
 from robjects.models import Robject
 from robjects.models import Tag
 from django.core.exceptions import PermissionDenied
-
-# Create your views here.
 
 
 def robjects_list_view(request, project_name):
@@ -24,6 +24,35 @@ def robjects_list_view(request, project_name):
     robject_list = Robject.objects.filter(project=project)
     return render(request, "projects/robjects_list.html",
                   {"robject_list": robject_list, "project_name": project_name})
+
+
+def robjects_pdf_view(request, *args, **kwargs):
+    from django.template.loader import get_template
+    from django.template import RequestContext
+    from django.conf import settings
+    from weasyprint import HTML, CSS
+
+    pk = (kwargs['pk'])
+    print(args, '\nargs')
+    # create template from file
+    html_template = get_template('robjects/robject_raport_pdf.html')
+    # get user fro request
+    # render template
+    robject = Robject.objects.get(pk=pk)
+    project_name = robject.project.name
+    rendered_html = html_template.render(
+        {'pk': pk, 'object': robject}).encode(encoding="UTF-8")
+    # generate pdf from rendered html
+
+    pdf_file = HTML(string=rendered_html).write_pdf(
+        stylesheets=[CSS(settings.BASE_DIR + '/robjects' +
+                         settings.STATIC_URL + 'robjects/css/raport_pdf.css')]
+    )
+    # Add file object to response
+    http_response = HttpResponse(pdf_file, content_type='application/pdf')
+    http_response['Content-Disposition'] = 'filename="robject_report.pdf"'
+    # return response
+    return http_response
 
 
 class SearchRobjectsView(LoginRequiredMixin, View):
@@ -113,10 +142,13 @@ class SearchRobjectsView(LoginRequiredMixin, View):
                 for qs_query in queries:
                     qs = qs | qs_query
 
-
         # project reqired
         return self.model.objects.filter(qs, project__name=project_name)
 
 
 class RobjectDetailView(DetailView):
     model = Robject
+
+
+class ExcelRobjectDetailView():
+    pass
