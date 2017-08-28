@@ -9,9 +9,6 @@ from robjects.models import Robject
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver import ActionChains
-
 
 @tag('slow')
 class UserVisitRobjecPDFGeneratePage(FunctionalTest):
@@ -27,6 +24,7 @@ class UserVisitRobjecPDFGeneratePage(FunctionalTest):
         self.browser.get(
             self.live_server_url +
             f"/projects/{proj.name}/robjects/{robj1.id}/raport_pdf/")
+
 
 
         # User ckecks robject name
