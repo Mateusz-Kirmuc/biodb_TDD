@@ -12,9 +12,36 @@ from django.views.generic import View, DetailView, ListView
 from projects.models import Project
 from robjects.models import Robject
 from robjects.models import Tag
-from django.core.exceptions import PermissionDenied
-
+from django.http import HttpResponse
 # Create your views here.
+
+
+def robjects_export_to_excel_view(request, *args, **kwargs):
+    ''' Function handle export to excel view '''
+    from openpyxl import Workbook
+    from datetime import datetime
+
+    # help function
+    def str_is_html(field):
+        ''' Returns true if passed string contains html. '''
+        field = unicode(field)
+        return bool(BeautifulSoup(field, "html.parser").find())
+
+    print(kwargs, args)
+    # create workbook
+    wb = Workbook()
+    # capture active worksheet
+    ws = wb.active
+    # filling first row by fields names
+    ws.append([field.name for field in Robject._meta.fields] + ["files"])
+
+    # preparing output
+    output = HttpResponse()
+    file_name = "report.xlsx"
+    output['Content-Disposition'] = 'attachment; filename=' + file_name
+    # saving workbook to output
+    wb.save(output)
+    return output
 
 
 def robjects_list_view(request, project_name):
