@@ -9,7 +9,9 @@ from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 from biodb.mixins import LoginRequiredMixin
-from django.views.generic import View, DetailView, ListView
+from django.views.generic import DetailView
+from django.views.generic import ListView
+from django.views.generic import View
 from projects.models import Project
 from robjects.models import Robject
 from robjects.models import Tag
