@@ -1,75 +1,113 @@
 {% extends "biodb/base.html" %}
 
 {% block content %}
-<div class="main">
-  <div class="names">
-    <h1>Name: {{ object.name }}</h1>
+
+<div id="editor"></div>
+<input id="cmd" type="button" value="Generate PDF with js">
+<script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/0.9.0rc1/jspdf.min.js"></script>
+{# <script src="generate_pdf.js"></script>#}
+
+<script type="text/javascript">
+var doc = new jsPDF();
+var specialElementHandlers = {
+    '#editor': function (element, renderer) {
+        return true;
+    }
+};
+
+$('#cmd').click(function () {
+    doc.fromHTML($('#content').html(), 15, 15, {
+        'width': 170,
+            'elementHandlers': specialElementHandlers
+    });
+    doc.save('robject_detail.pdf');
+});
+</script>
+
+{# "{% url 'robjects:robject_details_pdf project.name robject.id' %}"#}
+
+
+<input type="button" value="Geneerate Pdf with easy_print">
+
+
+
+<div id="content">
+  <div class="main">
+    <div class="names">
+      <form action="/action_page.php">
+
+      <h1>Name: {{ object.name }}</h1>
+    </div>
+    <div class="tags">
+        <h2><input type="checkbox" name="section" value="Tags" >Tags:</h2>
+      <span class="tags">
+          {% for tag in object.tags.all %}
+          <span>{{ tag }},</span>
+          {% endfor %}
+      </span>
+    </div>
   </div>
-
-  <div class="tags">
-      <h2>Tags:</h2>
-    <span class="tags">
-        {% for tag in object.tags.all %}
-        <span>{{ tag }},</span>
-        {% endfor %}
-    </span>
-  </div>
-</div>
-<div class="general">
-    <h2>General:</h2>
-  <table id="general_table">
-    {% for field, value in object.get_general_fields %}
-    <tr>
-      <th>{{ field }}</th>
-      <td>{{ value }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-</div>
-
-<div class="details">
-    <h2>Details:</h2>
-  <table id="detail_table">
-    {% for field, value in object.get_detail_fields %}
-    <tr>
-      <th>{{ field }}</th>
-      <td>{{value}}</td>
-    </tr>
-    {% endfor %}
-  </table>
-</div>
-
-<div class="section links">
-  <h2>Links:</h2>
-  <ul>
-    {% with request.resolver_match.kwargs.project_name as project_name %}
-
-      <li><a href="#">Edit</a></li>
-      <li><a href="#">Delete</a></li>
-      <li><a href="#">Add to library</a></li>
-
-    {% endwith %}
-  </ul>
-</div>
-<div class="section similarity">
-  <h2>Similarity</h2>
-  Add similarity here
-</div>
-
-<div class="section history">
-  <h2> History table </h2>
-  Add history table here
-
-</div>
-<div class="section sample_choose">
-  <h2> Samples </h2>
-    <div class="content">
-      {% for sample in object.get_sample %}
-      <a>{{ sample }}</a>
+  <div class="general">
+      <h2> General:</h2>
+    <table id="general_table">
+      {% for field, value in object.get_general_fields %}
+      <tr>
+        <th>{{ field }}</th>
+        <td>{{ value }}</td>
+      </tr>
       {% endfor %}
+    </table>
+  </div>
+
+  <div class="details">
+      <h2> Details:</h2>
+    <table id="detail_table">
+      {% for field, value in object.get_detail_fields %}
+      <tr>
+        <th>{{ field }}</th>
+        <td>{{value}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="section links">
+    <h2> >Links:</h2>
+    <ul>
+      {% with request.resolver_match.kwargs.project_name as project_name %}
+
+        <li><a class="edit" href="#"> Edit </a></li>
+        <li><a class="delete" href="#"> Delete </a></li>
+        <li><a class="add" href="#"> Add to library </a></li>
+
+      {% endwith %}
+    </ul>
+  </div>
+  <div class="section similarity">
+    <h2>Similarity</h2>
+    Add similarity here
+  </div>
+
+  <div class="section history">
+    <h2> >History table </h2>
+    Add history table here
+
+  </div>
+  <div class="section sample_choose">
+    <h2>  Samples </h2>
+      <div class="content">
+        {% for sample in object.get_sample %}
+        <a>{{ sample }}</a>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>
+
+<input type="submit" value="Geneerate Pdf">
+</form>
+
 
 {% endblock %}
 
