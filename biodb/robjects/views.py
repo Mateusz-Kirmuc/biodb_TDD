@@ -1,6 +1,7 @@
 """Views for robject search."""
 import re
 from biodb.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.db.models import CharField
 from biodb.mixins import LoginRequiredMixin
 from django.db.models import ForeignKey
@@ -9,6 +10,7 @@ from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
 from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import View
@@ -16,7 +18,9 @@ from projects.models import Project
 from robjects.models import Robject
 from robjects.models import Tag
 
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def robjects_list_view(request, project_name):
     if not request.user.is_authenticated():
         raise PermissionDenied
@@ -25,7 +29,7 @@ def robjects_list_view(request, project_name):
     return render(request, "projects/robjects_list.html",
                   {"robject_list": robject_list, "project_name": project_name})
 
-
+@login_required
 def robjects_pdf_view(request, *args, **kwargs):
     from django.template.loader import get_template
     from django.template import RequestContext
