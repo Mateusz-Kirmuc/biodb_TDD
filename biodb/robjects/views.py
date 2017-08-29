@@ -4,6 +4,7 @@ from biodb.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.db.models import CharField
 from biodb.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.db.models import ForeignKey
 from django.db.models import TextField
 from django.db.models import Q
@@ -18,7 +19,6 @@ from projects.models import Project
 from robjects.models import Robject
 from robjects.models import Tag
 
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def robjects_list_view(request, project_name):
@@ -28,6 +28,7 @@ def robjects_list_view(request, project_name):
     robject_list = Robject.objects.filter(project=project)
     return render(request, "projects/robjects_list.html",
                   {"robject_list": robject_list, "project_name": project_name})
+
 
 @login_required
 def robjects_pdf_view(request, *args, **kwargs):
