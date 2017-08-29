@@ -2,6 +2,7 @@ from unit_tests.base import FunctionalTest
 from robjects.models import Robject
 from projects.models import Project
 from django.contrib.auth.models import User
+import PyPDF2
 
 class RObjectsListViewTests(FunctionalTest):
     def test_anonymous_user_gets_robjects_page(self):
@@ -25,6 +26,7 @@ class RObjectsListViewTests(FunctionalTest):
 
         self.assertIn(robj1, response.context["robject_list"])
         self.assertIn(robj2, response.context["robject_list"])
+
 
 class SearchRobjectsViewTests(FunctionalTest):
     def test_view_renders_robjects_page_template(self):
@@ -170,3 +172,14 @@ class SearchRobjectsViewTests(FunctionalTest):
             robj,
             list(resp.context["robject_list"])
         )
+
+
+class Robjects_pdf_view_test(FunctionalTest):
+    def test_user_generfates_def(self):
+
+        user, proj = self.default_set_up_for_robjects_page()
+        robj = Robject.objects.create(author=user, project=proj)
+        response = self.client.get(
+        f"/projects/{proj.name}/robjects/{robj.id}/raport_pdf/")
+        
+        pdf =  PyPDF2.PdfFileReader(response.content)
