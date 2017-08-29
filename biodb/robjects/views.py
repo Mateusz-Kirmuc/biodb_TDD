@@ -20,7 +20,6 @@ from robjects.models import Robject
 from robjects.models import Tag
 
 
-@login_required
 def robjects_list_view(request, project_name):
     if not request.user.is_authenticated():
         raise PermissionDenied
