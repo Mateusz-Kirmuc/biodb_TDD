@@ -12,7 +12,7 @@ from selenium.common.exceptions import NoSuchElementException
 
 @tag('slow')
 class UserVisitRobjecPDFGeneratePage(FunctionalTest):
-    def test_user_checks_robject_name(self):
+    def test_logged - user_checks_robject_name(self):
         # Create sample project and robject
         usr, proj = self.project_set_up_using_default_data()
 
@@ -24,7 +24,14 @@ class UserVisitRobjecPDFGeneratePage(FunctionalTest):
         self.browser.get(
             self.live_server_url +
             f"/projects/{proj.name}/robjects/{robj1.id}/raport_pdf/")
+        content = self.wait_for(
+            lambda: self.browser.find_element_by_css_selector(".textLayer"))
+        self.assertIn('robject_1', content.text)
 
-
-
-        # User ckecks robject name
+    def test_annonymous_user_visits_pdf_page(self):
+        # Create sample robjects basic informations.
+        proj = Project.objects.create(name="project_1")
+        robj1 = Robject.objects.create(project=proj, name="robject_1")
+        robid = robj1.id
+        # Annonymus user can not visit raport pdf page.
+        self.annonymous_user("/projects/project_1/robjects/1/raport_pdf/")
