@@ -25,3 +25,10 @@ class UserGeneratesExcel(FunctionalTest):
         self.browser.get(
             self.live_server_url +
             f"/projects/{proj.name}/robjects/{robj1.id}/excel/")
+
+
+        try:
+            alert = self.browser.switch_to_alert()
+            alert.accept()
+        except:
+            print ("no alert to accept")
