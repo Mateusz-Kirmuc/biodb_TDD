@@ -2,6 +2,11 @@ from unit_tests.base import FunctionalTest
 from robjects.models import Robject
 from projects.models import Project
 from django.contrib.auth.models import User
+from io import StringIO
+from django.test import Client
+from io import BytesIO
+from openpyxl import load_workbook
+
 
 class RObjectsListViewTests(FunctionalTest):
     def test_anonymous_user_gets_robjects_page(self):
@@ -25,6 +30,7 @@ class RObjectsListViewTests(FunctionalTest):
 
         self.assertIn(robj1, response.context["robject_list"])
         self.assertIn(robj2, response.context["robject_list"])
+
 
 class SearchRobjectsViewTests(FunctionalTest):
     def test_view_renders_robjects_page_template(self):
@@ -170,3 +176,38 @@ class SearchRobjectsViewTests(FunctionalTest):
             robj,
             list(resp.context["robject_list"])
         )
+
+
+class Robjects_export_to_excel_view_test(FunctionalTest):
+    def test_export_to_excel(self):
+        # logged user goes to biodb to export a excel file
+        user, proj = self.default_set_up_for_robjects_page()
+        robj = Robject.objects.create(
+            author=user, project=proj, name="robject_1")
+
+        response = self.client.get(f"/projects/{proj.name}/robjects/{robj.id}/excel/")
+        # assert attachment name as report.xlsx
+        self.assertEqual(response.get('Content-Disposition'),
+                         "attachment; filename=report.xlsx")
+
+        table_heder_list = ['id', 'project', 'author', 'name', 'create_by',
+                            'create_date', 'modify_date', 'modify_by', 'notes',
+                            'ligand', 'receptor', 'ref_seq', 'mod_seq',
+                            'description', 'bibliography', 'ref_commercial',
+                            'ref_clinical', 'files']
+        #assert headers are the same as robject atrinutes names
+        with BytesIO(response.content) as f:
+            self.assertIsNotNone(f)
+            wb = load_workbook(f)
+            ws = wb.active
+            first_row_cells = []
+            for row in ws.rows:
+                for cell in row:
+                    first_row_cells.append(cell.value)
+                break
+        self.assertSequenceEqual(first_row_cells, table_heder_list)
+
+        # if status code of requeszt is 200 -
+        # The request was successfully received,
+        # understood, and accepted
+        self.assertEqual(response.status_code, 200)
