@@ -62,3 +62,16 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url + f"/projects/{proj}/robjects/")
 
         return user, proj
+
+    def annonymous_user(self, page_url):
+        '''Annonymous_user visites current page from page_url.
+
+            Method tests if content of page is correct.
+            when using decorators @login_required there will be no
+            403 forbiden errorm
+
+            Checks if the user is still on 'Welcome to BioDB' main page.
+        '''
+        self.browser.get(self.live_server_url + page_url)
+        content = self.browser.find_element_by_tag_name("body")
+        assertion = self.assertIn('Welcome to BioDB', content.text)
