@@ -52,7 +52,7 @@ def robjects_pdf_view(request, *args, **kwargs):
     )
     # Add file object to response
     http_response = HttpResponse(pdf_file, content_type='application/pdf')
-    http_response['Content-Disposition'] = 'filename="robject_report.pdf"'
+    http_response['Content-Disposition'] = 'filename="robject_raport.pdf"'
     # return response
     return http_response
 
