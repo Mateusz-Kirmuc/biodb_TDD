@@ -176,10 +176,18 @@ class SearchRobjectsViewTests(FunctionalTest):
 
 class Robjects_pdf_view_test(FunctionalTest):
     def test_user_generfates_def(self):
-
+        # logged user goes to biodb to export a excel file
         user, proj = self.default_set_up_for_robjects_page()
-        robj = Robject.objects.create(author=user, project=proj)
-        response = self.client.get(
-        f"/projects/{proj.name}/robjects/{robj.id}/raport_pdf/")
-        
-        pdf =  PyPDF2.PdfFileReader(response.content)
+        robj = Robject.objects.create(
+            author=user, project=proj, name="robject_1")
+
+        response = self.client.get(f"/projects/{proj.name}/robjects/{robj.id}/raport_pdf/")
+        # assert attachment name as robject_raport.pdf
+        self.assertEqual(response.get('Content-Disposition'),
+                        'filename="robject_raport.pdf"')
+
+        print(response.content)
+        # if status code of requeszt is 200 -
+        # The request was successfully received,
+        # understood, and accepted
+        self.assertEqual(response.status_code, 200)
