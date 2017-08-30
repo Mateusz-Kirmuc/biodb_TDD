@@ -1,9 +1,9 @@
 import PyPDF2
-from unit_tests.base import FunctionalTest
-from robjects.models import Robject
-from projects.models import Project
 from django.contrib.auth.models import User
 from io import BytesIO
+from projects.models import Project
+from robjects.models import Robject
+from unit_tests.base import FunctionalTest
 
 
 class RObjectsListViewTests(FunctionalTest):

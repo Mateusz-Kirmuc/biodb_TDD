@@ -1,10 +1,10 @@
-from django.test import TestCase
-from robjects.models import Robject
-from django.contrib.auth.models import User
-from projects.models import Project
-from projects.models import Tag
-from django.db import models
 from ckeditor.fields import RichTextField
+from django.contrib.auth.models import User
+from django.db import models
+from django.test import TestCase
+from projects.models import Project
+from robjects.models import Robject
+from projects.models import Tag
 
 
 class RobjectModelTestCase(TestCase):

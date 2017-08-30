@@ -1,15 +1,17 @@
-from projects.models import Project, Tag
 from ckeditor.fields import RichTextField
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-#from simple_history.models import HistoricalRecords
 from django.forms.models import model_to_dict
+from projects.models import Project
+from projects.models import Tag
+#from simple_history.models import HistoricalRecords
 
 
 class Robject(models.Model):
     """
-        Research Object containig data about research structures like protein or ligands or both (conjugates)
+        Research Object containig data about research structures
+        like protein or ligands or both (conjugates)
     """
     project = models.ForeignKey(to=Project, null=True)
     author = models.ForeignKey(
@@ -58,7 +60,7 @@ class Robject(models.Model):
 
     def get_detail_fields(self):
         '''
-            Return fields: ligand, receptor, ref_seq, mod_seq, 
+            Return fields: ligand, receptor, ref_seq, mod_seq,
             description, bibliography, ref_commercial, ref_clinical, notes
         '''
         fields = ["ligand", "receptor", "ref_seq", "mod_seq", "description",
