@@ -1,8 +1,10 @@
+import PyPDF2
 from unit_tests.base import FunctionalTest
 from robjects.models import Robject
 from projects.models import Project
 from django.contrib.auth.models import User
-import PyPDF2
+from io import BytesIO
+
 
 class RObjectsListViewTests(FunctionalTest):
     def test_anonymous_user_gets_robjects_page(self):
@@ -175,7 +177,7 @@ class SearchRobjectsViewTests(FunctionalTest):
 
 
 class Robjects_pdf_view_test(FunctionalTest):
-    def test_user_generfates_def(self):
+    def test_user_generfates_pdf(self):
         # logged user goes to biodb to export a excel file
         user, proj = self.default_set_up_for_robjects_page()
         robj = Robject.objects.create(
@@ -184,9 +186,17 @@ class Robjects_pdf_view_test(FunctionalTest):
         response = self.client.get(f"/projects/{proj.name}/robjects/{robj.id}/raport_pdf/")
         # assert attachment name as robject_raport.pdf
         self.assertEqual(response.get('Content-Disposition'),
-                        'filename="robject_raport.pdf"')
-
-        print(response.content)
+                         'filename="robject_raport.pdf"')
+        # check if pdf_file is not empty
+        pdf_file = BytesIO(response.content)
+        self.assertIsNotNone(pdf_file)
+        # open and read pdf file
+        read_pdf = PyPDF2.PdfFileReader(pdf_file)
+        number_of_pages = read_pdf.getNumPages()
+        page = read_pdf.getPage(0)
+        page_content = page.extractText()
+        # chcek if robjects name is on the page
+        self.assertIn('robject_1', page_content)
         # if status code of requeszt is 200 -
         # The request was successfully received,
         # understood, and accepted
