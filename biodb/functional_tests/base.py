@@ -12,7 +12,12 @@ class FunctionalTest(StaticLiveServerTestCase):
     MAX_WAIT = 10
 
     def setUp(self):
-        self.browser = webdriver.Firefox()
+        fp = webdriver.FirefoxProfile()
+        fp.set_preference('browser.download.folderList', 2) # custom location
+        fp.set_preference('browser.download.manager.showWhenStarting', False)
+        fp.set_preference('browser.download.dir', '/tmp')
+        fp.set_preference('browser.helperApps.neverAsk.openFile', '*.*')
+        self.browser = webdriver.Firefox(firefox_profile=fp)
 
     def tearDown(self):
         self.browser.quit()
