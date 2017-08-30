@@ -202,3 +202,40 @@ class Robjects_pdf_view_test(FunctionalTest):
         # The request was successfully received,
         # understood, and accepted
         self.assertEqual(response.status_code, 200)
+
+
+    def test_robjects_selected_pdf_view(self):
+        # logged user goes to biodb to export a excel file
+        user, proj = self.default_set_up_for_robjects_page()
+        robj1 = Robject.objects.create(
+            author=user, project=proj, name="robject_1")
+        robj2 = Robject.objects.create(
+            author=user, project=proj, name="robject_2")
+        # get response for two checked robjects
+        response = self.client.post(
+            f"/projects/{proj.name}/robjects/raport_pdf/", {'checkbox': ['1', '2']})
+        # assert attachment name as robject_raport.pdf
+        # assert attachment name as robject_raport.pdf
+        self.assertEqual(response.get('Content-Disposition'),
+                         'filename="robject_raport.pdf"')
+        # check if pdf_file is not empty
+        pdf_file = BytesIO(response.content)
+        self.assertIsNotNone(pdf_file)
+        # open and read pdf file
+        read_pdf = PyPDF2.PdfFileReader(pdf_file)
+        number_of_pages = read_pdf.getNumPages()
+        # check are there two pages - one for robject
+        self.assertEqual(number_of_pages, 2)
+        page = read_pdf.getPage(0)
+        page_content = page.extractText()
+        # chcek if robjects name is in page content
+        self.assertIn('robject_1', page_content)
+        # do teh same with second robject
+        page = read_pdf.getPage(1)
+        page_content = page.extractText()
+        self.assertIn('robject_2', page_content)
+
+        # if status code of requeszt is 200 -
+        # The request was successfully received,
+        # understood, and accepted
+        self.assertEqual(response.status_code, 200)
