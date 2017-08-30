@@ -1,10 +1,11 @@
-from projects.models import Project, Tag
 from ckeditor.fields import RichTextField
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 #from simple_history.models import HistoricalRecords
 from django.forms.models import model_to_dict
+from projects.models import Project
+from projects.models import Tag
 
 
 class Robject(models.Model):

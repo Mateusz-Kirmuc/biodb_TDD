@@ -2,11 +2,12 @@
 import re
 from biodb.mixins import LoginRequiredMixin
 from bs4 import BeautifulSoup
+from django.core.exceptions import PermissionDenied
 from django.db.models import CharField
 from django.db.models import ForeignKey
 from django.db.models import TextField
 from django.db.models import Q
-from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
 from django.shortcuts import render
 from biodb.mixins import LoginRequiredMixin
 from django.views.generic import DetailView
@@ -15,7 +16,6 @@ from django.views.generic import View
 from projects.models import Project
 from robjects.models import Robject
 from robjects.models import Tag
-from django.http import HttpResponse
 # Create your views here.
 
 
