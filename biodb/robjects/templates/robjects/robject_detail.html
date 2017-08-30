@@ -22,16 +22,21 @@
   });
 </script>
 
+<form action="/projects/{{ project_name }}/robjects/{{robject.id}}/raport_pdf/">
+  {% csrf_token %}
+  <input type="button" value="Raport" />
+</form>
+
+
 
 <div id="content">
   <div class="main">
     <div class="names">
-      <form action="/action_page.php">
 
         <h1>Name: {{ object.name }}</h1>
     </div>
     <div class="tags">
-      <h2><input type="checkbox" name="section" value="Tags" >Tags:</h2>
+      <h2>Tags:</h2>
       <span class="tags">
           {% for tag in object.tags.all %}
           <span>{{ tag }},</span> {% endfor %}
@@ -63,7 +68,7 @@
   </div>
 
   <div class="section links">
-    <h2> >Links:</h2>
+    <h2> Links:</h2>
     <ul>
       {% with request.resolver_match.kwargs.project_name as project_name %}
 
@@ -79,7 +84,7 @@
   </div>
 
   <div class="section history">
-    <h2> >History table </h2> Add history table here
+    <h2> History table </h2> Add history table here
 
   </div>
   <div class="section sample_choose">
@@ -91,9 +96,6 @@
   </div>
 </div>
 </div>
-
-<input type="submit" value="Geneerate Pdf">
-</form>
 
 
 {% endblock %} {% block sample %}{% endblock %}
