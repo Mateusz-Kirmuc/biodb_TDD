@@ -4,8 +4,11 @@
   <input type="text" name="query" id="search_input">
   <button id="search_button">Search</button>
 </form>
+<form action="/projects/{{ project_name }}/robjects/raport_pdf/" method="POST">
+  {% csrf_token %}
 <table id="robjects_table">
   <tr id="header_row">
+    <th></th>
     <th>id</th>
     <th>name</th>
     <th>author</th>
@@ -15,6 +18,7 @@
   </tr>
   {% for robject in robject_list %}
   <tr class="row {{ robject.name }}">
+    <td><input type="checkbox" name="checkbox" value="{{robject.id}}" ></td>
     <td>{{ robject.id }}</td>
     <td><a href="{{ robject.get_absolute_url }}">{{ robject.name }}</a></td>
     <td>{{ robject.author }}</td>
@@ -23,4 +27,9 @@
     <td>{{ robject.modify_by }}</td>
   </tr>
   {% endfor %}
-</table> {% endblock %}
+
+</table>
+    <input type="submit" value="Generate detail raport" />
+</form>
+
+{% endblock %}
