@@ -6,6 +6,7 @@ from django.db import models
 #from simple_history.models import HistoricalRecords
 from django.forms.models import model_to_dict
 
+
 class Robject(models.Model):
     """
         Research Object containig data about research structures like protein or ligands or both (conjugates)
@@ -16,7 +17,7 @@ class Robject(models.Model):
     name = models.CharField(max_length=100)
     create_by = models.ForeignKey(
         to=User, related_name="robjects_created_by_user", null=True)
-    create_date = models.DateTimeField (null=True, auto_now_add=True)
+    create_date = models.DateTimeField(null=True, auto_now_add=True)
     modify_date = models.DateTimeField(null=True, auto_now=True)
     modify_by = models.ForeignKey(to=User, null=True)
     tags = models.ManyToManyField(Tag)
@@ -57,7 +58,8 @@ class Robject(models.Model):
 
     def get_detail_fields(self):
         '''
-            Return fields: ligand. receptor. ref_seq, mod_seq, description, bibliography, ref_commercial, ref_clinical, notes
+            Return fields: ligand, receptor, ref_seq, mod_seq, 
+            description, bibliography, ref_commercial, ref_clinical, notes
         '''
         fields = ["ligand", "receptor", "ref_seq", "mod_seq", "description",
                   "bibliography", "ref_commercial", "ref_clinical", "notes"]

@@ -183,7 +183,8 @@ class Robjects_pdf_view_test(FunctionalTest):
         robj = Robject.objects.create(
             author=user, project=proj, name="robject_1")
 
-        response = self.client.get(f"/projects/{proj.name}/robjects/{robj.id}/raport_pdf/")
+        response = self.client.get(
+            f"/projects/{proj.name}/robjects/{robj.id}/raport_pdf/")
         # assert attachment name as robject_raport.pdf
         self.assertEqual(response.get('Content-Disposition'),
                          'filename="robject_raport.pdf"')
@@ -195,7 +196,7 @@ class Robjects_pdf_view_test(FunctionalTest):
         number_of_pages = read_pdf.getNumPages()
         page = read_pdf.getPage(0)
         page_content = page.extractText()
-        # chcek if robjects name is on the page
+        # chcek if robjects name is in page content
         self.assertIn('robject_1', page_content)
         # if status code of requeszt is 200 -
         # The request was successfully received,
