@@ -33,18 +33,23 @@
             color: gray;
         }
     }
+    @media print {
+        #detail_table {page-break-after: always;}
+    }
+    }
   </style>
 </head>
 
+{% if robjects %}
+  {% for robject in robjects %}
 <h1>Raport</h1>
 <div class="names">
-  <h2>{{ object.name }}</h2>
+  <h2>{{ robject.name }}</h2>
 </div>
 
-<div>
   <table id="general_table">
     <caption>General Table </caption>
-    {% for field, value in object.get_general_fields %}
+    {% for field, value in robject.get_general_fields %}
     <tr>
       <th>{{ field }}:</th>
       <td nowrap>{{ value }}</td>
@@ -53,22 +58,18 @@
   </table>
   <table id="detail_table">
     <caption>Detail Table </caption>
-    {% for field, value in object.get_detail_fields %}
+    {% for field, value in robject.get_detail_fields %}
     <tr>
       <th>{{ field }}: </th>
       <td nowrap>{{ value }}</td>
     </tr>
     {% endfor %}
   </table>
-  {% if object.tags.all %}
-<h3>Tags</h3>
-  <ul>
-  {% for tag in object.tags.all %}
-    {{ tag }}
-  {% endfor %}
-</ul>
-{% endif %}
 
+{% endfor %}
 
+{% else %}
+  No objects
+{% endif  %}
   </body>
  </html>
