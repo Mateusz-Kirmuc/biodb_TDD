@@ -12,7 +12,7 @@ from selenium.common.exceptions import NoSuchElementException
 
 @tag('slow')
 class UserVisitRobjecPDFGeneratePage(FunctionalTest):
-    def test_logged - user_checks_robject_name(self):
+    def test_logged_user_checks_robject_name(self):
         # Create sample project and robject
         usr, proj = self.project_set_up_using_default_data()
 
