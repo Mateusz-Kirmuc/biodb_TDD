@@ -26,6 +26,6 @@ class UserGeneratesExcel(FunctionalTest):
         # TODO: how to save this file, selenium is not
         # working with object other than htmls
         # get this url
-            # self.browser.get(
-            #     self.live_server_url +
-            #     f"/projects/{proj.name}/robjects/{robj1.id}/excel/")
+        self.browser.get(
+        self.live_server_url +
+        f"/projects/{proj.name}/robjects/{robj1.id}/excel/")
