@@ -2,6 +2,7 @@
 import re
 from biodb.mixins import LoginRequiredMixin
 from bs4 import BeautifulSoup
+from datetime import datetime
 from django.core.exceptions import PermissionDenied
 from django.db.models import CharField
 from django.db.models import ForeignKey
@@ -13,76 +14,15 @@ from biodb.mixins import LoginRequiredMixin
 from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import View
+from openpyxl import Workbook
 from projects.models import Project
 from robjects.models import Robject
 from robjects.models import Tag
-from datetime import datetime
-from openpyxl import Workbook
 # Create your views here.
 
 
 def robjects_export_to_excel_view(request, *args, **kwargs):
     ''' Function handle export to excel view '''
-
-    # help function
-    def str_is_html(field):
-        ''' Returns true if passed string contains html. '''
-        field = str(field)
-        return bool(BeautifulSoup(field, "html.parser").find())
-
-
-    robject_list = []
-    if "checkbox" in request.POST:
-        pk_list = request.POST.getlist("checkbox")
-        
-    else:
-        pk_list = []
-    # get robjects from pk_list
-    robjects = Robject.objects.filter(pk__in=pk_list)
-    # pk = pk_list[0]
-    print(pk_list)
-
-    wb = Workbook()
-    # capture active worksheet
-    ws = wb.active
-    # filling first row by fields names
-    ws.append([field.name for field in Robject._meta.fields] + ["files"])
-    temp = list()
-
-    for rob in robjects:
-        robject = rob
-
-        for field in robject._meta.fields:
-            # holding field value
-            field_value = getattr(robject, field.name)
-
-            # formating date
-            if isinstance(field_value, datetime):
-                temp.append(field_value.strftime("%Y-%m-%d %H:%M"))
-                continue
-
-            if str_is_html(field_value):
-                only_text = BeautifulSoup(
-                    str(field_value), 'html.parser').text
-                temp.append(only_text.strip())
-                continue
-
-            # append to container
-            temp.append(str(field_value))
-
-        # adding cline row to excel
-    ws.append(temp)
-    output = HttpResponse()
-    # preparing output
-    file_name = "report.xlsx"
-    output['Content-Disposition'] = 'attachment; filename=' + file_name
-    # saving workbook to output
-    wb.save(output)
-    return output
-
-def robjects_export_selected_to_excel_view(request, *args, **kwargs):
-    ''' Function handle export to excel view '''
-
 
     # help function
     def str_is_html(field):
@@ -119,6 +59,62 @@ def robjects_export_selected_to_excel_view(request, *args, **kwargs):
 
         # adding cline row to excel
     ws.append(temp)
+    output = HttpResponse()
+    # preparing output
+    file_name = "report.xlsx"
+    output['Content-Disposition'] = 'attachment; filename=' + file_name
+    # saving workbook to output
+    wb.save(output)
+    return output
+
+
+def robjects_export_selected_to_excel_view(request, *args, **kwargs):
+    ''' Function handle export to excel view  multiple robjects'''
+
+    # help function
+    def str_is_html(field):
+        ''' Returns true if passed string contains html. '''
+        field = str(field)
+        return bool(BeautifulSoup(field, "html.parser").find())
+
+    if "checkbox" in request.POST:
+        pk_list = request.POST.getlist("checkbox")
+
+    else:
+        pk_list = []
+    # get robjects from pk_list
+    robjects = Robject.objects.filter(pk__in=pk_list)
+
+    wb = Workbook()
+    # capture active worksheet
+    ws = wb.active
+
+    # filling first row by fields names
+    ws.append([field.name for field in Robject._meta.fields])
+    temp = list()
+
+    for robject in robjects:
+
+        for field in robject._meta.fields:
+            # holding field value
+            field_value = getattr(robject, field.name)
+
+            # formating date
+            if isinstance(field_value, datetime):
+                temp.append(field_value.strftime("%Y-%m-%d %H:%M"))
+                continue
+
+            if str_is_html(field_value):
+                only_text = BeautifulSoup(
+                    str(field_value), 'html.parser').text
+                temp.append(only_text.strip())
+                continue
+
+            # append to container
+            temp.append(str(field_value))
+        ws.append(temp)
+        temp = list()
+
     output = HttpResponse()
     # preparing output
     file_name = "report.xlsx"
