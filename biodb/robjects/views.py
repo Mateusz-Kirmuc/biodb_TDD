@@ -16,13 +16,61 @@ from django.views.generic import View
 from projects.models import Project
 from robjects.models import Robject
 from robjects.models import Tag
+from datetime import datetime
+from openpyxl import Workbook
 # Create your views here.
 
 
 def robjects_export_to_excel_view(request, *args, **kwargs):
     ''' Function handle export to excel view '''
-    from openpyxl import Workbook
-    from datetime import datetime
+
+    # help function
+    def str_is_html(field):
+        ''' Returns true if passed string contains html. '''
+        field = str(field)
+        return bool(BeautifulSoup(field, "html.parser").find())
+    pk_list = []
+    pk = kwargs['pk']
+    pk_list.append(pk)
+    robjects = Robject.objects.get(pk=pk)
+    # create workbook
+    wb = Workbook()
+    # capture active worksheet
+    ws = wb.active
+    # filling first row by fields names
+    ws.append([field.name for field in Robject._meta.fields] + ["files"])
+    temp = list()
+    for field in robject._meta.fields:
+        # holding field value
+        field_value = getattr(robject, field.name)
+
+        # formating date
+        if isinstance(field_value, datetime):
+            temp.append(field_value.strftime("%Y-%m-%d %H:%M"))
+            continue
+
+        if str_is_html(field_value):
+            only_text = BeautifulSoup(
+                str(field_value), 'html.parser').text
+            temp.append(only_text.strip())
+            continue
+
+        # append to container
+        temp.append(str(field_value))
+
+        # adding cline row to excel
+    ws.append(temp)
+    output = HttpResponse()
+    # preparing output
+    file_name = "report.xlsx"
+    output['Content-Disposition'] = 'attachment; filename=' + file_name
+    # saving workbook to output
+    wb.save(output)
+    return output
+
+def robjects_export_selected_to_excel_view(request, *args, **kwargs):
+    ''' Function handle export to excel view '''
+
 
     # help function
     def str_is_html(field):
