@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.test import TestCase
 from projects.models import Project
-from robjects.models import Robject
 from projects.models import Tag
+from robjects.models import Robject
 
 
 class RobjectModelTestCase(TestCase):

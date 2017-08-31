@@ -1,0 +1,36 @@
+{% extends "biodb/base.html" %} {% load static %} {% block extra_head %}
+<link rel="stylesheet" href="{% static 'projects/robject_list.css' %}"> {% endblock %} {% block content %}
+<form id="search_form" action="/projects/{{ project_name }}/robjects/search/">
+  <input type="text" name="query" id="search_input">
+  <button id="search_button">Search</button>
+</form>
+<form action="/projects/{{ project_name }}/robjects/raport_pdf/" method="POST">
+  {% csrf_token %}
+<table id="robjects_table">
+  <tr id="header_row">
+    <th></th>
+    <th>id</th>
+    <th>name</th>
+    <th>author</th>
+    <th>create by</th>
+    <th>create date</th>
+    <th>modify by</th>
+  </tr>
+  {% for robject in robject_list %}
+  <tr class="row {{ robject.name }}">
+    <td><input type="checkbox" name="checkbox" value="{{robject.id}}" ></td>
+    <td>{{ robject.id }}</td>
+    <td><a href="{{ robject.get_absolute_url }}">{{ robject.name }}</a></td>
+    <td>{{ robject.author }}</td>
+    <td>{{ robject.create_by }}</td>
+    <td>{{ robject.create_date }}</td>
+    <td>{{ robject.modify_by }}</td>
+  </tr>
+  {% endfor %}
+
+</table>
+    <input type="submit" value="Pdf" />
+    <input type="submit" formaction="/projects/{{ project_name }}/robjects/excel/" value="Excel" method="POST">
+  </form>
+
+{% endblock %}

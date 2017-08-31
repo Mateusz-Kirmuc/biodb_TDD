@@ -1,7 +1,9 @@
 """Views for robject search."""
 import re
-from biodb.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from bs4 import BeautifulSoup
+from datetime import datetime
+from django.core.exceptions import PermissionDenied
 from django.db.models import CharField
 from biodb.mixins import LoginRequiredMixin
 from django.conf import settings
@@ -17,10 +19,12 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import View
+from openpyxl import Workbook
 from projects.models import Project
 from robjects.models import Robject
 from robjects.models import Tag
-from weasyprint import HTML, CSS
+from weasyprint import CSS
+from weasyprint import HTML
 
 
 def robjects_list_view(request, project_name):
@@ -39,6 +43,7 @@ def robjects_selected_pdf_view(request, *args, **kwargs):
     robject_list = []
     if "checkbox" in request.POST:
         pk_list = request.POST.getlist("checkbox")
+
     else:
         pk_list = []
     # create template from file
@@ -90,6 +95,111 @@ def robjects_pdf_view(request, *args, **kwargs):
     http_response['Content-Disposition'] = 'filename="robject_raport.pdf"'
     # return response
     return http_response
+
+
+
+def robjects_export_to_excel_view(request, *args, **kwargs):
+    ''' Function handle export to excel view '''
+
+    # help function
+    def str_is_html(field):
+        ''' Returns true if passed string contains html. '''
+        field = str(field)
+        return bool(BeautifulSoup(field, "html.parser").find())
+
+    pk = kwargs['pk']
+    robject = Robject.objects.get(pk=pk)
+    # create workbook
+    wb = Workbook()
+    # capture active worksheet
+    ws = wb.active
+    # filling first row by fields names
+    ws.append([field.name for field in Robject._meta.fields] + ["files"])
+    temp = list()
+    for field in robject._meta.fields:
+        # holding field value
+        field_value = getattr(robject, field.name)
+
+        # formating date
+        if isinstance(field_value, datetime):
+            temp.append(field_value.strftime("%Y-%m-%d %H:%M"))
+            continue
+
+        if str_is_html(field_value):
+            only_text = BeautifulSoup(
+                str(field_value), 'html.parser').text
+            temp.append(only_text.strip())
+            continue
+
+        # append to container
+        temp.append(str(field_value))
+
+        # adding cline row to excel
+    ws.append(temp)
+    output = HttpResponse()
+    # preparing output
+    file_name = "report.xlsx"
+    output['Content-Disposition'] = 'attachment; filename=' + file_name
+    # saving workbook to output
+    wb.save(output)
+    return output
+
+
+def robjects_export_selected_to_excel_view(request, *args, **kwargs):
+    ''' Function handle export to excel view  multiple robjects'''
+
+    # help function
+    def str_is_html(field):
+        ''' Returns true if passed string contains html. '''
+        field = str(field)
+        return bool(BeautifulSoup(field, "html.parser").find())
+
+    if "checkbox" in request.POST:
+        pk_list = request.POST.getlist("checkbox")
+
+    else:
+        pk_list = []
+    # get robjects from pk_list
+    robjects = Robject.objects.filter(pk__in=pk_list)
+
+    wb = Workbook()
+    # capture active worksheet
+    ws = wb.active
+
+    # filling first row by fields names
+    ws.append([field.name for field in Robject._meta.fields])
+    temp = list()
+
+    for robject in robjects:
+
+        for field in robject._meta.fields:
+            # holding field value
+            field_value = getattr(robject, field.name)
+
+            # formating date
+            if isinstance(field_value, datetime):
+                temp.append(field_value.strftime("%Y-%m-%d %H:%M"))
+                continue
+
+            if str_is_html(field_value):
+                only_text = BeautifulSoup(
+                    str(field_value), 'html.parser').text
+                temp.append(only_text.strip())
+                continue
+
+            # append to container
+            temp.append(str(field_value))
+        ws.append(temp)
+        temp = list()
+
+    output = HttpResponse()
+    # preparing output
+    file_name = "report.xlsx"
+    output['Content-Disposition'] = 'attachment; filename=' + file_name
+    # saving workbook to output
+    wb.save(output)
+    return output
+
 
 
 class SearchRobjectsView(LoginRequiredMixin, View):
@@ -179,13 +289,10 @@ class SearchRobjectsView(LoginRequiredMixin, View):
                 for qs_query in queries:
                     qs = qs | qs_query
 
+
         # project reqired
         return self.model.objects.filter(qs, project__name=project_name)
 
 
 class RobjectDetailView(DetailView):
     model = Robject
-
-
-class ExcelRobjectDetailView():
-    pass
