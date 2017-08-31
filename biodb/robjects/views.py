@@ -29,34 +29,46 @@ def robjects_export_to_excel_view(request, *args, **kwargs):
         ''' Returns true if passed string contains html. '''
         field = str(field)
         return bool(BeautifulSoup(field, "html.parser").find())
-    pk_list = []
-    pk = kwargs['pk']
-    pk_list.append(pk)
-    robjects = Robject.objects.get(pk=pk)
-    # create workbook
+
+
+    robject_list = []
+    if "checkbox" in request.POST:
+        pk_list = request.POST.getlist("checkbox")
+        
+    else:
+        pk_list = []
+    # get robjects from pk_list
+    robjects = Robject.objects.filter(pk__in=pk_list)
+    # pk = pk_list[0]
+    print(pk_list)
+
     wb = Workbook()
     # capture active worksheet
     ws = wb.active
     # filling first row by fields names
     ws.append([field.name for field in Robject._meta.fields] + ["files"])
     temp = list()
-    for field in robject._meta.fields:
-        # holding field value
-        field_value = getattr(robject, field.name)
 
-        # formating date
-        if isinstance(field_value, datetime):
-            temp.append(field_value.strftime("%Y-%m-%d %H:%M"))
-            continue
+    for rob in robjects:
+        robject = rob
 
-        if str_is_html(field_value):
-            only_text = BeautifulSoup(
-                str(field_value), 'html.parser').text
-            temp.append(only_text.strip())
-            continue
+        for field in robject._meta.fields:
+            # holding field value
+            field_value = getattr(robject, field.name)
 
-        # append to container
-        temp.append(str(field_value))
+            # formating date
+            if isinstance(field_value, datetime):
+                temp.append(field_value.strftime("%Y-%m-%d %H:%M"))
+                continue
+
+            if str_is_html(field_value):
+                only_text = BeautifulSoup(
+                    str(field_value), 'html.parser').text
+                temp.append(only_text.strip())
+                continue
+
+            # append to container
+            temp.append(str(field_value))
 
         # adding cline row to excel
     ws.append(temp)

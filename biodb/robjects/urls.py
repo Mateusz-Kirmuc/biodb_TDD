@@ -11,5 +11,5 @@ urlpatterns = [
     url(r"^$", robjects_list_view, name="robjects_list"),
     url(r'^(?P<pk>[0-9]+)/details/$',
         RobjectDetailView.as_view(), name='robject_details'),
-    url(r'^(?P<pk>[0-9]+)/excel/$', robjects_export_to_excel_view, name='export_to_excel')
+    url(r'^excel/$', robjects_export_to_excel_view, name='export_to_excel')
 ]
