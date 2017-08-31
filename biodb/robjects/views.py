@@ -97,7 +97,6 @@ def robjects_pdf_view(request, *args, **kwargs):
     return http_response
 
 
-
 def robjects_export_to_excel_view(request, *args, **kwargs):
     ''' Function handle export to excel view '''
 
@@ -201,7 +200,6 @@ def robjects_export_selected_to_excel_view(request, *args, **kwargs):
     return output
 
 
-
 class SearchRobjectsView(LoginRequiredMixin, View):
     # TODO: Add multipleObjectMixin to inherit by this class??
     model = Robject
@@ -288,7 +286,6 @@ class SearchRobjectsView(LoginRequiredMixin, View):
             if queries:
                 for qs_query in queries:
                     qs = qs | qs_query
-
 
         # project reqired
         return self.model.objects.filter(qs, project__name=project_name)

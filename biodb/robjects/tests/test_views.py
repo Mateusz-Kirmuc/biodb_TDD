@@ -205,7 +205,6 @@ class Robjects_pdf_view_test(FunctionalTest):
         # understood, and accepted
         self.assertEqual(response.status_code, 200)
 
-
     def test_robjects_selected_pdf_view(self):
         # logged user goes to biodb to export a excel file
         user, proj = self.default_set_up_for_robjects_page()
@@ -241,6 +240,8 @@ class Robjects_pdf_view_test(FunctionalTest):
         # The request was successfully received,
         # understood, and accepted
         self.assertEqual(response.status_code, 200)
+
+
 class Robjects_export_to_excel_view_test(FunctionalTest):
     def test_export_to_excel(self):
         # logged user goes to biodb to export a excel file
