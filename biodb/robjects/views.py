@@ -20,6 +20,7 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import View
 from openpyxl import Workbook
+from projects.mixin import ExportViewMixin
 from projects.models import Project
 from robjects.models import Robject
 from robjects.models import Tag
@@ -66,138 +67,61 @@ def robjects_selected_pdf_view(request, *args, **kwargs):
     # return response
     return http_response
 
+class ExportExcelView(ExportViewMixin, View):
+    model = Robject
+    queryset = None
 
-@login_required
-def robjects_pdf_view(request, *args, **kwargs):
-    '''View uses the same template as robjects_selected_pdf_view.
+    def get_queryset(self, project_name):
+        """
+        Return the list of items for this view.
+        The return value must be an iterable and may be an instance of
+        `QuerySet` in which case `QuerySet` specific behavior will be enabled.
+        """
+        if self.queryset is not None:
+            queryset = self.queryset
+            if isinstance(queryset, QuerySet):
+                queryset = queryset.filter(project__name=project_name).all()
+        elif self.model is not None:
+            queryset = self.model._default_manager.filter(
+                project__name=project_name).all()  # ???
+        else:
+            raise ImproperlyConfigured(
+                "%(cls)s is missing a QuerySet. Define "
+                "%(cls)s.model, %(cls)s.queryset, or override "
+                "%(cls)s.get_queryset()." % {
+                    'cls': self.__class__.__name__
+                }
+            )
+        if self.request.GET and self.request.GET.getlist('checkbox'):
+            queryset = queryset.filter(
+                pk__in=self.request.GET.getlist('checkbox'))
 
-        This is why method:
-            Creates single object pk_list and returns single robject
-            srobjects list.
-    '''
-    pk_list = []
-    pk = (kwargs['pk'])
-    # create single element list
-    pk_list.append(pk)
-    # create template from file
-    html_template = get_template('robjects/robject_raport_pdf.html')
-    # get single element list robjects
-    robjects = Robject.objects.filter(pk__in=pk_list)
-    rendered_html = html_template.render(
-        {'pk': pk, 'robjects': robjects}).encode(encoding="UTF-8")
-    # generate pdf from rendered html
-    pdf_file = HTML(string=rendered_html).write_pdf(
-        stylesheets=[CSS(settings.BASE_DIR + '/robjects' +
-                         settings.STATIC_URL + 'robjects/css/raport_pdf.css')],
-    )
-    # Add file object to response
-    http_response = HttpResponse(pdf_file, content_type='application/pdf')
-    http_response['Content-Disposition'] = 'filename="robject_raport.pdf"'
-    # return response
-    return http_response
+        return queryset
 
+    def get(self, request, project_name, *args, **kwargs):
 
-def robjects_export_to_excel_view(request, *args, **kwargs):
-    ''' Function handle export to excel view '''
-
-    # help function
-    def str_is_html(field):
-        ''' Returns true if passed string contains html. '''
-        field = str(field)
-        return bool(BeautifulSoup(field, "html.parser").find())
-
-    pk = kwargs['pk']
-    robject = Robject.objects.get(pk=pk)
-    # create workbook
-    wb = Workbook()
-    # capture active worksheet
-    ws = wb.active
-    # filling first row by fields names
-    ws.append([field.name for field in Robject._meta.fields] + ["files"])
-    temp = list()
-    for field in robject._meta.fields:
-        # holding field value
-        field_value = getattr(robject, field.name)
-
-        # formating date
-        if isinstance(field_value, datetime):
-            temp.append(field_value.strftime("%Y-%m-%d %H:%M"))
-            continue
-
-        if str_is_html(field_value):
-            only_text = BeautifulSoup(
-                str(field_value), 'html.parser').text
-            temp.append(only_text.strip())
-            continue
-
-        # append to container
-        temp.append(str(field_value))
-
-        # adding cline row to excel
-    ws.append(temp)
-    output = HttpResponse()
-    # preparing output
-    file_name = "report.xlsx"
-    output['Content-Disposition'] = 'attachment; filename=' + file_name
-    # saving workbook to output
-    wb.save(output)
-    return output
+        self.object_list = self.get_queryset(project_name)
+        if not self.object_list:
+            raise Http404(_("Empty list and '%(class_name)s.allow_empty' is False.") % {
+                'class_name': self.__class__.__name__,
+            })
+        return self.export_to_excel(self.object_list)
 
 
-def robjects_export_selected_to_excel_view(request, *args, **kwargs):
-    ''' Function handle export to excel view  multiple robjects'''
+class ExportPdfView(ExportViewMixin, View):
+    model = Robject
+    pdf_template_name = "robjects/robject_raport_pdf.html"
+    pdf_css_name = 'robjects/css/raport_pdf.css'
+    css_sufix = '/robjects'
 
-    # help function
-    def str_is_html(field):
-        ''' Returns true if passed string contains html. '''
-        field = str(field)
-        return bool(BeautifulSoup(field, "html.parser").find())
+    def get(self, request, project_name, *args, **kwargs):
 
-    if "checkbox" in request.POST:
-        pk_list = request.POST.getlist("checkbox")
-
-    else:
-        pk_list = []
-    # get robjects from pk_list
-    robjects = Robject.objects.filter(pk__in=pk_list)
-
-    wb = Workbook()
-    # capture active worksheet
-    ws = wb.active
-
-    # filling first row by fields names
-    ws.append([field.name for field in Robject._meta.fields])
-    temp = list()
-
-    for robject in robjects:
-
-        for field in robject._meta.fields:
-            # holding field value
-            field_value = getattr(robject, field.name)
-
-            # formating date
-            if isinstance(field_value, datetime):
-                temp.append(field_value.strftime("%Y-%m-%d %H:%M"))
-                continue
-
-            if str_is_html(field_value):
-                only_text = BeautifulSoup(
-                    str(field_value), 'html.parser').text
-                temp.append(only_text.strip())
-                continue
-
-            # append to container
-            temp.append(str(field_value))
-        ws.append(temp)
-        temp = list()
-
-    output = HttpResponse()
-    # preparing output
-    file_name = "report.xlsx"
-    output['Content-Disposition'] = 'attachment; filename=' + file_name
-    # saving workbook to output
-    wb.save(output)
-    return output
+        self.object_list = self.get_queryset(project_name)
+        if not self.object_list:
+            raise Http404(_("Empty list and '%(class_name)s.allow_empty' is False.") % {
+                'class_name': self.__class__.__name__,
+            })
+        return self.export_to_pdf(self.object_list)
 
 
 class SearchRobjectsView(LoginRequiredMixin, View):
