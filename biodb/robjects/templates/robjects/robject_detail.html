@@ -23,9 +23,11 @@
 </script>
 
 <form action="/projects/{{ project_name }}/robjects/{{robject.id}}/raport_pdf/">
-  {% csrf_token %}
-  <input type="button" value="Raport" />
-</form>
+
+
+<a href="/projects/{{ robject.project.name }}/robjects/excel/?checkbox={{robject.id}}">Excel</a>
+
+<a href="/projects/{{ robject.project.name }}/robjects/raport_pdf/?checkbox={{robject.id}}">PDF</a>
 
 
 
