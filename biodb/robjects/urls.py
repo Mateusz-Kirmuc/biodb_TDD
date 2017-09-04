@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from robjects.views import ExportExcelView
 from robjects.views import ExportPdfView
+from robjects.views import ExportPdfTableView
 from robjects.views import RobjectDetailView
 from robjects.views import robjects_list_view
 from robjects.views import SearchRobjectsView
@@ -13,5 +14,6 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/details/$',
         RobjectDetailView.as_view(), name='robject_details'),
     url(r'^raport_pdf/$', ExportPdfView.as_view(), name='raport_pdf'),
+    url(r'^raport_table_pdf/$', ExportPdfTableView.as_view(), name='raport_table_pdf'),
     url(r'^excel/$', ExportExcelView.as_view(), name='export_to_excel'),
 ]
