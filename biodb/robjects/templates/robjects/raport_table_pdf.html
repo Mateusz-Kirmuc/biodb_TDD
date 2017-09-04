@@ -1,0 +1,68 @@
+<html>
+ <head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <style>
+      @page {
+        margin: 3cm 3cm;
+        @top-center {
+            content: "   ";
+            width: 100%;
+            vertical-align: bottom;
+            border-bottom: .5pt solid;
+            margin-bottom: 1.2cm;
+            color: gray;
+        }
+        @top-right{
+            color: gray;
+            font-size: 70%;
+            content: "Confidential";
+        }
+        @top-left{
+            color: gray;
+            font-size: 70%;
+            content: "Studynumber";
+        }
+        @bottom-right {
+            font-size: 70%;
+            content: "Page " counter(page) " of " counter(pages);
+            color: gray;
+        }
+        @bottom-left {
+            font-size: 70%;
+            content: "Created by: {{ user }}, {{ object.create_date }}";
+            color: gray;
+        }
+    }
+
+  </style>
+</head>
+
+<h1>Raport</h1>
+{% if robjects %}
+  {% for robject in robjects %}
+<div class="names">
+  <h2>{{ robject.name }}</h2>
+</div>
+
+  </table>
+  <table id="detail_table">
+    <caption>Detail Table </caption>
+    <tr>
+    {% for field, value in robject.get_detail_fields %}
+        <th>{{ field }}</th>
+        {% endfor %}
+      </tr>
+      <tr>
+        {% for field, value in robject.get_detail_fields %}
+        <td>{{ value }}</td>
+        {% endfor %}
+      </tr>
+  </table>
+
+{% endfor %}
+
+{% else %}
+  No objects were selected
+{% endif  %}
+  </body>
+ </html>

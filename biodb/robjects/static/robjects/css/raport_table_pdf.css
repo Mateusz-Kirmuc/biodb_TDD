@@ -1,0 +1,58 @@
+<style>html, body {
+  font: 12pt/1.25 Fontin, serif !important;
+  -weasy-hyphens: auto
+}
+
+body {
+  text-align: justify;
+  padding: 0 !important;
+  background: none !important;
+}
+
+hr.navbar {
+  display: none
+}
+
+
+h1, h2, h3, h4 {
+  text-align: left;
+  font-family: inherit !important;
+  font-size: 20px;
+}
+
+h1 {
+  page-break-before: auto !important;
+  -weasy-bookmark-level: none;
+  margin-top: 0 !important;
+  text-align: center;
+  font-size: 24px
+}
+
+th {
+  background-color: #3399FF;
+}
+table {
+  table-
+  border-collapse: collapse;
+  font-size: 12px;
+  max-width: 2480px;
+  width:100%;
+}
+table td{
+  width: auto;
+  overflow: hidden;
+  word-wrap: break-word;
+}
+
+caption, h3 {
+  font-size: 14px;
+  padding: : 8px;
+  line-height: 1.8;
+  font-weight: bold;
+  border-bottom: solid 1px;
+}
+
+
+tr:nth-child(even) {
+  background-color: #F0F0F0;
+}
