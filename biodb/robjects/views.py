@@ -67,6 +67,7 @@ def robjects_selected_pdf_view(request, *args, **kwargs):
     # return response
     return http_response
 
+
 class ExportExcelView(ExportViewMixin, View):
     model = Robject
     queryset = None
@@ -122,6 +123,7 @@ class ExportPdfView(ExportViewMixin, View):
                 'class_name': self.__class__.__name__,
             })
         return self.export_to_pdf(self.object_list)
+
 
 class ExportPdfTableView(ExportViewMixin, View):
     model = Robject
