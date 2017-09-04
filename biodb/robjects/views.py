@@ -123,6 +123,21 @@ class ExportPdfView(ExportViewMixin, View):
             })
         return self.export_to_pdf(self.object_list)
 
+class ExportPdfTableView(ExportViewMixin, View):
+    model = Robject
+    pdf_template_name = "robjects/raport_table_pdf.html"
+    pdf_css_name = 'robjects/css/raport_table_pdf.css'
+    css_sufix = '/robjects'
+
+    def get(self, request, project_name, *args, **kwargs):
+
+        self.object_list = self.get_queryset(project_name)
+        if not self.object_list:
+            raise Http404(_("Empty list and '%(class_name)s.allow_empty' is False.") % {
+                'class_name': self.__class__.__name__,
+            })
+        return self.export_to_pdf(self.object_list)
+
 
 class SearchRobjectsView(LoginRequiredMixin, View):
     # TODO: Add multipleObjectMixin to inherit by this class??
