@@ -26,8 +26,9 @@ def robjects_list_view(request, project_name):
                   {"robject_list": robject_list, "project_name": project_name})
 
 
+# TODO: Add multipleObjectMixin to inherit by this class??
 class SearchRobjectsView(LoginRequiredMixin, View):
-    # TODO: Add multipleObjectMixin to inherit by this class??
+    """View to show filtered list of objects."""
     model = Robject
 
     def get(self, request, project_name):
@@ -112,7 +113,6 @@ class SearchRobjectsView(LoginRequiredMixin, View):
             if queries:
                 for qs_query in queries:
                     qs = qs | qs_query
-
 
         # project reqired
         return self.model.objects.filter(qs, project__name=project_name)
