@@ -22,3 +22,25 @@ class Project(models.Model):
 
     def get_absolute_url(self):
         return "/projects/%s/robjects/" % self.name
+
+class Tag(models.Model):
+    """
+        Model for keywords assigned to a Robject
+        Require: name unique for a project.
+    """
+    name = models.CharField(max_length=100, unique=True)
+    project = models.ForeignKey(to=Project)
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+    def clean():
+        # TODO: validation method for model
+        pass
+
+
+    def get_absolute_url(self):
+        return "/projects/%s/tags/" % (self.project.name)

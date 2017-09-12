@@ -16,7 +16,7 @@
   {% for robject in robject_list %}
   <tr class="row {{ robject.name }}">
     <td>{{ robject.id }}</td>
-    <td>{{ robject.name }}</td>
+    <td><a href="{{ robject.get_absolute_url }}">{{ robject.name }}</a></td>
     <td>{{ robject.author }}</td>
     <td>{{ robject.create_by }}</td>
     <td>{{ robject.create_date }}</td>
