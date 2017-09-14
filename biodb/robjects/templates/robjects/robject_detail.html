@@ -1,0 +1,42 @@
+{% extends "biodb/base.html" %} {% block content %}
+
+<div id="content">
+   <div class="main">
+     <div class="names">
+
+       <h1>Name: {{ object.name }}</h1>
+     </div>
+     <div class="tags">
+       <h2>Tags:</h2>
+       <span class="tags">
+         {% for tag in object.tags.all %}
+         <span>{{ tag }},</span> {% endfor %}
+       </span>
+     </div>
+   </div>
+   <div class="general">
+     <h2> General:</h2>
+     <table id="general_table">
+       {% for field, value in object.get_general_fields %}
+       <tr>
+         <th>{{ field }}</th>
+         <td>{{ value }}</td>
+       </tr>
+       {% endfor %}
+     </table>
+   </div>
+
+   <div class="details">
+     <h2> Details:</h2>
+     <table id="detail_table">
+       {% for field, value in object.get_detail_fields %}
+       <tr>
+         <th>{{ field }}</th>
+         <td>{{value}}</td>
+       </tr>
+       {% endfor %}
+     </table>
+   </div>
+
+
+{% endblock %} {% block sample %}{% endblock %}
