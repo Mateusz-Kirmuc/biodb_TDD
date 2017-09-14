@@ -1,7 +1,11 @@
-from unit_tests.base import FunctionalTest
-from robjects.models import Robject
-from projects.models import Project
+import PyPDF2
 from django.contrib.auth.models import User
+from django.test import Client
+from io import BytesIO
+from openpyxl import load_workbook
+from projects.models import Project
+from robjects.models import Robject
+from unit_tests.base import FunctionalTest
 
 
 class RObjectsListViewTests(FunctionalTest):
@@ -172,3 +176,143 @@ class SearchRobjectsViewTests(FunctionalTest):
             robj,
             list(resp.context["robject_list"])
         )
+
+
+class Robjects_pdf_view_test(FunctionalTest):
+    def test_user_generfates_pdf(self):
+        # logged user goes to biodb to export a excel file
+        user, proj = self.default_set_up_for_robjects_page()
+        robj = Robject.objects.create(
+            author=user, project=proj, name="robject_1")
+
+        response = self.client.get(
+            f"/projects/{proj.name}/robjects/{robj.id}/raport_pdf/")
+        # assert attachment name as robject_raport.pdf
+        self.assertEqual(response.get('Content-Disposition'),
+                         'filename="robject_raport.pdf"')
+        # check if pdf_file is not empty
+        pdf_file = BytesIO(response.content)
+        self.assertIsNotNone(pdf_file)
+        # open and read pdf file
+        read_pdf = PyPDF2.PdfFileReader(pdf_file)
+        number_of_pages = read_pdf.getNumPages()
+        page = read_pdf.getPage(0)
+        page_content = page.extractText()
+        # chcek if robjects name is in page content
+        self.assertIn('robject_1', page_content)
+        # if status code of requeszt is 200 -
+        # The request was successfully received,
+        # understood, and accepted
+        self.assertEqual(response.status_code, 200)
+
+    def test_robjects_selected_pdf_view(self):
+        # logged user goes to biodb to export a excel file
+        user, proj = self.default_set_up_for_robjects_page()
+        robj1 = Robject.objects.create(
+            author=user, project=proj, name="robject_1")
+        robj2 = Robject.objects.create(
+            author=user, project=proj, name="robject_2")
+        # get response for two checked robjects
+        response = self.client.post(
+            f"/projects/{proj.name}/robjects/raport_pdf/", {'checkbox': ['1', '2']})
+        # assert attachment name as robject_raport.pdf
+        # assert attachment name as robject_raport.pdf
+        self.assertEqual(response.get('Content-Disposition'),
+                         'filename="robject_raport.pdf"')
+        # check if pdf_file is not empty
+        pdf_file = BytesIO(response.content)
+        self.assertIsNotNone(pdf_file)
+        # open and read pdf file
+        read_pdf = PyPDF2.PdfFileReader(pdf_file)
+        number_of_pages = read_pdf.getNumPages()
+        # check are there two pages - one for robject
+        self.assertEqual(number_of_pages, 2)
+        page = read_pdf.getPage(0)
+        page_content = page.extractText()
+        # chcek if robjects name is in page content
+        self.assertIn('robject_1', page_content)
+        # do teh same with second robject
+        page = read_pdf.getPage(1)
+        page_content = page.extractText()
+        self.assertIn('robject_2', page_content)
+
+        # if status code of requeszt is 200 -
+        # The request was successfully received,
+        # understood, and accepted
+        self.assertEqual(response.status_code, 200)
+
+
+class Robjects_export_to_excel_view_test(FunctionalTest):
+    def test_export_to_excel(self):
+        # logged user goes to biodb to export a excel file
+        user, proj = self.default_set_up_for_robjects_page()
+        robj = Robject.objects.create(
+            author=user, project=proj, name="robject_1")
+
+        response = self.client.get(f"/projects/{proj.name}/robjects/{robj.id}/excel/")
+        # assert attachment name as report.xlsx
+        self.assertEqual(response.get('Content-Disposition'),
+                         "attachment; filename=report.xlsx")
+
+        table_heder_list = ['id', 'project', 'author', 'name', 'create_by',
+                            'create_date', 'modify_date', 'modify_by', 'notes',
+                            'ligand', 'receptor', 'ref_seq', 'mod_seq',
+                            'description', 'bibliography', 'ref_commercial',
+                            'ref_clinical', 'files']
+        # assert headers are the same as robject atrinutes names
+        with BytesIO(response.content) as f:
+            self.assertIsNotNone(f)
+            wb = load_workbook(f)
+            ws = wb.active
+            first_row_cells = []
+            for row in ws.rows:
+                for cell in row:
+                    first_row_cells.append(cell.value)
+                break
+        self.assertSequenceEqual(first_row_cells, table_heder_list)
+
+        # if status code of requeszt is 200 -
+        # The request was successfully received,
+        # understood, and accepted
+        self.assertEqual(response.status_code, 200)
+
+    def test_robjects_export_selected_to_excel_view(self):
+        # logged user goes to biodb to export a excel file
+        user, proj = self.default_set_up_for_robjects_page()
+        robj1 = Robject.objects.create(
+            author=user, project=proj, name="robject_1")
+        robj2 = Robject.objects.create(
+            author=user, project=proj, name="robject_2")
+
+        response = self.client.post(
+            f"/projects/{proj.name}/robjects/excel/", {'checkbox': ['1', '2']})
+        # assert attachment name as report.xlsx
+        self.assertEqual(response.get('Content-Disposition'),
+                         "attachment; filename=report.xlsx")
+
+        table_heder_list = ['id', 'project', 'author', 'name', 'create_by',
+                            'create_date', 'modify_date', 'modify_by', 'notes',
+                            'ligand', 'receptor', 'ref_seq', 'mod_seq',
+                            'description', 'bibliography', 'ref_commercial',
+                            'ref_clinical']
+        # assert headers are the same as robject atrinutes names
+        with BytesIO(response.content) as f:
+            self.assertIsNotNone(f)
+            wb = load_workbook(f)
+            ws = wb.active
+            first_row_cells = []
+            for row in ws.rows:
+                for cell in row:
+                    first_row_cells.append(cell.value)
+                break
+        # check if heaer are the same as first row
+        self.assertListEqual(first_row_cells, table_heder_list)
+
+        # check if every robject in different row
+        # add +1 because of headers
+        self.assertEqual(ws.max_row, Robject.objects.count() + 1)
+
+        # if status code of requeszt is 200 -
+        # The request was successfully received,
+        # understood, and accepted
+        self.assertEqual(response.status_code, 200)

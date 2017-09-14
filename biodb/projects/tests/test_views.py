@@ -1,6 +1,7 @@
-# from django.contrib.auth.models import User
-# from django.test import TestCase
+from django.http import Http404
 from projects.models import Project
+from robjects.models import Robject
+from projects.models import Tag
 from unit_tests.base import FunctionalTest
 
 
