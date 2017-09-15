@@ -21,7 +21,7 @@ class LoginView(FormView):
         user = authenticate(username=username, password=password)
         if user is not None and user.is_active:
             login(self.request, user)
-            return redirect(reverse("projects_list"))
+            return redirect(reverse("projects:projects_list"))
         else:
             form.add_error(None, "Invalid username or password.")
             context = self.get_context_data(**kwargs)

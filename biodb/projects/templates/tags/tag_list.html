@@ -1,0 +1,19 @@
+{% extends "biodb/base.html" %} {% block content %}
+
+{% url 'projects:tag_create' project.name as tag_create_url %}
+
+<h1>Tags:</h1>
+<ul class="tag_list">
+  <ul>
+    {% for tag in tag_list %}
+      <li><a class="edit" href="#">{{ tag }} </a> &nbsp
+      <a class="delete" href="#"> delete </a>
+    {% endfor %}
+  </ul>
+</ul>
+<div class="actions">
+  {% if tag_create_url %}
+    <li><a id="add_button" href="#">Add</a></li>
+  {% endif %}
+</div>
+{% endblock %}
