@@ -1,7 +1,7 @@
 from django.views.generic.list import ListView
 from projects.models import Project
 from django.core.exceptions import PermissionDenied
-from biodb.mixins import LoginRequiredMixin
+from biodb.mixins import LoginRequiredMixin, BreadcrumbsMixin
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -20,14 +20,15 @@ from django.shortcuts import get_object_or_404
 # Create your views here.
 
 
-class ProjectListView(LoginRequiredMixin, ListView):
+class ProjectListView(LoginRequiredMixin, BreadcrumbsMixin, ListView):
     model = Project
 
 
-class TagsListView(LoginPermissionRequiredMixin, ListView):
+class TagsListView(LoginPermissionRequiredMixin,  BreadcrumbsMixin, ListView):
     model = Tag
     template_name = 'projects/tags_list.html'
     permissions_required = ["can_visit_project"]
+    breadcrumb_model = "tags"
 
     def get_permission_object(self):
         project = get_object_or_404(Project, name=self.kwargs['project_name'])
@@ -50,11 +51,13 @@ class TagsListView(LoginPermissionRequiredMixin, ListView):
         return context
 
 
-class TagCreateView(LoginPermissionRequiredMixin, CreateView):
+class TagCreateView(LoginPermissionRequiredMixin, BreadcrumbsMixin,  CreateView):
     model = Tag
     template_name = 'projects/tag_create.html'
     fields = ['name']
     permissions_required = ["can_visit_project", "can_modify_project"]
+    breadcrumb_model = "tag"
+    breadcrumb_action = "create"
 
     def get_permission_object(self):
         project = get_object_or_404(
@@ -78,12 +81,14 @@ class TagCreateView(LoginPermissionRequiredMixin, CreateView):
         return super(TagCreateView, self).form_valid(form)
 
 
-class TagUpdateView(LoginPermissionRequiredMixin, UpdateView):
+class TagUpdateView(LoginPermissionRequiredMixin,  BreadcrumbsMixin, UpdateView):
     model = Tag
     fields = ['name']
     pk_url_kwarg = 'tag_id'
     template_name = "projects/tag_update.html"
     permissions_required = ["can_visit_project", "can_modify_project"]
+    breadcrumb_model = "tag"
+    breadcrumb_action = "edit"
 
     def get_permission_object(self):
         project = get_object_or_404(Project, name=self.kwargs['project_name'])

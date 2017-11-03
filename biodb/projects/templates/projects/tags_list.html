@@ -8,10 +8,10 @@
     {% if tag_list %}
       {% for tag in tag_list %}
         <li>
-          <a href="/projects/{{ project_name }}/tags/{{ tag.id }}/update/" class="{{tag.name}}-update">
+          <a href="{% url 'projects:tag_update' project_name=project_name tag_id=tag.id %}" class="{{tag.name}}-update">
             {{ tag.name }}
           </a>
-          <a href="/projects/{{ project_name }}/tags/{{ tag.id }}/delete/">
+          <a href="{% url 'projects:tag_delete' project_name=project_name tag_id=tag.id %}">
             <i class="fa fa-remove"></i>
           </a>
         </li>
@@ -21,4 +21,4 @@
     {% endif %}
 </ul>
 
-<a class='link_back' href="/projects/{{ project_name }}/robjects/">Return back to project robjects page</a> {% endblock %}
+{% endblock %}

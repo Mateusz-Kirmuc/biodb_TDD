@@ -27,6 +27,13 @@
   {% endif %}
   <!-- End Messages -->
 
+  <p class="">
+    {% for crumb in breadcrumbs %}
+      <a href="{{crumb.url}}">{{ crumb.title }}</a>
+      /
+    {% endfor %}
+  </p>
+
   {% block content %} {% endblock %}
 </body>
 

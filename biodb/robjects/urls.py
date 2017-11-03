@@ -11,13 +11,13 @@ from robjects.views import RobjectListView
 
 app_name = 'robjects'
 urlpatterns = [
+    url(r"^$", RobjectListView.as_view(), name="robjects_list"),
     url(r"^search/$",
         SearchRobjectsView.as_view(), name="search_robjects"),
-    url(r"^$", RobjectListView.as_view(), name="robjects_list"),
     url(r"^create/$", RobjectCreateView.as_view(), name="robject_create"),
     url(r"^delete/$", RobjectDeleteView.as_view(), name="robject_delete"),
-    url(r"^excel-raport/$", ExportExcelView.as_view(), name="raport_excel"),
-    url(r"^PDF-raport/$", RobjectPDFeView.as_view(), name="pdf_raport"),
+    url(r"^excel/$", ExportExcelView.as_view(), name="raport_excel"),
+    url(r"^pdf/$", RobjectPDFeView.as_view(), name="pdf_raport"),
     url(r"^names-create/$", NameCreateView.as_view(), name="names_create"),
     url(r"^tags-create/$", TagCreateView.as_view(), name="tags_create"),
     url(r'^(?P<robject_id>[0-9]+)/samples/$',

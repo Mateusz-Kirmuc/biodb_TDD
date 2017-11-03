@@ -21,7 +21,7 @@ class Project(models.Model):
                 raise ValidationError({"name": msg})
 
     def get_absolute_url(self):
-        return "/projects/%s/robjects/" % self.name
+        return reverse("projects:robjects:robjects_list", kwargs={"project_name": self.name})
 
     class Meta:
         permissions = (

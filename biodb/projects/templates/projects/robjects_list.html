@@ -24,8 +24,13 @@
       </a>
     </li>
     <li>
+      <a href="{% url 'projects:tag_list' project_name=request.resolver_match.kwargs.project_name %}">
+        Tags list
+      </a>
+    </li>
+    <li>
       <a href="{% url 'projects:robjects:robject_create' project_name=request.resolver_match.kwargs.project_name %}">
-        Create research object.
+        Create research object
       </a>
     </li>
   </ul>
@@ -67,6 +72,7 @@
       <th>create by</th>
       <th>create date</th>
       <th>modify by</th>
+      <th>edit</th>
     </tr>
     {% for robject in robject_list %}
       <tr class="row {{ robject.name }}">
@@ -83,6 +89,7 @@
         <td>{{ robject.create_by }}</td>
         <td>{{ robject.create_date }}</td>
         <td>{{ robject.modify_by }}</td>
+        <td><a href="{% url 'projects:robjects:robject_edit' project_name=request.resolver_match.kwargs.project_name robject_id=robject.id %}">edit</a></td>
       </tr>
       {% endfor %}
     </table>

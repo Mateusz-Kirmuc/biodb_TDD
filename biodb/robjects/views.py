@@ -1,6 +1,6 @@
 """Views for robject search."""
 import re
-from biodb.mixins import LoginRequiredMixin, LoginPermissionRequiredMixin
+from biodb.mixins import LoginRequiredMixin, LoginPermissionRequiredMixin, BreadcrumbsMixin
 from django.db.models import CharField
 from django.db.models import ForeignKey
 from django.db.models import TextField
@@ -43,7 +43,7 @@ def robjects_list_view(request, project_name):
                   {"robject_list": robject_list, "project_name": project_name})
 
 
-class RobjectListView(LoginPermissionRequiredMixin, ListView):
+class RobjectListView(LoginPermissionRequiredMixin, BreadcrumbsMixin, ListView):
     template_name = "projects/robjects_list.html"
     context_object_name = "robject_list"
     permissions_required = ["can_visit_project"]
@@ -205,10 +205,12 @@ class SearchRobjectsView(LoginPermissionRequiredMixin, View):
         return self.model.objects.filter(qs, project__name=project_name)
 
 
-class RobjectCreateView(LoginPermissionRequiredMixin, CreateView):
+class RobjectCreateView(LoginPermissionRequiredMixin, BreadcrumbsMixin, CreateView):
     model = Robject
     template_name = "robjects/robject_create.html"
     permissions_required = ["can_visit_project", "can_modify_project"]
+    breadcrumb_model = "robject"
+    breadcrumb_action = "create"
     # raise_exception = True
 
     def get_form_class(self):
@@ -311,7 +313,7 @@ class RobjectSamplesList(SampleListView):
         return qs
 
 
-class RobjectDeleteView(LoginPermissionRequiredMixin, DeleteView):
+class RobjectDeleteView(LoginPermissionRequiredMixin, BreadcrumbsMixin, DeleteView):
     model = Robject
     context_object_name = "robjects"
     permissions_required = ["can_visit_project", "can_modify_project"]
@@ -329,9 +331,10 @@ class RobjectDeleteView(LoginPermissionRequiredMixin, DeleteView):
         return reverse("projects:robjects:robjects_list", kwargs=self.kwargs)
 
 
-class RobjectEditView(RobjectCreateView, UpdateView):
+class RobjectEditView(RobjectCreateView, BreadcrumbsMixin,  UpdateView):
     pk_url_kwarg = "robject_id"
     permissions_required = ["can_visit_project", "can_modify_project"]
+    breadcrumb_action = "edit"
 
     def form_valid(self, form):
         robject = form.save()
@@ -341,7 +344,7 @@ class RobjectEditView(RobjectCreateView, UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class RobjectHistoryView(LoginPermissionRequiredMixin, DetailView):
+class RobjectHistoryView(LoginPermissionRequiredMixin, BreadcrumbsMixin, DetailView):
     """View to show historical records of robject.
 
     Views show in table all changes made on object.

@@ -10,17 +10,18 @@ from django_tables2 import SingleTableView
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from biodb import settings
-from biodb.mixins import LoginPermissionRequiredMixin
+from biodb.mixins import LoginPermissionRequiredMixin, BreadcrumbsMixin
 from django.shortcuts import get_object_or_404
 # from samples.forms import RobjectSelectFrom
 
 
 # @method_decorator(login_required, name='dispatch')
-class SampleListView(LoginPermissionRequiredMixin, SingleTableView, ListView):
+class SampleListView(LoginPermissionRequiredMixin, BreadcrumbsMixin, SingleTableView, ListView):
     model = Sample
     template_name = "samples/samples_list.html"
     table_class = SampleTable
     permissions_required = ["can_visit_project"]
+    breadcrumb_model = "sample"
 
     def get_permission_object(self):
         project = get_object_or_404(Project, name=self.kwargs['project_name'])
@@ -55,11 +56,12 @@ class SampleListView(LoginPermissionRequiredMixin, SingleTableView, ListView):
         return context
 
 
-class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
+class SampleDetailView(LoginPermissionRequiredMixin, BreadcrumbsMixin,  DetailView):
     model = Sample
     template_name = 'samples/sample_details.html'
     pk_url_kwarg = "sample_id"
     permissions_required = ["can_visit_project"]
+    breadcrumb_model = "sample"
 
     def get_permission_object(self):
         project = get_object_or_404(Project, name=self.kwargs['project_name'])
