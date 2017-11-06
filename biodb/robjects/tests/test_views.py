@@ -36,7 +36,7 @@ class Robjects_export_to_excel_view_test(FunctionalTest):
     def test_excel_filename(self):
         user, proj = self.default_set_up_for_robjects_pages()
         r = Robject.objects.create(project=proj, name="robject_1")
-        response = self.client.get(f"/projects/{proj.name}/robjects/excel-raport/",
+        response = self.client.get(self.ROBJECT_EXCEL_URL,
                                    {"robject_1": r.id})
         self.assertEqual(response.get('Content-Disposition'),
                          "attachment; filename=report.xlsx")
@@ -83,7 +83,7 @@ class Robjects_export_to_excel_view_test(FunctionalTest):
         r.save()
 
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/excel-raport/",
+            self.ROBJECT_EXCEL_URL,
             {"robject_1": r.id}
         )
 
@@ -137,7 +137,7 @@ class Robjects_export_to_excel_view_test(FunctionalTest):
         r.save()
 
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/excel-raport/",
+            self.ROBJECT_EXCEL_URL,
             {"robject_2": r.id}
         )
 
@@ -210,7 +210,7 @@ class Robjects_export_to_excel_view_test(FunctionalTest):
         r2.save()
 
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/excel-raport/",
+            self.ROBJECT_EXCEL_URL,
             {"robject_1": r1.id, "robject_2": r2.id}
         )
 
@@ -254,7 +254,7 @@ class Robjects_export_to_excel_view_test(FunctionalTest):
 
     def test_error_message_when_no_selection(self):
         user, proj = self.default_set_up_for_robjects_pages()
-        response = self.client.get(f"/projects/{proj.name}/robjects/excel-raport/", follow=True)
+        response = self.client.get(self.ROBJECT_EXCEL_URL, follow=True)
         message = list(response.context['messages'])[0]
         self.assertEqual(
             message.message,
@@ -270,7 +270,7 @@ class RobjectSamplesListTest(FunctionalTest):
     def test_anonymous_user_gets_samples_page(self):
         proj = Project.objects.create(name="PROJECT_1")
         Robject.objects.create(name="Robject_1", project=proj)
-        response = self.client.get("/projects/PROJECT_1/robjects/1/samples/")
+        response = self.client.get(self.SAMPLE_LIST_URL)
         self.assertEqual(response.status_code, 302)
         self.assertIn('/accounts/login/?next=', response.url)
 
@@ -279,7 +279,7 @@ class RobjectSamplesListTest(FunctionalTest):
         robj = Robject.objects.create(name="rob")
         assign_perm("projects.can_visit_project", user, proj)
         samp = Sample(code='1a2b3c')
-        response = self.client.get(f"/projects/{proj.name}/robjects/{robj.id}/samples/")
+        response = self.client.get(self.SAMPLE_LIST_URL)
         self.assertTemplateUsed(response, "samples/samples_list.html")
 
     def test_view_get_list_of_samples_and_pass_it_to_context(self):
@@ -291,7 +291,7 @@ class RobjectSamplesListTest(FunctionalTest):
         samp1 = Sample.objects.create(code='1a1a', robject=robj)
         samp2 = Sample.objects.create(code='2a2a', robject=robj)
         samp3 = Sample.objects.create(code='3a3a', robject=robj)
-        response = self.client.get(f"/projects/{proj.name}/robjects/{robj.id}/samples/")
+        response = self.client.get(self.SAMPLE_LIST_URL)
 
         self.assertIn(samp1, response.context["sample_list"])
         self.assertIn(samp2, response.context["sample_list"])
@@ -304,7 +304,7 @@ class RobjectSamplesListTest(FunctionalTest):
         robj = Robject.objects.create(name='robject', project=proj)
 
         samp1 = Sample.objects.create(code='1a1a', robject=robj)
-        response = self.client.get(f"/projects/{proj.name}/robjects/{robj.id}/samples/")
+        response = self.client.get(self.SAMPLE_LIST_URL)
         self.assertEqual(proj, response.context['project'])
 
 
@@ -321,7 +321,7 @@ class RObjectsListViewTests(FunctionalTest):
 
     def test_render_template_on_get(self):
         user, proj = self.default_set_up_for_robjects_pages()
-        response = self.client.get(f"/projects/{proj.name}/robjects/")
+        response = self.client.get(self.ROBJECT_LIST_URL)
 
         self.assertTemplateUsed(response, "projects/robjects_list.html")
 
@@ -331,7 +331,7 @@ class RObjectsListViewTests(FunctionalTest):
         robj1 = Robject.objects.create(author=user, project=proj)
         robj2 = Robject.objects.create(author=user, project=proj)
         robj3 = Robject.objects.create(author=user, project=proj)
-        response = self.client.get(f"/projects/{proj.name}/robjects/")
+        response = self.client.get(self.ROBJECT_LIST_URL)
 
         self.assertIn(robj1, response.context["robject_list"])
         self.assertIn(robj2, response.context["robject_list"])
@@ -348,7 +348,7 @@ class SearchRobjectsViewTests(FunctionalTest):
     def test_view_renders_robjects_page_template(self):
         user, proj = self.default_set_up_for_robjects_pages()
 
-        response = self.client.get(f"/projects/{proj.name}/robjects/search/",
+        response = self.client.get(self.ROBJECT_SEARCH_URL,
                                    {"query": ""})
         self.assertTemplateUsed(response, "projects/robjects_list.html")
 
@@ -359,7 +359,7 @@ class SearchRobjectsViewTests(FunctionalTest):
         robject_2 = Robject.objects.create(name="robject_2", project=proj)
 
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/search/", {"query": "robject_1"})
+            self.ROBJECT_SEARCH_URL, {"query": "robject_1"})
         queryset = Robject.objects.filter(name="robject_1")
         # comparison of two querysets
         self.assertQuerysetEqual(
@@ -367,7 +367,7 @@ class SearchRobjectsViewTests(FunctionalTest):
 
     def test_annonymous_user_has_no_access_to_search_view(self):
         proj = Project.objects.create(name="project_1")
-        requested_url = f"/projects/{proj.name}/robjects/search/"
+        requested_url = self.ROBJECT_SEARCH_URL
         resp = self.client.get(requested_url)
         self.assertRedirects(resp, reverse("login") + f"?next={requested_url}")
 
@@ -378,7 +378,7 @@ class SearchRobjectsViewTests(FunctionalTest):
         robject_2 = Robject.objects.create(name="robject_2", project=proj)
 
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/search/", {"query": "object_1"})  # part!
+            self.ROBJECT_SEARCH_URL, {"query": "object_1"})  # part!
 
         queryset = Robject.objects.filter(name="robject_1")
 
@@ -393,14 +393,14 @@ class SearchRobjectsViewTests(FunctionalTest):
 
         # lower case query
         resp = self.client.get(
-            f"/projects/{proj.name}/robjects/search/", {"query": "robject_1"})
+            self.ROBJECT_SEARCH_URL, {"query": "robject_1"})
 
         self.assertEqual(list(resp.context["robject_list"]),
                          [robj])
 
         # upper case query
         resp = self.client.get(
-            f"/projects/{proj.name}/robjects/search/", {"query": "ROBJECT_1"})
+            self.ROBJECT_SEARCH_URL, {"query": "ROBJECT_1"})
 
         self.assertEqual(list(resp.context["robject_list"]),
                          [robj])
@@ -408,7 +408,7 @@ class SearchRobjectsViewTests(FunctionalTest):
     def test_view_pass_project_name_to_context(self):
         user, proj = self.default_set_up_for_robjects_pages()
 
-        resp = self.client.get(f"/projects/{proj.name}/robjects/search/",
+        resp = self.client.get(self.ROBJECT_SEARCH_URL,
                                {"query": "robject_1"})
 
         self.assertEqual(proj.name, resp.context["project_name"])
@@ -418,7 +418,7 @@ class SearchRobjectsViewTests(FunctionalTest):
                                                             **robject_kwargs):
 
         robj = Robject.objects.create(project=project, **robject_kwargs)
-        resp = self.client.get(f"/projects/{project.name}/robjects/search/",
+        resp = self.client.get(self.ROBJECT_SEARCH_URL,
                                {"query": query})
         return robj, resp
 
@@ -465,7 +465,7 @@ class SearchRobjectsViewTests(FunctionalTest):
         robj_2 = Robject.objects.create(project=proj)
 
         resp = self.client.get(
-            f"/projects/{proj.name}/robjects/search/", {"query": ""})
+            self.ROBJECT_SEARCH_URL, {"query": ""})
 
         all_robjects = Robject.objects.filter(project=proj)
 
@@ -481,7 +481,7 @@ class SearchRobjectsViewTests(FunctionalTest):
         robj = Robject.objects.create(project=other_proj, name="robj")
 
         resp = self.client.get(
-            f"/projects/{proj.name}/robjects/search/",
+            self.ROBJECT_SEARCH_URL,
             {"query": f"{robj.name}"})
 
         self.assertNotIn(
@@ -866,7 +866,7 @@ class RobjectsPdfTestCase(FunctionalTest):
         proj = Project.objects.create(name="PROJECT_1")
         Robject.objects.create(name="Robject_1", project=proj)
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/PDF-raport/")
+            self.ROBJECT_PDF_URL)
         self.assertEqual(response.status_code, 302)
         self.assertIn('/accounts/login/?next=', response.url)
 
@@ -879,7 +879,7 @@ class RobjectsPdfTestCase(FunctionalTest):
         robj = Robject.objects.create(name="rob", project=proj)
         assign_perm("projects.can_visit_project", user, proj)
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/PDF-raport/", {robj.name: robj.id})
+            self.ROBJECT_PDF_URL, {robj.name: robj.id})
         self.assertTemplateUsed(response, "robjects/robject_raport_pdf.html")
 
     def test_user_generates_pdf(self):
@@ -889,7 +889,7 @@ class RobjectsPdfTestCase(FunctionalTest):
             author=user, project=proj, name="robject_1")
 
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/PDF-raport/", {robj.name: robj.id})
+            self.ROBJECT_PDF_URL, {robj.name: robj.id})
         # assert attachment name as robject_raport.pdf
         self.assertEqual(response.get('Content-Disposition'),
                          'filename="raport.pdf"')
@@ -919,7 +919,7 @@ class RobjectsPdfTestCase(FunctionalTest):
             author=user, project=proj, name="robject_2")
         # User enters project robjects pdf raport page.
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/PDF-raport/", {
+            self.ROBJECT_PDF_URL, {
                 robj1.name: robj1.id, robj2.name: robj2.id})
         # User seas name of file.
         self.assertEqual(response.get('Content-Disposition'),
@@ -956,10 +956,10 @@ class RobjectHistoryViewTest(FunctionalTest):
     def test_anonymous_user_visit_page(self):
         proj = Project.objects.create(name="Project_1")
         robject = Robject.objects.create(name="Robject_1", project=proj)
-        response = self.client.get("/projects/Project_1/robjects/1/history/")
+        response = self.client.get(self.ROBJECT_HISTORY_URL)
         self.assertEqual(response.status_code, 302)
         self.assertIn(
-            f'/accounts/login/?next=/projects/{proj.name}/robjects/{robject.pk}/history/',
+            f'/accounts/login/?next={self.ROBJECT_HISTORY_URL}',
             response.url)
 
     def test_view_permission_is_required_to_visit_page(self):
@@ -970,7 +970,7 @@ class RobjectHistoryViewTest(FunctionalTest):
         user, proj = self.default_set_up_for_robjects_pages()
         robject = Robject.objects.create(name="Robject_1", project=proj)
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/{robject.pk}/history/")
+            self.ROBJECT_HISTORY_URL)
         self.assertTemplateUsed(response, "robjects/robject_history.html")
 
     def test_variables_in_context(self):
@@ -980,7 +980,7 @@ class RobjectHistoryViewTest(FunctionalTest):
         robject = Robject.objects.create(name="Robject_1", project=proj)
         # render the template
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/{robject.pk}/history/")
+            self.ROBJECT_HISTORY_URL)
         # check if versions are in context
         self.assertTrue("versions" in response.context)
         versions = response.context["versions"]
@@ -1002,7 +1002,7 @@ class RobjectHistoryViewTest(FunctionalTest):
         robject.name = "newname"
         robject.save()
         response = self.client.get(
-            f"/projects/{proj.name}/robjects/{robject.pk}/history/")
+            self.ROBJECT_HISTORY_URL)
         self.assertTrue("versions" in response.context)
         versions = response.context["versions"]
         self.assertIsInstance(versions, list)

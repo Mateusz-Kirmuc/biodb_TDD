@@ -4,6 +4,7 @@ from django.db import models
 from django.test import TestCase
 from projects.models import Project
 from robjects.models import Tag
+from django.core.urlresolvers import reverse
 
 
 class ProjectModelTestCase(TestCase):
@@ -23,7 +24,8 @@ class ProjectModelTestCase(TestCase):
     def test_get_absolute_url(self):
         proj = Project.objects.create(name="top_secret")
         self.assertEqual(proj.get_absolute_url(),
-                         "/projects/top_secret/robjects/")
+                         reverse("projects:robjects:robjects_list",
+                                 kwargs={"project_name": proj.name}))
 
     def test_project_name_uniqueness(self):
         Project.objects.create(name="PROJECT_1")
