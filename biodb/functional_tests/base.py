@@ -110,6 +110,11 @@ class FunctionalTest(StaticLiveServerTestCase):
         return self.live_server_url + reverse("projects:samples:sample_details",
                                               kwargs={"project_name": "project_1", "sample_id": 1})
 
+    @property
+    def SAMPLE_EDIT_URL(self):
+        return self.live_server_url + reverse("projects:samples:sample_edit",
+                                              kwargs={"project_name": "project_1", "sample_id": 1})
+
     def setUp(self):
         self.browser = webdriver.Chrome()
         self.main_window = None

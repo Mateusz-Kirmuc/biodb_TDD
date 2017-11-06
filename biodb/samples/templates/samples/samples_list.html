@@ -34,7 +34,7 @@
       <td>{{ object.source }}</td>
       <td>{{ object.get_status_display }}</td>
       <td>
-        <a href='/projects/{{project.name}}/samples/{{object.id}}/update/'>edit</a>
+        <a href="{% url 'projects:samples:sample_edit' project_name=view.kwargs.project_name sample_id=object.id %}">edit</a>
       </td>
     </tr>
   {% endfor %}

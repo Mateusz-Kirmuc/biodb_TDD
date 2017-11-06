@@ -2,6 +2,7 @@ from ckeditor.fields import RichTextField
 from django.contrib.auth.models import User
 from django.db import models
 from robjects.models import Robject
+from django.core.urlresolvers import reverse
 # Create your models here.
 
 
@@ -35,16 +36,17 @@ class Sample(models.Model):
                       (LIBRARY, 'Library'))
 
     code = models.CharField(max_length=100, blank=True)
-    robject = models.ForeignKey(to=Robject, null=True)
+    robject = models.ForeignKey(to=Robject, null=True, blank=True)
     owner = models.ForeignKey(
-        to=User, null=True, related_name="sample_in_which_user_is_owner")
-    create_date = models.DateTimeField(null=True, auto_now_add=True)
-    modify_date = models.DateTimeField(null=True, auto_now=True)
-    modify_by = models.ForeignKey(to=User, null=True)
+        to=User, null=True, related_name="sample_in_which_user_is_owner", blank=True)
+    create_date = models.DateTimeField(
+        null=True, auto_now_add=True, blank=True)
+    modify_date = models.DateTimeField(null=True, auto_now=True, blank=True)
+    modify_by = models.ForeignKey(to=User, null=True, blank=True)
     notes = RichTextField(null=True, blank=True)
     form = models.CharField(max_length=100, blank=True)
     source = models.CharField(max_length=100, blank=True)
-    status = models.IntegerField(default=1, choices=STATUS_CHOICES)
+    status = models.IntegerField(default=1, choices=STATUS_CHOICES, blank=True)
 
     def __str__(self):
         return "Sample " + str(self.id)
@@ -61,5 +63,11 @@ class Sample(models.Model):
             fields = []
         fields_dict = {field.verbose_name: getattr(
             instance, field.name) for field in instance._meta.get_fields()
-                       if field.name in fields}
+            if field.name in fields}
         return sorted(fields_dict.items())
+
+    def get_absolute_url(self):
+        return reverse("projects:samples:sample_details", kwargs={
+            "project_name": self.robject.project.name,
+            "sample_id": self.id
+        })
