@@ -44,6 +44,8 @@ class FunctionalTest(TestCase):
                               kwargs={"project_name": "project_1"})
     SAMPLE_DETAILS_URL = reverse("projects:samples:sample_details",
                                  kwargs={"project_name": "project_1", "sample_id": 1})
+    SAMPLE_EDIT_URL = reverse("projects:samples:sample_edit",
+                              kwargs={"project_name": "project_1", "sample_id": 1})
 
     def default_set_up_for_projects_pages(self):
         user = User.objects.create_user(

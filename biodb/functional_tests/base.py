@@ -110,6 +110,11 @@ class FunctionalTest(StaticLiveServerTestCase):
         return self.live_server_url + reverse("projects:samples:sample_details",
                                               kwargs={"project_name": "project_1", "sample_id": 1})
 
+    @property
+    def SAMPLE_EDIT_URL(self):
+        return self.live_server_url + reverse("projects:samples:sample_edit",
+                                              kwargs={"project_name": "project_1", "sample_id": 1})
+
     def setUp(self):
         self.browser = webdriver.Chrome()
         self.main_window = None
@@ -222,7 +227,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.login_user("USERNAME", "PASSWORD")
         return user
 
-    def default_set_up_for_robjects_pages(self):
+    def default_set_up_for_visit_robjects_pages(self):
         proj = Project.objects.create(name="project_1")
         user = self.default_set_up_for_projects_pages()
         assign_perm("can_visit_project", user, proj)

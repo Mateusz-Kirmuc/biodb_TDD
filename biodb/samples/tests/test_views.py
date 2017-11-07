@@ -127,3 +127,8 @@ class SampleDetailViewTest(FunctionalTest):
         response = self.client.get(f"/projects/{proj1.name}/samples/{samp2.id}/")
         responsed_sample = response.context['object']
         self.assertEqual(responsed_sample.code, "samp_2")
+
+
+class SampleEditView(FunctionalTest):
+    def test_annonymous_access(self):
+        self.annonymous_testing_helper(self.SAMPLE_EDIT_URL)

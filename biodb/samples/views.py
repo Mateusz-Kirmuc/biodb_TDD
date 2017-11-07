@@ -5,7 +5,7 @@ from django_tables2 import SingleTableView
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.views.generic import DetailView
+from django.views.generic import DetailView, UpdateView
 from django.views.generic.list import ListView
 
 from projects.models import Project
@@ -57,3 +57,10 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
     def get_permission_object(self):
         project = get_object_or_404(Project, name=self.kwargs['project_name'])
         return project
+
+
+class SampleEditView(LoginPermissionRequiredMixin, UpdateView):
+    model = Sample
+    pk_url_kwarg = "sample_id"
+    fields = "__all__"
+    template_name = "samples/sample_edit.html"
