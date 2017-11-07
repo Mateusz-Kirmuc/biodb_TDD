@@ -11,6 +11,7 @@ from django.views.generic.list import ListView
 from projects.models import Project
 from samples.models import Sample
 from samples.tables import SampleTable
+from samples import forms as sample_forms
 
 
 class SampleListView(LoginPermissionRequiredMixin, SingleTableView, ListView):
@@ -64,11 +65,11 @@ class SampleEditView(LoginPermissionRequiredMixin, UpdateView):
     template_name = "samples/sample_edit.html"
     permissions_required = ["can_visit_project", "can_modify_project"]
     pk_url_kwarg = "sample_id"
-    exclude = ["modify_by"]
-    fields = "__all__"
+    prefix = ""
+    form_class = sample_forms.SampleForm
 
     def get_permission_object(self):
-        p = Project.objects.get(name=self.kwargs["project_name"])
+        p = get_object_or_404(Project, name=self.kwargs["project_name"])
         return p
 
     def form_valid(self, form):

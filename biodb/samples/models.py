@@ -42,7 +42,10 @@ class Sample(models.Model):
     create_date = models.DateTimeField(
         null=True, auto_now_add=True, blank=True)
     modify_date = models.DateTimeField(null=True, auto_now=True, blank=True)
-    modify_by = models.ForeignKey(to=User, null=True, blank=True)
+    create_by = models.ForeignKey(
+        to=User, null=True, blank=True, related_name="samples_created_by_user")
+    modify_by = models.ForeignKey(
+        to=User, null=True, blank=True, related_name="samples_modyfied_by_user")
     notes = RichTextField(null=True, blank=True)
     form = models.CharField(max_length=100, blank=True)
     source = models.CharField(max_length=100, blank=True)
