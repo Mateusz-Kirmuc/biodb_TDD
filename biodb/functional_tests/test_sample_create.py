@@ -30,5 +30,8 @@ class SampleCreateTestCase(FunctionalTest):
         notes_input = self.browser.find_elements_by_tag_name("input")[1]
         self.assertEqual(notes_input.get_attribute("placeholder"), "form")
 
+        notes_input = self.browser.find_elements_by_tag_name("input")[2]
+        self.assertEqual(notes_input.get_attribute("placeholder"), "source")
+
         # Content user logs out.
         self.fail("Finish test!")
