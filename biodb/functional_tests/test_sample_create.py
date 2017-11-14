@@ -24,5 +24,8 @@ class SampleCreateTestCase(FunctionalTest):
             "option[selected]")
         self.assertEqual(owner_option.text, "logged_user")
 
+        notes_input = self.browser.find_element_by_tag_name("textarea")
+        self.assertEqual(notes_input.get_attribute("placeholder"), "notes")
+
         # Content user logs out.
         self.fail("Finish test!")
