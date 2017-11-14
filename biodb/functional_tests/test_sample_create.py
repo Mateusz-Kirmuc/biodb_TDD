@@ -16,7 +16,7 @@ class SampleCreateTestCase(FunctionalTest):
                          "/projects/project_1/samples/create/")
         # User decides to slightly look around.
         # He sees several input elements.
-        code_input = self.browser.find_element_by_tag_name("input")
+        code_input = self.browser.find_elements_by_tag_name("input")[0]
         self.assertEqual(code_input.get_attribute("placeholder"), "code")
 
         owner_input = self.browser.find_element_by_tag_name("select")
@@ -26,6 +26,9 @@ class SampleCreateTestCase(FunctionalTest):
 
         notes_input = self.browser.find_element_by_tag_name("textarea")
         self.assertEqual(notes_input.get_attribute("placeholder"), "notes")
+
+        notes_input = self.browser.find_elements_by_tag_name("input")[1]
+        self.assertEqual(notes_input.get_attribute("placeholder"), "form")
 
         # Content user logs out.
         self.fail("Finish test!")
