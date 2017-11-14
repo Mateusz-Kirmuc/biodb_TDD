@@ -8,6 +8,8 @@ from samples.models import Sample
 from unit_tests.base import FunctionalTest
 from samples.views import SampleListView
 from guardian.shortcuts import assign_perm
+from django.core.urlresolvers import resolve
+from samples.views import sample_create_view
 
 
 class SampleListViewTest(FunctionalTest):
@@ -127,3 +129,13 @@ class SampleDetailViewTest(FunctionalTest):
         response = self.client.get(f"/projects/{proj1.name}/samples/{samp2.id}/")
         responsed_sample = response.context['object']
         self.assertEqual(responsed_sample.code, "samp_2")
+
+
+class SampleCreateViewTestCase(FunctionalTest):
+    def test_sample_create_url_resolve_to_sample_create_view(self):
+        found = resolve("/projects/project_1/samples/create/")
+        self.assertEqual(found.func, sample_create_view)
+
+    def test_view_renders_sample_create_template(self):
+        response = self.client.get("/projects/project_1/samples/create/")
+        self.assertTemplateUsed(response, "samples/sample_create.html")

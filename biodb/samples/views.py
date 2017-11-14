@@ -3,8 +3,8 @@ from biodb.mixins import LoginPermissionRequiredMixin
 
 from django_tables2 import SingleTableView
 
-from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, render
 from django.views.generic import DetailView
 from django.views.generic.list import ListView
 
@@ -57,3 +57,7 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
     def get_permission_object(self):
         project = get_object_or_404(Project, name=self.kwargs['project_name'])
         return project
+
+
+def sample_create_view(request, project_name):
+    return render(request, "samples/sample_create.html")
