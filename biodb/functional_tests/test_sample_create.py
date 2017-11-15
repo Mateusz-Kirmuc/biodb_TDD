@@ -13,10 +13,6 @@ class SampleCreateTestCase(FunctionalTest):
 
     def test_user_visit_page(self):
         # SET UP
-        logged_user = User.objects.create_user(
-            username="logged_user", password="logged_user_password")
-        self.login_user(username="logged_user",
-                        password="logged_user_password")
         # User heard about new feature in biodb app: sample creation form!
         # He goes to dedicated url.
         self.browser.get(self.live_server_url +
@@ -46,4 +42,28 @@ class SampleCreateTestCase(FunctionalTest):
         for idx, choice in enumerate(choices):
             self.assertEqual(choice, status_options[idx].text)
 
+        button = self.find_tag("button")
+        self.assertEqual(button.text, "Submit")
+
         # Content user logs out.
+
+    def test_user_creates_full_sample(self):
+        # User wants to test new feature in biodb app.
+        # He goes to dedicated page.
+        self.browser.get(self.live_server_url +
+                         "/projects/project_1/samples/create/")
+        # Then he fills all text inputs and set status as 'Production' status.
+        self.find_by_css("input[placeholder='code']").send_keys("test_code")
+        self.find_by_css(
+            "textarea[placeholder='notes']").send_keys("test_notes")
+        self.find_by_css("input[placeholder='form']").send_keys("test_form")
+        self.find_by_css("input[placeholder='source']").send_keys(
+            "test_source")
+        self.browser.find_element_by_xpath(
+            "//option[contains(text(), 'Production')]").click()
+
+        # Now user clicks submit button.
+        self.find_tag("button").click()
+        # He notice he was redirected to sample detail page.
+        # In this page he wants to confirm all previous submitted data.
+        # When he finish, he logs out.
