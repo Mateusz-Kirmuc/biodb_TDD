@@ -139,3 +139,8 @@ class SampleCreateViewTestCase(FunctionalTest):
     def test_view_renders_sample_create_template(self):
         response = self.client.get("/projects/project_1/samples/create/")
         self.assertTemplateUsed(response, "samples/sample_create.html")
+
+    def test_view_creates_new_sample_on_post(self):
+        self.assertEqual(Sample.objects.count(), 0)
+        response = self.client.post("/projects/project_1/samples/create/")
+        self.assertEqual(Sample.objects.count(), 1)

@@ -64,6 +64,15 @@ class SampleCreateTestCase(FunctionalTest):
 
         # Now user clicks submit button.
         self.find_tag("button").click()
+
         # He notice he was redirected to sample detail page.
+
+        # GET ID OF LAST CREATED SAMPLE
+        last_sample_id = Sample.objects.last().id
+        self.browser.current_url(self.live_server_url + reverse(
+            "projects:samples:sample_details",
+            kwargs={"project_name": "project_1", "sample_id": last_sample_id}))
+
         # In this page he wants to confirm all previous submitted data.
         # When he finish, he logs out.
+        self.fail("Finish test!")

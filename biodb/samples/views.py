@@ -60,4 +60,5 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
 
 
 def sample_create_view(request, project_name):
+    Sample.objects.create()
     return render(request, "samples/sample_create.html")
