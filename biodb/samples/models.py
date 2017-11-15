@@ -28,7 +28,7 @@ class Sample(models.Model):
                       (PREP, 'Preperation'),
                       (OPTIMAILIZATION, 'Optimalization'),
                       (PRODUCTION, 'Production'),
-                      (QA_CONTROL, 'Quality COntrol'),
+                      (QA_CONTROL, 'Quality Control'),
                       (COMPLETED, 'Completed'),
                       (CANCELED, 'Canceled'),
                       (ON_HOLD, 'ON_HOLD'),
@@ -61,5 +61,5 @@ class Sample(models.Model):
             fields = []
         fields_dict = {field.verbose_name: getattr(
             instance, field.name) for field in instance._meta.get_fields()
-                       if field.name in fields}
+            if field.name in fields}
         return sorted(fields_dict.items())
