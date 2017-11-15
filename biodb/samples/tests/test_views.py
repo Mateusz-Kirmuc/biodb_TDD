@@ -140,15 +140,15 @@ class SampleCreateViewTestCase(FunctionalTest):
         response = self.client.get("/projects/project_1/samples/create/")
         self.assertTemplateUsed(response, "samples/sample_create.html")
 
-    def test_view_creates_new_sample_on_post(self):
-        self.assertEqual(Sample.objects.count(), 0)
-        response = self.client.post("/projects/project_1/samples/create/")
-        self.assertEqual(Sample.objects.count(), 1)
-
-    def test_view_redirects_on_post(self):
-        response = self.client.post("/projects/project_1/samples/create/")
-        last_sample_id = Sample.objects.last().id
-        expected_redirect_url = reverse(
-            "projects:samples:sample_details",
-            kwargs={"project_name": "project_1", "sample_id": last_sample_id})
-        self.assertRedirects(response, expected_redirect_url)
+    # def test_view_creates_new_sample_on_post(self):
+    #     self.assertEqual(Sample.objects.count(), 0)
+    #     response = self.client.post("/projects/project_1/samples/create/")
+    #     self.assertEqual(Sample.objects.count(), 1)
+    #
+    # def test_view_redirects_on_post(self):
+    #     response = self.client.post("/projects/project_1/samples/create/")
+    #     last_sample_id = Sample.objects.last().id
+    #     expected_redirect_url = reverse(
+    #         "projects:samples:sample_details",
+    #         kwargs={"project_name": "project_1", "sample_id": last_sample_id})
+    #     self.assertRedirects(response, expected_redirect_url)
