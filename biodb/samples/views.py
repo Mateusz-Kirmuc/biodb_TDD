@@ -4,10 +4,10 @@ from biodb.mixins import LoginPermissionRequiredMixin
 from django_tables2 import SingleTableView
 
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import DetailView
 from django.views.generic.list import ListView
-
+from django.core.urlresolvers import reverse
 from projects.models import Project
 from samples.models import Sample
 from samples.tables import SampleTable
@@ -60,5 +60,10 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
 
 
 def sample_create_view(request, project_name):
-    Sample.objects.create()
+    if request.method == "POST":
+        s = Sample.objects.create()
+        redirect_to = reverse(
+            "projects:samples:sample_details",
+            kwargs={"project_name": p.name, "sample_id": s.id})
+        return redirect(redirect_to)
     return render(request, "samples/sample_create.html")

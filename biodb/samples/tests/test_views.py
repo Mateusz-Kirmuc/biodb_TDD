@@ -8,7 +8,7 @@ from samples.models import Sample
 from unit_tests.base import FunctionalTest
 from samples.views import SampleListView
 from guardian.shortcuts import assign_perm
-from django.core.urlresolvers import resolve
+from django.core.urlresolvers import resolve, reverse
 from samples.views import sample_create_view
 
 
@@ -144,3 +144,11 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertEqual(Sample.objects.count(), 0)
         response = self.client.post("/projects/project_1/samples/create/")
         self.assertEqual(Sample.objects.count(), 1)
+
+    def test_view_redirects_on_post(self):
+        response = self.client.post("/projects/project_1/samples/create/")
+        last_sample_id = Sample.objects.last().id
+        expected_redirect_url = reverse(
+            "projects:samples:sample_details",
+            kwargs={"project_name": "project_1", "sample_id": last_sample_id})
+        self.assertRedirects(response, expected_redirect_url)
