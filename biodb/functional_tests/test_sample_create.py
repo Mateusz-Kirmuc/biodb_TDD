@@ -5,6 +5,12 @@ from samples.models import Sample
 
 
 class SampleCreateTestCase(FunctionalTest):
+    def find_tag(self, *args, **kwargs):
+        return self.browser.find_element_by_tag_name(*args, **kwargs)
+
+    def find_tags(self, *args, **kwargs):
+        return self.browser.find_elements_by_tag_name(*args, **kwargs)
+
     def test_user_visit_page(self):
         # SET UP
         logged_user = User.objects.create_user(
@@ -17,24 +23,24 @@ class SampleCreateTestCase(FunctionalTest):
                          "/projects/project_1/samples/create/")
         # User decides to slightly look around.
         # He sees several input elements.
-        code_input = self.browser.find_elements_by_tag_name("input")[0]
+        code_input = self.find_tags("input")[0]
         self.assertEqual(code_input.get_attribute("placeholder"), "code")
 
-        owner_input = self.browser.find_elements_by_tag_name("select")[0]
+        owner_input = self.find_tags("select")[0]
         owner_option = owner_input.find_element_by_css_selector(
             "option[selected]")
         self.assertEqual(owner_option.text, "logged_user")
 
-        notes_input = self.browser.find_element_by_tag_name("textarea")
+        notes_input = self.find_tag("textarea")
         self.assertEqual(notes_input.get_attribute("placeholder"), "notes")
 
-        notes_input = self.browser.find_elements_by_tag_name("input")[1]
+        notes_input = self.find_tags("input")[1]
         self.assertEqual(notes_input.get_attribute("placeholder"), "form")
 
-        notes_input = self.browser.find_elements_by_tag_name("input")[2]
+        notes_input = self.find_tags("input")[2]
         self.assertEqual(notes_input.get_attribute("placeholder"), "source")
 
-        status_input = self.browser.find_elements_by_tag_name("select")[1]
+        status_input = self.find_tags("select")[1]
         status_options = status_input.find_elements_by_tag_name("option")
         choices = [choice[1] for choice in Sample.STATUS_CHOICES]
         for idx, choice in enumerate(choices):
