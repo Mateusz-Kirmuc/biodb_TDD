@@ -37,8 +37,7 @@ class SampleCreateTestCase(FunctionalTest):
         status_input = self.browser.find_elements_by_tag_name("select")[1]
         status_options = status_input.find_elements_by_tag_name("option")
         choices = [choice[1] for choice in Sample.STATUS_CHOICES]
-        for choice in choices:
-            self.assertIn(choice, [option.text for option in status_options])
+        for idx, choice in enumerate(choices):
+            self.assertEqual(choice, status_options[idx].text)
 
         # Content user logs out.
-        self.fail("Finish test!")
