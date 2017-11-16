@@ -4,8 +4,10 @@ from django.contrib.auth.models import User
 from samples.models import Sample
 from django.core.urlresolvers import reverse
 from projects.models import Project
+from django.test import tag
 
 
+@tag("ft", "sample_create")
 class SampleCreateTestCase(FunctionalTest):
     def find_tag(self, *args, **kwargs):
         return self.browser.find_element_by_tag_name(*args, **kwargs)
@@ -13,16 +15,18 @@ class SampleCreateTestCase(FunctionalTest):
     def find_tags(self, *args, **kwargs):
         return self.browser.find_elements_by_tag_name(*args, **kwargs)
 
+    @tag("1")
     def test_user_visit_page(self):
         # SET UP
         proj, user = self.default_set_up_for_robjects_pages()
 
         # User heard about new feature in biodb app: sample creation form!
         # He doesn't know how to get there so he visits sample list page.
-        self.browser.get(self.live_server_url + reverse("projects:samples:sample_list",
-                                                        kwargs={"project_name": proj.name}))
+        self.browser.get(self.SAMPLE_LIST_URL)
+
         # He notice 'sample create link' and clicks it.
         self.browser.find_element_by_link_text("Create sample").click()
+
         # User decides to slightly look around.
         # He sees several input elements.
         code_input = self.find_tags("input")[0]
