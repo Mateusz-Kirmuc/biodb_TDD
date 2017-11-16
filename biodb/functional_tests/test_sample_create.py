@@ -5,9 +5,9 @@ from samples.models import Sample
 from django.core.urlresolvers import reverse
 from projects.models import Project
 from django.test import tag
+from robjects.models import Robject
 
 
-@tag("ft_sample_create")
 class SampleCreateTestCase(FunctionalTest):
     def find_tag(self, *args, **kwargs):
         return self.browser.find_element_by_tag_name(*args, **kwargs)
@@ -15,15 +15,23 @@ class SampleCreateTestCase(FunctionalTest):
     def find_tags(self, *args, **kwargs):
         return self.browser.find_elements_by_tag_name(*args, **kwargs)
 
+    @tag("ft_sample_create_1")
     def test_user_visit_page(self):
         # SET UP
         proj, user = self.default_set_up_for_robjects_pages()
+        robj = Robject.objects.create(project=proj, name="robject_1")
 
         # User heard about new feature in biodb app: sample creation form!
-        # He doesn't know how to get there so he visits sample list page.
-        self.browser.get(self.SAMPLE_LIST_URL)
+        # He knows that he can get there through robject detail page.
+        # User goes to robject list page.
+        self.browser.get(self.ROBJECT_LIST_URL)
 
-        # He notice 'sample create link' and clicks it.
+        # He chooses sample robject from table and clicks its details link.
+        rows = self.find_tags("tr")
+        first_row = self.find_by_css("tr:nth-child(2)")
+        first_row.find_element_by_link_text("details").click()
+
+        # In the next page he notices 'sample create link' and clicks it.
         self.browser.find_element_by_link_text("Create sample").click()
 
         # User decides to slightly look around.
@@ -45,7 +53,7 @@ class SampleCreateTestCase(FunctionalTest):
         notes_input = self.find_tags("input")[2]
         self.assertEqual(notes_input.get_attribute("placeholder"), "source")
 
-        status_input = self.find_tags("select")[1]
+        status_input = self.find_tags("select")[2]
         status_options = status_input.find_elements_by_tag_name("option")
         choices = [choice[1] for choice in Sample.STATUS_CHOICES]
         for idx, choice in enumerate(choices):
@@ -93,7 +101,9 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(expected_current_url, self.browser.current_url)
 
         # In this page he wants to confirm all previous submitted data.
-        header = self.find_tag("h1")
-        self.assertEqual(header.text, "test_code")
+        sample_code_in_template = self.find_tag("h1")
+        self.assertEqual(sample_code.text, "test_code")
+        rest_sample_data_in_template = self.find_tags("li")
+        # self.assertEqual(rest_sample_data_in_template[0].text, Robject name : )
         self.fail("finish test!")
         # When he finish, he logs out.
