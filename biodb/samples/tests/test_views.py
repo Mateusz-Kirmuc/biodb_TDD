@@ -134,7 +134,8 @@ class SampleDetailViewTest(FunctionalTest):
 
 @tag("ut_sample_create")
 class SampleCreateViewTestCase(FunctionalTest):
-    SAMPLE_CREATE_URL = "/projects/project_1/samples/create/"
+    SAMPLE_CREATE_URL = reverse("projects:samples:sample_create", kwargs={
+                                "project_name": "project_1"})
 
     def test_sample_create_url_resolve_to_sample_create_view(self):
         found = resolve(self.SAMPLE_CREATE_URL)
