@@ -60,8 +60,8 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
 
 
 def sample_create_view(request, project_name):
-    # if request.method == "POST":
-    #     s = Sample.objects.create()
+    if request.method == "POST":
+        s = Sample.objects.create()
     #     redirect_to = reverse(
     #         "projects:samples:sample_details",
     #         kwargs={"project_name": p.name, "sample_id": s.id})

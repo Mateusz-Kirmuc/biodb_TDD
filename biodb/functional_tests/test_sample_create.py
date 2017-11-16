@@ -7,7 +7,7 @@ from projects.models import Project
 from django.test import tag
 
 
-@tag("ft", "sample_create")
+@tag("ft_sample_create")
 class SampleCreateTestCase(FunctionalTest):
     def find_tag(self, *args, **kwargs):
         return self.browser.find_element_by_tag_name(*args, **kwargs)
@@ -15,7 +15,6 @@ class SampleCreateTestCase(FunctionalTest):
     def find_tags(self, *args, **kwargs):
         return self.browser.find_elements_by_tag_name(*args, **kwargs)
 
-    @tag("1")
     def test_user_visit_page(self):
         # SET UP
         proj, user = self.default_set_up_for_robjects_pages()
@@ -57,7 +56,7 @@ class SampleCreateTestCase(FunctionalTest):
 
         # Content user logs out.
 
-    @tag("2")
+    @tag("ft_sample_create_2")
     def test_user_creates_full_sample(self):
         # SET UP
         proj, user = self.default_set_up_for_robjects_pages()

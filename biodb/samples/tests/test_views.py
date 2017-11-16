@@ -10,6 +10,7 @@ from samples.views import SampleListView
 from guardian.shortcuts import assign_perm
 from django.core.urlresolvers import resolve, reverse
 from samples.views import sample_create_view
+from django.test import tag
 
 
 class SampleListViewTest(FunctionalTest):
@@ -131,6 +132,7 @@ class SampleDetailViewTest(FunctionalTest):
         self.assertEqual(responsed_sample.code, "samp_2")
 
 
+@tag("ut_sample_create")
 class SampleCreateViewTestCase(FunctionalTest):
     def test_sample_create_url_resolve_to_sample_create_view(self):
         found = resolve("/projects/project_1/samples/create/")
@@ -139,6 +141,11 @@ class SampleCreateViewTestCase(FunctionalTest):
     def test_view_renders_sample_create_template(self):
         response = self.client.get("/projects/project_1/samples/create/")
         self.assertTemplateUsed(response, "samples/sample_create.html")
+
+    def test_view_creates_new_sample_on_post(self):
+        self.assertEqual(Sample.objects.count(), 0)
+        response = self.client.post("/projects/project_1/samples/create/")
+        self.assertEqual(Sample.objects.count(), 1)
 
     # def test_view_creates_new_sample_on_post(self):
     #     self.assertEqual(Sample.objects.count(), 0)
