@@ -59,6 +59,9 @@ class SampleCreateTestCase(FunctionalTest):
 
     @tag("2")
     def test_user_creates_full_sample(self):
+        # SET UP
+        proj, user = self.default_set_up_for_robjects_pages()
+
         # User wants to test new feature in biodb app.
         # He goes to sample create page through link in sample list page.
         self.browser.get(self.SAMPLE_LIST_URL)
