@@ -9,5 +9,5 @@ urlpatterns = [
     url(r"^$", SampleListView.as_view(), name="sample_list"),
     url(r'^(?P<sample_id>[0-9]+)/$', SampleDetailView.as_view(),
         name='sample_details'),
-    url(r'^create/$', sample_create_view)
+    url(r'^create/$', sample_create_view, name="sample_create")
 ]

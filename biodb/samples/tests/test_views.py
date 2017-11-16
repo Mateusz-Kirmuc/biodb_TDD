@@ -157,3 +157,7 @@ class SampleCreateViewTestCase(FunctionalTest):
             "projects:samples:sample_details",
             kwargs={"project_name": "project_1", "sample_id": last_sample_id})
         self.assertRedirects(response, expected_redirect_url)
+
+    def test_sample_create_resolver_match_contains_url_name(self):
+        found = resolve(self.SAMPLE_CREATE_URL)
+        self.assertEqual(found.url_name, "sample_create")
