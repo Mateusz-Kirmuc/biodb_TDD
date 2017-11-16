@@ -19,6 +19,6 @@
 
 
 
-<a class="link_back" href="{% url 'projects:samples:sample_list' object.robject.project.name %}">Back to sample table</a>
+<a class="link_back" href="{% url 'projects:samples:sample_list' project_name=view.kwargs.project_name %}">Back to sample table</a>
 
 {% endblock %}

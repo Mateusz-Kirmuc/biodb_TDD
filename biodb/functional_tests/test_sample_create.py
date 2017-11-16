@@ -94,4 +94,3 @@ class SampleCreateTestCase(FunctionalTest):
 
         # In this page he wants to confirm all previous submitted data.
         # When he finish, he logs out.
-        self.fail("Finish test!")
