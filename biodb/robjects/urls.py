@@ -11,6 +11,7 @@ from robjects.views import RobjectPDFeView
 from robjects.views import RobjectSamplesList
 from robjects.views import SearchRobjectsView
 from robjects.views import TagCreateView
+from django.http import HttpResponse
 
 app_name = 'robjects'
 urlpatterns = [
@@ -29,4 +30,8 @@ urlpatterns = [
     url(r"^tags-create/$", TagCreateView.as_view(), name="tags_create"),
     url(r'^(?P<robject_id>[0-9]+)/samples/$',
         RobjectSamplesList.as_view(), name='robject_samples'),
+    url(r'^(?P<robject_id>[0-9]+)/details/',
+        lambda request, project_name, robject_id: HttpResponse(
+            f"<a href='/projects/{project_name}/robjects/{robject_id}/samples/create/'>Create sample</a>"
+        ))
 ]

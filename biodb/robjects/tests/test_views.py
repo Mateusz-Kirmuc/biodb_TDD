@@ -19,6 +19,7 @@ from io import BytesIO
 from openpyxl import load_workbook
 from unittest.mock import patch, call
 import datetime
+from django.test import tag
 
 
 class Robjects_export_to_excel_view_test(FunctionalTest):
@@ -1032,3 +1033,13 @@ class RobjectHistoryViewTest(FunctionalTest):
         self.assertEqual(diff_object.field, "name")
         self.assertEqual(diff_object.old_value, "Robject_1")
         self.assertEqual(diff_object.new_value, "newname")
+
+
+class RobjectDetailsTestCase(FunctionalTest):
+    @tag("ut_robject_details_1")
+    def test_request_to_rob_details_url_results_in_render_link_to_sample_create(self):
+        response = self.client.get("/projects/project_1/robjects/1/details/")
+        self.assertContains(
+            response,
+            "<a href='/projects/project_1/robjects/1/samples/create/'>Create sample</a>"
+        )
