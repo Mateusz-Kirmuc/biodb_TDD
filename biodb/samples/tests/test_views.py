@@ -134,22 +134,24 @@ class SampleDetailViewTest(FunctionalTest):
 
 @tag("ut_sample_create")
 class SampleCreateViewTestCase(FunctionalTest):
+    SAMPLE_CREATE_URL = "/projects/project_1/samples/create/"
+
     def test_sample_create_url_resolve_to_sample_create_view(self):
-        found = resolve("/projects/project_1/samples/create/")
+        found = resolve(self.SAMPLE_CREATE_URL)
         self.assertEqual(found.func, sample_create_view)
 
     def test_view_renders_sample_create_template(self):
-        response = self.client.get("/projects/project_1/samples/create/")
+        response = self.client.get(self.SAMPLE_CREATE_URL)
         self.assertTemplateUsed(response, "samples/sample_create.html")
 
     def test_view_creates_new_sample_on_post(self):
         self.assertEqual(Sample.objects.count(), 0)
-        response = self.client.post("/projects/project_1/samples/create/")
+        response = self.client.post(self.SAMPLE_CREATE_URL)
         self.assertEqual(Sample.objects.count(), 1)
 
     def test_view_redirects_on_post(self):
         proj, user = self.default_set_up_for_visit_robjects_pages()
-        response = self.client.post("/projects/project_1/samples/create/")
+        response = self.client.post(self.SAMPLE_CREATE_URL)
         last_sample_id = Sample.objects.last().id
         expected_redirect_url = reverse(
             "projects:samples:sample_details",
