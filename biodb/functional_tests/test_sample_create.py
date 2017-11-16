@@ -57,34 +57,39 @@ class SampleCreateTestCase(FunctionalTest):
 
         # Content user logs out.
 
-    # def test_user_creates_full_sample(self):
-    #     # User wants to test new feature in biodb app.
-    #     # He goes to dedicated page.
-    #     self.browser.get(self.live_server_url +
-    #                      "/projects/project_1/samples/create/")
-    #     # Then he fills all text inputs and set status as 'Production' status.
-    #     self.find_by_css("input[placeholder='code']").send_keys("test_code")
-    #     self.find_by_css(
-    #         "textarea[placeholder='notes']").send_keys("test_notes")
-    #     self.find_by_css("input[placeholder='form']").send_keys("test_form")
-    #     self.find_by_css("input[placeholder='source']").send_keys(
-    #         "test_source")
-    #     self.browser.find_element_by_xpath(
-    #         "//option[contains(text(), 'Production')]").click()
-    #
-    #     # Now user clicks submit button.
-    #     self.find_tag("button").click()
-    #
-    #     # He notice he was redirected to sample detail page.
-    #
-    #     # GET ID OF LAST CREATED SAMPLE
-    #     last_sample_id = Sample.objects.last().id
-    #     expected_current_url = self.live_server_url + reverse(
-    #         "projects:samples:sample_details",
-    #         kwargs={"project_name": "project_1", "sample_id": last_sample_id})
-    #
-    #     self.assertEqual(expected_current_url, self.browser.current_url)
-    #
-    #     # In this page he wants to confirm all previous submitted data.
-    #     # When he finish, he logs out.
-    #     self.fail("Finish test!")
+    @tag("2")
+    def test_user_creates_full_sample(self):
+        # User wants to test new feature in biodb app.
+        # He goes to sample create page through link in sample list page.
+        self.browser.get(self.SAMPLE_LIST_URL)
+        self.browser.find_element_by_link_text("Create sample").click()
+
+        # User fills all text inputs, change owner and set status as
+        # 'Production' status.
+        self.find_by_css("input[placeholder='code']").send_keys("test_code")
+        self.find_by_css(
+            "textarea[placeholder='notes']").send_keys("test_notes")
+        self.find_by_css("input[placeholder='form']").send_keys("test_form")
+        self.find_by_css("input[placeholder='source']").send_keys(
+            "test_source")
+        self.browser.find_element_by_xpath(
+            "//option[contains(text(), 'other_user')]").click()
+        self.browser.find_element_by_xpath(
+            "//option[contains(text(), 'Production')]").click()
+
+        # Now user clicks submit button.
+        self.find_tag("button").click()
+
+        # He notice he was redirected to sample detail page.
+
+        # GET ID OF LAST CREATED SAMPLE
+        last_sample_id = Sample.objects.last().id
+        expected_current_url = self.live_server_url + reverse(
+            "projects:samples:sample_details",
+            kwargs={"project_name": "project_1", "sample_id": last_sample_id})
+
+        self.assertEqual(expected_current_url, self.browser.current_url)
+
+        # In this page he wants to confirm all previous submitted data.
+        # When he finish, he logs out.
+        self.fail("Finish test!")
