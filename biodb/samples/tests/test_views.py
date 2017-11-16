@@ -134,9 +134,10 @@ class SampleDetailViewTest(FunctionalTest):
 
 @tag("ut_sample_create")
 class SampleCreateViewTestCase(FunctionalTest):
-    SAMPLE_CREATE_URL = reverse("projects:samples:sample_create", kwargs={
-                                "project_name": "project_1"})
+    SAMPLE_CREATE_URL = reverse("projects:robjects  :sample_create", kwargs={
+                                "project_name": "project_1", "robject_id": "1"})
 
+    @tag("ut_sample_create_1")
     def test_sample_create_url_resolve_to_sample_create_view(self):
         found = resolve(self.SAMPLE_CREATE_URL)
         self.assertEqual(found.func, sample_create_view)

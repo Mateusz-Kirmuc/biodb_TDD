@@ -59,7 +59,7 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
         return project
 
 
-def sample_create_view(request, project_name):
+def sample_create_view(request, project_name, robject_id):
     if request.method == "POST":
         s = Sample.objects.create(code=request.POST.get("code", ""))
         redirect_to = reverse(

@@ -12,6 +12,7 @@ from robjects.views import RobjectSamplesList
 from robjects.views import SearchRobjectsView
 from robjects.views import TagCreateView
 from django.http import HttpResponse
+from samples.views import sample_create_view
 
 app_name = 'robjects'
 urlpatterns = [
@@ -33,5 +34,7 @@ urlpatterns = [
     url(r'^(?P<robject_id>[0-9]+)/details/',
         lambda request, project_name, robject_id: HttpResponse(
             f"<a href='/projects/{project_name}/robjects/{robject_id}/samples/create/'>Create sample</a>"
-        ))
+        )),
+    url(r'^(?P<robject_id>[0-9]+)/samples/create/$',
+        sample_create_view, name="sample_create")
 ]

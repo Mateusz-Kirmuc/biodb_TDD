@@ -36,6 +36,7 @@ class SampleCreateTestCase(FunctionalTest):
 
         # User decides to slightly look around.
         # He sees several input elements.
+        time.sleep(10)
         code_input = self.find_tags("input")[0]
         self.assertEqual(code_input.get_attribute("placeholder"), "code")
 
@@ -53,7 +54,7 @@ class SampleCreateTestCase(FunctionalTest):
         notes_input = self.find_tags("input")[2]
         self.assertEqual(notes_input.get_attribute("placeholder"), "source")
 
-        status_input = self.find_tags("select")[2]
+        status_input = self.find_tags("select")[1]
         status_options = status_input.find_elements_by_tag_name("option")
         choices = [choice[1] for choice in Sample.STATUS_CHOICES]
         for idx, choice in enumerate(choices):

@@ -1,5 +1,4 @@
 <form action="" method="post">
-  {% csrf_token %}
   <input type="text" placeholder="code" name="code">
   <select>
     <option selected>logged_user</option>
@@ -21,5 +20,6 @@
     <option>ON_HOLD</option>
     <option>Library</option>
   </select>
+  {% csrf_token %}
   <button>Submit</button>
 </form>
