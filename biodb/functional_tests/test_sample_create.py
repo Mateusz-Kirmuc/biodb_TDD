@@ -93,4 +93,7 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(expected_current_url, self.browser.current_url)
 
         # In this page he wants to confirm all previous submitted data.
+        header = self.find_tag("h1")
+        self.assertEqual(header.text, "test_code")
+        self.fail("finish test!")
         # When he finish, he logs out.

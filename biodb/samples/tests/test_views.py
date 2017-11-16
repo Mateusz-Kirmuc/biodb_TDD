@@ -162,3 +162,8 @@ class SampleCreateViewTestCase(FunctionalTest):
     def test_sample_create_resolver_match_contains_url_name(self):
         found = resolve(self.SAMPLE_CREATE_URL)
         self.assertEqual(found.url_name, "sample_create")
+
+    def test_view_save_sample_code_in_db(self):
+        response = self.client.post(self.SAMPLE_CREATE_URL, {"code": "ABCD"})
+        sample = Sample.objects.last()
+        self.assertEqual(sample.code, "ABCD")
