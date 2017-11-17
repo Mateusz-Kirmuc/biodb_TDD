@@ -11,6 +11,7 @@ from django.core.urlresolvers import reverse
 from projects.models import Project
 from samples.models import Sample
 from samples.tables import SampleTable
+from robjects.models import Robject
 
 
 class SampleListView(LoginPermissionRequiredMixin, SingleTableView, ListView):
@@ -61,7 +62,9 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
 
 def sample_create_view(request, project_name, robject_id):
     if request.method == "POST":
-        s = Sample.objects.create(code=request.POST.get("code", ""))
+        r = Robject.objects.create()
+        s = Sample.objects.create(code=request.POST.get(
+            "code", ""), robject=Robject.objects.get(id=robject_id))
         redirect_to = reverse(
             "projects:samples:sample_details",
             kwargs={"project_name": project_name, "sample_id": s.id})

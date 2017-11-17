@@ -87,6 +87,9 @@ class SampleCreateTestCase(FunctionalTest):
         sample_code_in_template = self.find_tag("h1")
         self.assertEqual(sample_code_in_template.text, "test_code")
         rest_sample_data_in_template = self.find_tags("li")
-        # self.assertEqual(rest_sample_data_in_template[0].text, Robject name : )
+        self.assertEqual(
+            rest_sample_data_in_template[0].text,
+            f"Robject name : {self.robject.name}"
+        )
         self.fail("finish test!")
         # When he finish, he logs out.

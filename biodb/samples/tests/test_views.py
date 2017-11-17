@@ -134,7 +134,7 @@ class SampleDetailViewTest(FunctionalTest):
 
 @tag("ut_sample_create")
 class SampleCreateViewTestCase(FunctionalTest):
-    SAMPLE_CREATE_URL = reverse("projects:robjects  :sample_create", kwargs={
+    SAMPLE_CREATE_URL = reverse("projects:robjects:sample_create", kwargs={
                                 "project_name": "project_1", "robject_id": "1"})
 
     @tag("ut_sample_create_1")
@@ -168,3 +168,10 @@ class SampleCreateViewTestCase(FunctionalTest):
         response = self.client.post(self.SAMPLE_CREATE_URL, {"code": "ABCD"})
         sample = Sample.objects.last()
         self.assertEqual(sample.code, "ABCD")
+
+    def test_view_attach_robject_to_new_sample(self):
+        robj = Robject.objects.create()
+        response = self.client.post(self.SAMPLE_CREATE_URL, {"code": "ABCD"})
+        sample = Sample.objects.last()
+        self.assertIsNotNone(sample.robject)
+        self.assertEqual(sample.robject, robj)
