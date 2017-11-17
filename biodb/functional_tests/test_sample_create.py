@@ -28,9 +28,11 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(code_input.get_attribute("placeholder"), "code")
 
         owner_input = self.find_tags("select")[0]
+        owner_options = owner_input.find_elements_by_tag_name("option")
+        self.assertEqual(len(owner_options), 1)
         owner_option = owner_input.find_element_by_css_selector(
             "option[selected]")
-        self.assertEqual(owner_option.text, "logged_user")
+        self.assertEqual(owner_option.text, self.user.username)
 
         notes_input = self.find_tag("textarea")
         self.assertEqual(notes_input.get_attribute("placeholder"), "notes")
