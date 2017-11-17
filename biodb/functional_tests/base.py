@@ -308,3 +308,39 @@ class FunctionalTest(StaticLiveServerTestCase):
         proj, user = self.default_set_up_for_visit_robjects_pages()
         assign_perm("can_modify_project", user, proj)
         return proj, user
+
+    def get_default_project_list_page(self):
+        """ Shortcut method: user goes to projects list page.
+        """
+        self.user = self.login_user("USERNAME", "PASSWORD")
+        self.browser.get(self.live_server_url)
+
+    def get_default_robject_list_page(self):
+        """ Shortcut method: user goes to robject list page from start page.
+        """
+        self.project = Project.objects.create(name="project_1")
+        self.get_default_project_list_page()
+        assign_perm("can_visit_project", self.user, self.project)
+        project_link = self.browser.find_element_by_link_text(
+            self.project.name)
+        project_link.click()
+
+    def get_default_robject_details_page(self):
+        """ Shortcut method: user goes to robject details page from start page.
+        """
+        self.get_default_robject_list_page()
+        self.robject = Robject.objects.create(
+            project=self.project, name="robject_1")
+        self.browser.refresh()
+        robject_table_rows = self.browser.find_elements_by_tag_name("tr")
+        self.assertEqual(len(robject_table_rows), 2)
+        robject_row = robject_table_rows[1]
+        name_cell = robject_row.find_element_by_css_selector("td:nth-child(3)")
+        self.assertEqual(name_cell.text, self.robject.name)
+        robject_row.find_element_by_link_text("details").click()
+
+    def get_default_sample_create_page(self):
+        """ Shortcut method: user goes to sample create page from start page.
+        """
+        self.get_default_robject_details_page()
+        self.browser.find_element_by_link_text("Create sample").click()

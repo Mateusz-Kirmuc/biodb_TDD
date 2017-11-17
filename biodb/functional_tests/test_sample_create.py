@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from projects.models import Project
 from django.test import tag
 from robjects.models import Robject
+from guardian.shortcuts import assign_perm
 
 
 class SampleCreateTestCase(FunctionalTest):
