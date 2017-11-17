@@ -70,10 +70,10 @@ class SampleCreateTestCase(FunctionalTest):
         # SET UP
         proj, user = self.default_set_up_for_robjects_pages()
 
-        # User wants to test new feature in biodb app.
-        # He goes to sample create page through link in sample list page.
-        self.browser.get(self.SAMPLE_LIST_URL)
-        self.browser.find_element_by_link_text("Create sample").click()
+        # User wants to test new feature in biodb app. Now, when he knows url,
+        # he can type it directly in the browser.
+        self.browser.get(self.live_server_url + reverse("projects:robjects:sample_create", kwargs={
+                         "project_name": proj.name, "robject_id": 1}))
 
         # User fills all text inputs, change owner and set status as
         # 'Production' status.
@@ -103,7 +103,7 @@ class SampleCreateTestCase(FunctionalTest):
 
         # In this page he wants to confirm all previous submitted data.
         sample_code_in_template = self.find_tag("h1")
-        self.assertEqual(sample_code.text, "test_code")
+        self.assertEqual(sample_code_in_template.text, "test_code")
         rest_sample_data_in_template = self.find_tags("li")
         # self.assertEqual(rest_sample_data_in_template[0].text, Robject name : )
         self.fail("finish test!")
