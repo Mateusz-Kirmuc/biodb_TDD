@@ -18,26 +18,12 @@ class SampleCreateTestCase(FunctionalTest):
 
     @tag("ft_sample_create_1")
     def test_user_visit_page(self):
-        # SET UP
-        proj, user = self.default_set_up_for_robjects_pages()
-        robj = Robject.objects.create(project=proj, name="robject_1")
-
         # User heard about new feature in biodb app: sample creation form!
         # He knows that he can get there through robject detail page.
-        # User goes to robject list page.
-        self.browser.get(self.ROBJECT_LIST_URL)
-
-        # He chooses sample robject from table and clicks its details link.
-        rows = self.find_tags("tr")
-        first_row = self.find_by_css("tr:nth-child(2)")
-        first_row.find_element_by_link_text("details").click()
-
-        # In the next page he notices 'sample create link' and clicks it.
-        self.browser.find_element_by_link_text("Create sample").click()
+        self.get_default_sample_create_page()
 
         # User decides to slightly look around.
         # He sees several input elements.
-        time.sleep(10)
         code_input = self.find_tags("input")[0]
         self.assertEqual(code_input.get_attribute("placeholder"), "code")
 
@@ -68,13 +54,8 @@ class SampleCreateTestCase(FunctionalTest):
 
     @tag("ft_sample_create_2")
     def test_user_creates_full_sample(self):
-        # SET UP
-        proj, user = self.default_set_up_for_robjects_pages()
-
-        # User wants to test new feature in biodb app. Now, when he knows url,
-        # he can type it directly in the browser.
-        self.browser.get(self.live_server_url + reverse("projects:robjects:sample_create", kwargs={
-                         "project_name": proj.name, "robject_id": 1}))
+        # User wants to test new feature in biodb app. He goes to form page.
+        self.get_default_sample_create_page()
 
         # User fills all text inputs, change owner and set status as
         # 'Production' status.
