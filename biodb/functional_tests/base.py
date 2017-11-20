@@ -332,6 +332,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.robject = Robject.objects.create(
             project=self.project, name="robject_1")
         self.browser.refresh()
+        time.sleep(0.5)
         robject_table_rows = self.browser.find_elements_by_tag_name("tr")
         self.assertEqual(len(robject_table_rows), 2)
         robject_row = robject_table_rows[1]

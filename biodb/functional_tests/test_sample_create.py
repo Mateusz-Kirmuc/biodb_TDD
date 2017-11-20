@@ -102,5 +102,24 @@ class SampleCreateTestCase(FunctionalTest):
             f"Modify by : {self.user.username}"
         )
 
+        self.assertEqual(
+            rest_sample_data_in_template[5].text,
+            f"Notes : {last_sample.notes}"
+        )
+
+        self.assertEqual(
+            rest_sample_data_in_template[6].text,
+            f"Form :{last_sample.form}"
+        )
+
+        self.assertEqual(
+            rest_sample_data_in_template[7].text,
+            f"Source :{last_sample.source}"
+        )
+
+        self.assertEqual(
+            rest_sample_data_in_template[8].text,
+            f"Status : {Sample.STATUS_CHOICES[last_sample.status-1][1]}"
+        )
+
         # When he finish, he logs out.
-        self.fail("Finish tests!")
