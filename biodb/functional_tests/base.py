@@ -309,17 +309,17 @@ class FunctionalTest(StaticLiveServerTestCase):
         assign_perm("can_modify_project", user, proj)
         return proj, user
 
-    def get_default_project_list_page(self):
+    def get_project_list_page(self, username="USERNAME", password="PASSWORD"):
         """ Shortcut method: user goes to projects list page.
         """
-        self.user = self.login_user("USERNAME", "PASSWORD")
+        self.user = self.login_user(username, password)
         self.browser.get(self.live_server_url)
 
     def get_default_robject_list_page(self):
         """ Shortcut method: user goes to robject list page from start page.
         """
         self.project = Project.objects.create(name="project_1")
-        self.get_default_project_list_page()
+        self.get_project_list_page()
         assign_perm("can_visit_project", self.user, self.project)
         project_link = self.browser.find_element_by_link_text(
             self.project.name)
