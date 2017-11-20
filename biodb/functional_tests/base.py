@@ -345,3 +345,6 @@ class FunctionalTest(StaticLiveServerTestCase):
         """
         self.get_default_robject_details_page()
         self.browser.find_element_by_link_text("Create sample").click()
+
+    def logout(self):
+        self.browser.find_element_by_link_text("Logout").click()
