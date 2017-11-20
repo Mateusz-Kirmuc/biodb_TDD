@@ -129,3 +129,4 @@ ADMINS = (("Adrian", DEFAULT_TO_EMAIL), )
 EMAIL_SUBJECT_PREFIX = "[BioDB] "
 LOGIN_URL = "/accounts/login/"
 DATETIME_FORMAT = 'Y-m-d, H:i'
+DATETIME_FORMAT_TRANSLATED = '%Y-%m-%d, %H:%M'

@@ -147,13 +147,16 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertTemplateUsed(response, "samples/sample_create.html")
 
     def test_view_creates_new_sample_on_post(self):
+        user = User.objects.create_user(username="USERNAME")
         self.assertEqual(Sample.objects.count(), 0)
-        response = self.client.post(self.SAMPLE_CREATE_URL)
+        response = self.client.post(
+            self.SAMPLE_CREATE_URL, {"owner": "USERNAME"})
         self.assertEqual(Sample.objects.count(), 1)
 
     def test_view_redirects_on_post(self):
         proj, user = self.default_set_up_for_visit_robjects_pages()
-        response = self.client.post(self.SAMPLE_CREATE_URL)
+        response = self.client.post(
+            self.SAMPLE_CREATE_URL, {"owner": "USERNAME"})
         last_sample_id = Sample.objects.last().id
         expected_redirect_url = reverse(
             "projects:samples:sample_details",
@@ -165,13 +168,32 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertEqual(found.url_name, "sample_create")
 
     def test_view_save_sample_code_in_db(self):
-        response = self.client.post(self.SAMPLE_CREATE_URL, {"code": "ABCD"})
+        user = User.objects.create_user(
+            username="USERNAME", password="PASSWORD")
+        response = self.client.post(self.SAMPLE_CREATE_URL, {
+                                    "code": "ABCD", "owner": "USERNAME"})
         sample = Sample.objects.last()
         self.assertEqual(sample.code, "ABCD")
 
     def test_view_attach_robject_to_new_sample(self):
+        user = User.objects.create_user(username="USERNAME")
         robj = Robject.objects.create()
-        response = self.client.post(self.SAMPLE_CREATE_URL, {"code": "ABCD"})
+        response = self.client.post(self.SAMPLE_CREATE_URL, {
+                                    "code": "ABCD", "owner": "USERNAME"})
         sample = Sample.objects.last()
         self.assertIsNotNone(sample.robject)
         self.assertEqual(sample.robject, robj)
+
+    def test_view_attach_owner_to_new_sample(self):
+        user = User.objects.create_user(
+            username="USERNAME", password="PASSWORD")
+        response = self.client.post(
+            self.SAMPLE_CREATE_URL, {"owner": "USERNAME"})
+        sample = Sample.objects.last()
+        self.assertEqual(sample.owner, user)
+
+    def test_view_assign_user_object_to_modify_by_field_in_sample(self):
+        response = self.client.post(self.SAMPLE_CREATE_URL, {
+            "code": "ABCD", "owner": "USERNAME"})
+        sample = Sample.objects.last()
+        self.assertEqual(sample.modify_by.username, "USERNAME")

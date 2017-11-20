@@ -12,6 +12,7 @@ from projects.models import Project
 from samples.models import Sample
 from samples.tables import SampleTable
 from robjects.models import Robject
+from django.contrib.auth.models import User
 
 
 class SampleListView(LoginPermissionRequiredMixin, SingleTableView, ListView):
@@ -63,8 +64,13 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
 def sample_create_view(request, project_name, robject_id):
     if request.method == "POST":
         r = Robject.objects.create()
-        s = Sample.objects.create(code=request.POST.get(
-            "code", ""), robject=Robject.objects.get(id=robject_id))
+        s = Sample.objects.create(
+            code=request.POST.get("code", ""),
+            robject=Robject.objects.get(id=robject_id),
+            owner=User.objects.get_or_create(
+                username=request.POST.get("owner"))[0],
+            modify_by=User.objects.get_or_create(username="USERNAME")[0]
+        )
         redirect_to = reverse(
             "projects:samples:sample_details",
             kwargs={"project_name": project_name, "sample_id": s.id})

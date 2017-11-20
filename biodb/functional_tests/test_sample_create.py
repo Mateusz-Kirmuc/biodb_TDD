@@ -7,6 +7,7 @@ from projects.models import Project
 from django.test import tag
 from robjects.models import Robject
 from guardian.shortcuts import assign_perm
+from biodb import settings
 
 
 class SampleCreateTestCase(FunctionalTest):
@@ -59,8 +60,7 @@ class SampleCreateTestCase(FunctionalTest):
         # User wants to test new feature in biodb app. He goes to form page.
         self.get_default_sample_create_page()
 
-        # User fills all text inputs, change owner and set status as
-        # 'Production' status.
+        # User fills all text inputs and set status as 'Production' status.
         self.find_by_css("input[placeholder='code']").send_keys("test_code")
         self.find_by_css(
             "textarea[placeholder='notes']").send_keys("test_notes")
@@ -68,23 +68,15 @@ class SampleCreateTestCase(FunctionalTest):
         self.find_by_css("input[placeholder='source']").send_keys(
             "test_source")
         self.browser.find_element_by_xpath(
-            "//option[contains(text(), 'other_user')]").click()
-        self.browser.find_element_by_xpath(
             "//option[contains(text(), 'Production')]").click()
 
         # Now user clicks submit button.
         self.find_tag("button").click()
 
+        # GET LAST CREATED SAMPLE
+        last_sample = Sample.objects.last()
+
         # He notice he was redirected to sample detail page.
-
-        # GET ID OF LAST CREATED SAMPLE
-        last_sample_id = Sample.objects.last().id
-        expected_current_url = self.live_server_url + reverse(
-            "projects:samples:sample_details",
-            kwargs={"project_name": "project_1", "sample_id": last_sample_id})
-
-        self.assertEqual(expected_current_url, self.browser.current_url)
-
         # In this page he wants to confirm all previous submitted data.
         sample_code_in_template = self.find_tag("h1")
         self.assertEqual(sample_code_in_template.text, "test_code")
@@ -93,5 +85,22 @@ class SampleCreateTestCase(FunctionalTest):
             rest_sample_data_in_template[0].text,
             f"Robject name : {self.robject.name}"
         )
-        self.fail("finish test!")
+        self.assertEqual(
+            rest_sample_data_in_template[1].text, f"Owner : {self.user.username}")
+
+        self.assertEqual(
+            rest_sample_data_in_template[2].text,
+            f"Create date : {last_sample.create_date.strftime(settings.DATETIME_FORMAT_TRANSLATED)}")
+
+        self.assertEqual(
+            rest_sample_data_in_template[3].text,
+            f"Modify date : {last_sample.modify_date.strftime(settings.DATETIME_FORMAT_TRANSLATED)}"
+        )
+
+        self.assertEqual(
+            rest_sample_data_in_template[4].text,
+            f"Modify by : {self.user.username}"
+        )
+
         # When he finish, he logs out.
+        self.fail("Finish tests!")
