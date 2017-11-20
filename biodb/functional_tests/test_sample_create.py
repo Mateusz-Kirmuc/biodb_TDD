@@ -123,3 +123,15 @@ class SampleCreateTestCase(FunctionalTest):
         )
 
         # When he finish, he logs out.
+
+    def test_two_users_creates_samples(self):
+        pass
+        # First user logs in to Biodb.
+        # He goes to sample create form and fills it.
+        # Next, user confirms created sample in sample details page.
+        # First user logs out.
+        # Now, second user logs in.
+        # He goes to the same form (within idenical project and robject) and
+        # fills it.
+        # Again, second user confirms created sample in sample details page.
+        # Finally, second user logs out.
