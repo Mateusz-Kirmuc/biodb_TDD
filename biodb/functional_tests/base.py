@@ -309,28 +309,34 @@ class FunctionalTest(StaticLiveServerTestCase):
         assign_perm("can_modify_project", user, proj)
         return proj, user
 
-    def get_project_list_page(self, username="USERNAME", password="PASSWORD"):
+    def get_project_list_page(self, **kwargs):
         """ Shortcut method: user goes to projects list page.
         """
-        self.user = self.login_user(username, password)
+        self.user = self.login_user(
+            username=kwargs.get("username", "USERNAME"),
+            password=kwargs.get("password", "PASSWORD")
+        )
         self.browser.get(self.live_server_url)
 
-    def get_default_robject_list_page(self):
+    def get_robject_list_page(self, **kwargs):
         """ Shortcut method: user goes to robject list page from start page.
         """
-        self.project = Project.objects.create(name="project_1")
-        self.get_project_list_page()
+        self.project = Project.objects.create(
+            name=kwargs.get("project_name", "project_1"))
+        self.get_project_list_page(**kwargs)
         assign_perm("can_visit_project", self.user, self.project)
         project_link = self.browser.find_element_by_link_text(
             self.project.name)
         project_link.click()
 
-    def get_default_robject_details_page(self):
+    def get_robject_details_page(self, **kwargs):
         """ Shortcut method: user goes to robject details page from start page.
         """
-        self.get_default_robject_list_page()
+        self.get_robject_list_page(**kwargs)
         self.robject = Robject.objects.create(
-            project=self.project, name="robject_1")
+            project=self.project,
+            name=kwargs.get("robject_name", "robject_1")
+        )
         self.browser.refresh()
         time.sleep(0.5)
         robject_table_rows = self.browser.find_elements_by_tag_name("tr")
@@ -340,10 +346,10 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.assertEqual(name_cell.text, self.robject.name)
         robject_row.find_element_by_link_text("details").click()
 
-    def get_default_sample_create_page(self):
+    def get_sample_create_page(self, **kwargs):
         """ Shortcut method: user goes to sample create page from start page.
         """
-        self.get_default_robject_details_page()
+        self.get_robject_details_page(**kwargs)
         self.browser.find_element_by_link_text("Create sample").click()
 
     def logout(self):

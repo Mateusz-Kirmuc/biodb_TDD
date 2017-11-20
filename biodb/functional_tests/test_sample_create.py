@@ -21,7 +21,7 @@ class SampleCreateTestCase(FunctionalTest):
     def test_user_visit_page(self):
         # User heard about new feature in biodb app: sample creation form!
         # He knows that he can get there through robject detail page.
-        self.get_default_sample_create_page()
+        self.get_sample_create_page()
 
         # User decides to slightly look around.
         # He sees several input elements.
@@ -58,7 +58,7 @@ class SampleCreateTestCase(FunctionalTest):
     @tag("ft_sample_create_2")
     def test_user_creates_full_sample(self):
         # User wants to test new feature in biodb app. He goes to form page.
-        self.get_default_sample_create_page()
+        self.get_sample_create_page()
 
         # User fills all text inputs and set status as 'Production' status.
         self.find_by_css("input[placeholder='code']").send_keys("test_code")
