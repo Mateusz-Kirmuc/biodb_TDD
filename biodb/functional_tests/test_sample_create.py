@@ -153,6 +153,9 @@ class SampleCreateTestCase(FunctionalTest):
         sample_code_in_template = self.find_tag("h1")
         self.assertEqual(sample_code_in_template.text, "1234ABCD")
 
+        # User 1 logs out.
+        self.logout()
+
         # Here, admin register second user and let him know.
         user_2 = User.objects.create_user(
             username="user_2", password="password_2")
@@ -166,3 +169,17 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(len(owner_options), 2)
         self.assertIn("user_1", [option.text for option in owner_options])
         self.assertIn("user_2", [option.text for option in owner_options])
+
+        # He picks his username.
+        self.browser.find_element_by_xpath(
+            "//option[contains(text(), 'user_2')]").click()
+        # Then he pass sample code and submit form.
+        self.find_by_css("input[placeholder='code']").send_keys("xyz123")
+        self.find_tag("button").click()
+
+        # Now user_2 can see his sample in sample details page.
+        sample_code_in_template = self.find_tag("h1")
+        self.assertEqual(sample_code_in_template.text, "xyz123")
+
+        # User 2 logs out.
+        self.logout()
