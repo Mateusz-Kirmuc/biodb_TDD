@@ -191,6 +191,12 @@ class SampleCreateViewTestCase(FunctionalTest):
         sample = Sample.objects.last()
         self.assertEqual(sample.modify_by.username, "USERNAME")
 
+    def test_view_pass_to_template_last_created_user(self):
+        u_first = User.objects.create_user(username="first_created_user")
+        u_second = User.objects.create_user(username="second_created_user")
+        response = self.client.get(self.SAMPLE_CREATE_URL)
+        self.assertEqual(response.context["owner"], u_second)
+
     def make_post_request_to_sample_create_view(self, data):
         response = self.client.post(self.SAMPLE_CREATE_URL, data)
         return response

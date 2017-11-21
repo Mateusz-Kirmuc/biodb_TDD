@@ -19,9 +19,12 @@ class SampleCreateTestCase(FunctionalTest):
 
     @tag("ft_sample_create_1")
     def test_user_visit_page(self):
+        user = User.objects.create_user(
+            username="USERNAME", password="PASSWORD")
+
         # User heard about new feature in biodb app: sample creation form!
         # He knows that he can get there through robject detail page.
-        self.get_sample_create_page()
+        self.get_sample_create_page(user, password="PASSWORD")
 
         # User decides to slightly look around.
         # He sees several input elements.
@@ -33,7 +36,7 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(len(owner_options), 1)
         owner_option = owner_input.find_element_by_css_selector(
             "option[selected]")
-        self.assertEqual(owner_option.text, self.user.username)
+        self.assertEqual(owner_option.text, user.username)
 
         notes_input = self.find_tag("textarea")
         self.assertEqual(notes_input.get_attribute("placeholder"), "notes")
@@ -57,8 +60,11 @@ class SampleCreateTestCase(FunctionalTest):
 
     @tag("ft_sample_create_2")
     def test_user_creates_full_sample(self):
+        user = User.objects.create_user(
+            username="USERNAME", password="PASSWORD")
+
         # User wants to test new feature in biodb app. He goes to form page.
-        self.get_sample_create_page()
+        self.get_sample_create_page(user, password="PASSWORD")
 
         # User fills all text inputs and set status as 'Production' status.
         self.find_by_css("input[placeholder='code']").send_keys("test_code")
@@ -86,7 +92,7 @@ class SampleCreateTestCase(FunctionalTest):
             f"Robject name : {self.robject.name}"
         )
         self.assertEqual(
-            rest_sample_data_in_template[1].text, f"Owner : {self.user.username}")
+            rest_sample_data_in_template[1].text, f"Owner : {user.username}")
 
         self.assertEqual(
             rest_sample_data_in_template[2].text,
@@ -99,7 +105,7 @@ class SampleCreateTestCase(FunctionalTest):
 
         self.assertEqual(
             rest_sample_data_in_template[4].text,
-            f"Modify by : {self.user.username}"
+            f"Modify by : {user.username}"
         )
 
         self.assertEqual(
@@ -125,13 +131,16 @@ class SampleCreateTestCase(FunctionalTest):
         # When he finish, he logs out.
 
     def test_two_users_creates_samples(self):
-        pass
-        # First user logs in to Biodb.
-        # He goes to sample create form and fills it.
-        # Next, user confirms created sample in sample details page.
-        # First user logs out.
-        # Now, second user logs in.
-        # He goes to the same form (within idenical project and robject) and
-        # fills it.
-        # Again, second user confirms created sample in sample details page.
-        # Finally, second user logs out.
+        # Admin adds new user to biodb on demant.
+        user_1 = User.objects.create_user(
+            username="user_1", password="password_1")
+        # First user logs in to Biodb and goes to sample create form.
+        self.get_sample_create_page(user=user_1, password="password_1")
+
+        # User sees that there is only one owner option.
+        owner_input = self.find_tags("select")[0]
+        self.assertEqual(
+            len(owner_input.find_elements_by_tag_name("option")), 1)
+        owner_option = owner_input.find_element_by_css_selector(
+            "option[selected]")
+        self.assertEqual(owner_option.text, "user_1")

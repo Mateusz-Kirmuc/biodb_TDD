@@ -75,4 +75,4 @@ def sample_create_view(request, project_name, robject_id):
             "projects:samples:sample_details",
             kwargs={"project_name": project_name, "sample_id": s.id})
         return redirect(redirect_to)
-    return render(request, "samples/sample_create.html")
+    return render(request, "samples/sample_create.html", {"owner": User.objects.last()})
