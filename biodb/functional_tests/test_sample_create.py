@@ -144,3 +144,25 @@ class SampleCreateTestCase(FunctionalTest):
         owner_option = owner_input.find_element_by_css_selector(
             "option[selected]")
         self.assertEqual(owner_option.text, "user_1")
+
+        # User enters sample code and submit form.
+        self.find_by_css("input[placeholder='code']").send_keys("1234ABCD")
+        self.find_tag("button").click()
+
+        # Now he can see his sample in sample details page.
+        sample_code_in_template = self.find_tag("h1")
+        self.assertEqual(sample_code_in_template.text, "1234ABCD")
+
+        # Here, admin register second user and let him know.
+        user_2 = User.objects.create_user(
+            username="user_2", password="password_2")
+
+        # User goes to sample create form.
+        self.get_sample_create_page(user_2, password="password_2")
+
+        # User notice two usernames in template owner select element.
+        owner_options = self.browser.find_elements_by_css_selector(
+            "select.owner option")
+        self.assertEqual(len(owner_options), 2)
+        self.assertIn("user_1", [option.text for option in owner_options])
+        self.assertIn("user_2", [option.text for option in owner_options])

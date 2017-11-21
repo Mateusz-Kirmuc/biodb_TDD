@@ -318,7 +318,7 @@ class FunctionalTest(StaticLiveServerTestCase):
     def get_robject_list_page(self, user, password, project_name="project_1"):
         """ Shortcut method: user goes to robject list page from start page.
         """
-        self.project = Project.objects.create(name=project_name)
+        self.project = Project.objects.get_or_create(name=project_name)[0]
         self.get_project_list_page(user, password)
         assign_perm("can_visit_project", user, self.project)
         project_link = self.browser.find_element_by_link_text(
@@ -329,10 +329,10 @@ class FunctionalTest(StaticLiveServerTestCase):
         """ Shortcut method: user goes to robject details page from start page.
         """
         self.get_robject_list_page(user, password, project_name)
-        self.robject = Robject.objects.create(
+        self.robject = Robject.objects.get_or_create(
             project=self.project,
             name=robject_name
-        )
+        )[0]
         self.browser.refresh()
         time.sleep(0.5)
         robject_table_rows = self.browser.find_elements_by_tag_name("tr")

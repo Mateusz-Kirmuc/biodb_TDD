@@ -67,12 +67,18 @@ def sample_create_view(request, project_name, robject_id):
         s = Sample.objects.create(
             code=request.POST.get("code", ""),
             robject=Robject.objects.get(id=robject_id),
-            owner=User.objects.get_or_create(
-                username=request.POST.get("owner"))[0],
-            modify_by=User.objects.get_or_create(username="USERNAME")[0]
+            owner=User.objects.get(username=request.POST.get("owner")),
         )
+        if request.user.is_authenticated:
+            s.modify_by = request.user
+            s.save()
+
         redirect_to = reverse(
             "projects:samples:sample_details",
             kwargs={"project_name": project_name, "sample_id": s.id})
+
         return redirect(redirect_to)
-    return render(request, "samples/sample_create.html", {"owner": User.objects.last()})
+    return render(request, "samples/sample_create.html", {
+        "owners":
+        [user for user in User.objects.all() if user.username != "AnonymousUser"]
+    })

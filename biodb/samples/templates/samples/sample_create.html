@@ -1,7 +1,9 @@
 <form action="" method="post">
   <input type="text" placeholder="code" name="code">
-  <select name="owner">
-    <option selected>{{owner}}</option>
+  <select class="owner" name="owner">
+      {% for owner in owners %}
+      <option selected>{{owner}}</option>
+      {% endfor %}
   </select>
   <textarea placeholder="notes"></textarea>
   <input placeholder="form">

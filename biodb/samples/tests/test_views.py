@@ -147,6 +147,7 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertTemplateUsed(response, "samples/sample_create.html")
 
     def test_view_creates_new_sample_on_post(self):
+        self.default_set_up_for_projects_pages()
         self.assertEqual(Sample.objects.count(), 0)
         response = self.client.post(
             self.SAMPLE_CREATE_URL, {"owner": "USERNAME"})
@@ -167,12 +168,14 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertEqual(found.url_name, "sample_create")
 
     def test_view_save_sample_code_in_db(self):
+        self.default_set_up_for_projects_pages()
         self.make_post_request_to_sample_create_view(
             {"code": "ABCD", "owner": "USERNAME"})
         sample = Sample.objects.last()
         self.assertEqual(sample.code, "ABCD")
 
     def test_view_attach_robject_to_new_sample(self):
+        self.default_set_up_for_projects_pages()
         robj = Robject.objects.create()
         response = self.make_post_request_to_sample_create_view(
             {"code": "ABCD", "owner": "USERNAME"})
@@ -181,21 +184,34 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertEqual(sample.robject, robj)
 
     def test_view_attach_owner_to_new_sample(self):
+        self.default_set_up_for_projects_pages()
         self.make_post_request_to_sample_create_view({"owner": "USERNAME"})
         sample = Sample.objects.last()
         self.assertEqual(sample.owner.username, "USERNAME")
 
     def test_view_assign_user_object_to_modify_by_field_in_sample(self):
+        self.default_set_up_for_projects_pages()
         self.make_post_request_to_sample_create_view(
             {"code": "ABCD", "owner": "USERNAME"})
         sample = Sample.objects.last()
         self.assertEqual(sample.modify_by.username, "USERNAME")
 
-    def test_view_pass_to_template_last_created_user(self):
+    def test_view_pass_to_template_all_created_users(self):
         u_first = User.objects.create_user(username="first_created_user")
         u_second = User.objects.create_user(username="second_created_user")
         response = self.client.get(self.SAMPLE_CREATE_URL)
-        self.assertEqual(response.context["owner"], u_second)
+        self.assertEqual(len(response.context["owners"]), 2)
+        self.assertIn(u_first, response.context["owners"])
+        self.assertIn(u_second, response.context["owners"])
+
+    def test_view_attach_authenticated_user_to_modify_by_sample_field(self):
+        u = User.objects.create_user(
+            username="auth_user", password="auth_user_passwd")
+        response = self.make_post_request_to_sample_create_view({"owner": u})
+        self.assertEqual(Sample.objects.last().modify_by, None)
+        self.client.login(username="auth_user", password="auth_user_passwd")
+        response = self.make_post_request_to_sample_create_view({"owner": u})
+        self.assertEqual(Sample.objects.last().modify_by, u)
 
     def make_post_request_to_sample_create_view(self, data):
         response = self.client.post(self.SAMPLE_CREATE_URL, data)
