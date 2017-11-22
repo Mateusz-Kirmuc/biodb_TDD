@@ -19,7 +19,7 @@ class SampleCreateTestCase(FunctionalTest):
 
     @tag("ft_sample_create_1")
     def test_user_visit_page(self):
-        user = User.objects.create_user(
+        user = self.register_new_user(
             username="USERNAME", password="PASSWORD")
 
         # User heard about new feature in biodb app: sample creation form!
@@ -60,14 +60,14 @@ class SampleCreateTestCase(FunctionalTest):
 
     @tag("ft_sample_create_2")
     def test_user_creates_full_sample(self):
-        user = User.objects.create_user(
+        user = self.register_new_user(
             username="USERNAME", password="PASSWORD")
 
         # User wants to test new feature in biodb app. He goes to form page.
         self.get_sample_create_page(user, password="PASSWORD")
 
         # User fills all text inputs and set status as 'Production' status.
-        self.find_by_css("input[placeholder='code']").send_keys("test_code")
+        self.enter_sample_code("test_code")
         self.find_by_css(
             "textarea[placeholder='notes']").send_keys("test_notes")
         self.find_by_css("input[placeholder='form']").send_keys("test_form")
@@ -77,7 +77,7 @@ class SampleCreateTestCase(FunctionalTest):
             "//option[contains(text(), 'Production')]").click()
 
         # Now user clicks submit button.
-        self.find_tag("button").click()
+        self.submit_form()
 
         # GET LAST CREATED SAMPLE
         last_sample = Sample.objects.last()
@@ -131,8 +131,8 @@ class SampleCreateTestCase(FunctionalTest):
         # When he finish, he logs out.
 
     def test_two_users_creates_samples(self):
-        # Admin adds new user to biodb on demant.
-        user_1 = User.objects.create_user(
+        # Admin adds new user to biodb on demand.
+        user_1 = self.register_new_user(
             username="user_1", password="password_1")
         # First user logs in to Biodb and goes to sample create form.
         self.get_sample_create_page(user=user_1, password="password_1")
@@ -146,8 +146,8 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(owner_option.text, "user_1")
 
         # User enters sample code and submit form.
-        self.find_by_css("input[placeholder='code']").send_keys("1234ABCD")
-        self.find_tag("button").click()
+        self.enter_sample_code("1234ABCD")
+        self.submit_form()
 
         # Now he can see his sample in sample details page.
         sample_code_in_template = self.find_tag("h1")
@@ -157,13 +157,14 @@ class SampleCreateTestCase(FunctionalTest):
         self.logout()
 
         # Here, admin register second user and let him know.
-        user_2 = User.objects.create_user(
+        user_2 = self.register_new_user(
             username="user_2", password="password_2")
 
         # User goes to sample create form.
         self.get_sample_create_page(user_2, password="password_2")
 
-        # User notice two usernames in template owner select element.
+        # User notice two usernames in template owner select element -- his name
+        # and user_1's name.
         owner_options = self.browser.find_elements_by_css_selector(
             "select.owner option")
         self.assertEqual(len(owner_options), 2)
@@ -174,12 +175,24 @@ class SampleCreateTestCase(FunctionalTest):
         self.browser.find_element_by_xpath(
             "//option[contains(text(), 'user_2')]").click()
         # Then he pass sample code and submit form.
-        self.find_by_css("input[placeholder='code']").send_keys("xyz123")
-        self.find_tag("button").click()
+        self.enter_sample_code("xyz123")
+        self.submit_form()
 
         # Now user_2 can see his sample in sample details page.
         sample_code_in_template = self.find_tag("h1")
         self.assertEqual(sample_code_in_template.text, "xyz123")
+        self.assertEqual(self.find_by_css(".owner").text, "Owner : user_2")
 
         # User 2 logs out.
         self.logout()
+
+    def enter_sample_code(self, code):
+        self.find_by_css("input[placeholder='code']").send_keys(code)
+
+    def submit_form(self):
+        self.find_tag("button").click()
+
+    def register_new_user(self, username, password):
+        user = User.objects.create_user(
+            username=username, password=password)
+        return user
