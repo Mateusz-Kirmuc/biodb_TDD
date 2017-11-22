@@ -186,6 +186,35 @@ class SampleCreateTestCase(FunctionalTest):
         # User 2 logs out.
         self.logout()
 
+    def test_user_submit_empty_form(self):
+        # Admin register new user on demand.
+        user = self.register_new_user(username="new_user", password="passwd")
+
+        # New user goes to sample create form.
+        self.get_sample_create_page(user, "passwd")
+
+        # STORE FORM PAGE URL.
+        url = self.browser.current_url
+
+        # He is very inquisitive and decide to submit empty form.
+        self.submit_form()
+
+        # It turns out user stays on the same page and sees information above
+        # code input states that this field is required.
+        self.assertEqual(self.browser.current_url, url)
+        error_element = self.browser.find_element_by_xpath(
+            "//input[@name='code']/preceding-sibling::p")
+        self.assertEqual(error_element.text, "This field is required")
+
+        # User corrects form and resubmits.
+        self.enter_sample_code("sample_code")
+        self.submit_form()
+
+        # Now, he can confirm submitted data in sample details page.
+        self.assertEqual(self.find_tag("h1").text, "sample_code")
+
+        # Satisfied user logs out.
+
     def enter_sample_code(self, code):
         self.find_by_css("input[placeholder='code']").send_keys(code)
 
