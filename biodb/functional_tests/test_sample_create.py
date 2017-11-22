@@ -19,12 +19,11 @@ class SampleCreateTestCase(FunctionalTest):
 
     @tag("ft_sample_create_1")
     def test_user_visit_page(self):
-        user = self.register_new_user(
-            username="USERNAME", password="PASSWORD")
-
+        # Admin register new user.
         # User heard about new feature in biodb app: sample creation form!
         # He knows that he can get there through robject detail page.
-        self.get_sample_create_page(user, password="PASSWORD")
+        user = self.help_register_new_user_and_get_sample_create(
+            "USERNAME", "PASSWORD")
 
         # User decides to slightly look around.
         # He sees several input elements.
@@ -60,14 +59,14 @@ class SampleCreateTestCase(FunctionalTest):
 
     @tag("ft_sample_create_2")
     def test_user_creates_full_sample(self):
-        user = self.register_new_user(
-            username="USERNAME", password="PASSWORD")
-
-        # User wants to test new feature in biodb app. He goes to form page.
-        self.get_sample_create_page(user, password="PASSWORD")
+        # Admin register new user.
+        # User wants to test new feature in biodb app.
+        # He goes to form page.
+        user = self.help_register_new_user_and_get_sample_create(
+            "USERNAME", "PASSWORD")
 
         # User fills all text inputs and set status as 'Production' status.
-        self.enter_sample_code("test_code")
+        self.help_enter_sample_code("test_code")
         self.find_by_css(
             "textarea[placeholder='notes']").send_keys("test_notes")
         self.find_by_css("input[placeholder='form']").send_keys("test_form")
@@ -77,15 +76,14 @@ class SampleCreateTestCase(FunctionalTest):
             "//option[contains(text(), 'Production')]").click()
 
         # Now user clicks submit button.
-        self.submit_form()
+        self.help_submit_form()
 
         # GET LAST CREATED SAMPLE
         last_sample = Sample.objects.last()
 
         # He notice he was redirected to sample detail page.
         # In this page he wants to confirm all previous submitted data.
-        sample_code_in_template = self.find_tag("h1")
-        self.assertEqual(sample_code_in_template.text, "test_code")
+        self.help_confirm_sample_code("test_code")
         rest_sample_data_in_template = self.find_tags("li")
         self.assertEqual(
             rest_sample_data_in_template[0].text,
@@ -132,10 +130,9 @@ class SampleCreateTestCase(FunctionalTest):
 
     def test_two_users_creates_samples(self):
         # Admin adds new user to biodb on demand.
-        user_1 = self.register_new_user(
-            username="user_1", password="password_1")
         # First user logs in to Biodb and goes to sample create form.
-        self.get_sample_create_page(user=user_1, password="password_1")
+        self.help_register_new_user_and_get_sample_create(
+            username="user_1", password="password_1")
 
         # User sees that there is only one owner option.
         owner_input = self.find_tags("select")[0]
@@ -146,22 +143,19 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(owner_option.text, "user_1")
 
         # User enters sample code and submit form.
-        self.enter_sample_code("1234ABCD")
-        self.submit_form()
+        self.help_enter_sample_code("1234ABCD")
+        self.help_submit_form()
 
         # Now he can see his sample in sample details page.
-        sample_code_in_template = self.find_tag("h1")
-        self.assertEqual(sample_code_in_template.text, "1234ABCD")
+        self.help_confirm_sample_code("1234ABCD")
 
         # User 1 logs out.
         self.logout()
 
         # Here, admin register second user and let him know.
-        user_2 = self.register_new_user(
-            username="user_2", password="password_2")
-
         # User goes to sample create form.
-        self.get_sample_create_page(user_2, password="password_2")
+        self.help_register_new_user_and_get_sample_create(
+            "user_2", "password_2")
 
         # User notice two usernames in template owner select element -- his name
         # and user_1's name.
@@ -175,12 +169,11 @@ class SampleCreateTestCase(FunctionalTest):
         self.browser.find_element_by_xpath(
             "//option[contains(text(), 'user_2')]").click()
         # Then he pass sample code and submit form.
-        self.enter_sample_code("xyz123")
-        self.submit_form()
+        self.help_enter_sample_code("xyz123")
+        self.help_submit_form()
 
         # Now user_2 can see his sample in sample details page.
-        sample_code_in_template = self.find_tag("h1")
-        self.assertEqual(sample_code_in_template.text, "xyz123")
+        self.help_confirm_sample_code("xyz123")
         self.assertEqual(self.find_by_css(".owner").text, "Owner : user_2")
 
         # User 2 logs out.
@@ -188,16 +181,15 @@ class SampleCreateTestCase(FunctionalTest):
 
     def test_user_submit_empty_form(self):
         # Admin register new user on demand.
-        user = self.register_new_user(username="new_user", password="passwd")
-
         # New user goes to sample create form.
-        self.get_sample_create_page(user, "passwd")
+        self.help_register_new_user_and_get_sample_create(
+            username="new_user", password="passwd")
 
         # STORE FORM PAGE URL.
         url = self.browser.current_url
 
         # He is very inquisitive and decide to submit empty form.
-        self.submit_form()
+        self.help_submit_form()
 
         # It turns out user stays on the same page and sees information above
         # code input states that this field is required.
@@ -207,21 +199,30 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(error_element.text, "This field is required")
 
         # User corrects form and resubmits.
-        self.enter_sample_code("sample_code")
-        self.submit_form()
+        self.help_enter_sample_code("sample_code")
+        self.help_submit_form()
 
         # Now, he can confirm submitted data in sample details page.
-        self.assertEqual(self.find_tag("h1").text, "sample_code")
+        self.help_confirm_sample_code("sample_code")
 
         # Satisfied user logs out.
 
-    def enter_sample_code(self, code):
+    def help_enter_sample_code(self, code):
         self.find_by_css("input[placeholder='code']").send_keys(code)
 
-    def submit_form(self):
+    def help_submit_form(self):
         self.find_tag("button").click()
 
-    def register_new_user(self, username, password):
+    def help_register_new_user(self, username, password):
         user = User.objects.create_user(
             username=username, password=password)
+        return user
+
+    def help_confirm_sample_code(self, code):
+        self.assertEqual(self.find_tag("h1").text, code)
+
+    def help_register_new_user_and_get_sample_create(self, username, password):
+        user = self.help_register_new_user(username, password)
+        time.sleep(0.2)
+        self.get_sample_create_page(user, password)
         return user
