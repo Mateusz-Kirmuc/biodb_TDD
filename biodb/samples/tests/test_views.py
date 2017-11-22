@@ -137,8 +137,9 @@ class SampleCreateViewTestCase(FunctionalTest):
     SAMPLE_CREATE_URL = reverse("projects:robjects:sample_create", kwargs={
                                 "project_name": "project_1", "robject_id": "1"})
 
-    def make_post_request_to_sample_create_view(self, data):
-        response = self.client.post(self.SAMPLE_CREATE_URL, data)
+    def help_make_post_request_to_sample_create_view(self, data):
+        Robject.objects.create()
+        response = self.client.post(self.SAMPLE_CREATE_URL, data, follow=True)
         return response
 
     @tag("ut_sample_create_1")
@@ -151,21 +152,25 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertTemplateUsed(response, "samples/sample_create.html")
 
     def test_view_creates_new_sample_on_post(self):
-        self.default_set_up_for_projects_pages()
         self.assertEqual(Sample.objects.count(), 0)
-        response = self.client.post(
-            self.SAMPLE_CREATE_URL, {"owner": "USERNAME"})
+        self.help_create_user_and_make_post(
+            "USERNAME", post_data={"owner": "USERNAME"})
         self.assertEqual(Sample.objects.count(), 1)
 
     def test_view_redirects_on_post(self):
-        proj, user = self.default_set_up_for_visit_robjects_pages()
-        response = self.client.post(
-            self.SAMPLE_CREATE_URL, {"owner": "USERNAME", "code": "12334"})
+        response = self.help_create_user_and_make_post(
+            username="USERNAME",
+            password="PASSWORD",
+            post_data={"owner": "USERNAME", "code": "12334"},
+            log_user_in=True,
+            assign_visit_permission=True
+        )
         last_sample_id = Sample.objects.last().id
         expected_redirect_url = reverse(
             "projects:samples:sample_details",
             kwargs={"project_name": "project_1", "sample_id": last_sample_id})
         self.assertRedirects(response, expected_redirect_url)
+        response = self.client.get(self.SAMPLE_DETAILS_URL)
 
     def test_sample_create_resolver_match_contains_url_name(self):
         found = resolve(self.SAMPLE_CREATE_URL)
@@ -173,7 +178,7 @@ class SampleCreateViewTestCase(FunctionalTest):
 
     def test_view_save_sample_code_in_db(self):
         self.default_set_up_for_projects_pages()
-        self.make_post_request_to_sample_create_view(
+        self.help_make_post_request_to_sample_create_view(
             {"code": "ABCD", "owner": "USERNAME"})
         sample = Sample.objects.last()
         self.assertEqual(sample.code, "ABCD")
@@ -181,7 +186,7 @@ class SampleCreateViewTestCase(FunctionalTest):
     def test_view_attach_robject_to_new_sample(self):
         self.default_set_up_for_projects_pages()
         robj = Robject.objects.create()
-        response = self.make_post_request_to_sample_create_view(
+        response = self.help_make_post_request_to_sample_create_view(
             {"code": "ABCD", "owner": "USERNAME"})
         sample = Sample.objects.last()
         self.assertIsNotNone(sample.robject)
@@ -189,13 +194,14 @@ class SampleCreateViewTestCase(FunctionalTest):
 
     def test_view_attach_owner_to_new_sample(self):
         self.default_set_up_for_projects_pages()
-        self.make_post_request_to_sample_create_view({"owner": "USERNAME"})
+        self.help_make_post_request_to_sample_create_view(
+            {"owner": "USERNAME"})
         sample = Sample.objects.last()
         self.assertEqual(sample.owner.username, "USERNAME")
 
     def test_view_assign_user_object_to_modify_by_field_in_sample(self):
         self.default_set_up_for_projects_pages()
-        self.make_post_request_to_sample_create_view(
+        self.help_make_post_request_to_sample_create_view(
             {"code": "ABCD", "owner": "USERNAME"})
         sample = Sample.objects.last()
         self.assertEqual(sample.modify_by.username, "USERNAME")
@@ -214,7 +220,7 @@ class SampleCreateViewTestCase(FunctionalTest):
             post_data={"owner": "user"}, return_user=True)
         self.assertEqual(Sample.objects.last().modify_by, None)
         self.client.login(username="user", password="user_passwd")
-        response = self.make_post_request_to_sample_create_view(
+        response = self.help_make_post_request_to_sample_create_view(
             {"owner": "user"})
         self.assertEqual(Sample.objects.last().modify_by, u)
 
@@ -224,17 +230,21 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "samples/sample_create.html")
 
-    def test_when_view_gets_empty_sample_code_it_passes_error_to_template(self):
-        response = self.help_create_user_and_make_post(username="user_1",
-                                                       post_data={"code": "", "owner": "user_1"})
-        self.assertEqual(response.context["error"], True)
-
     def help_create_user(self, username, password=None):
         return User.objects.create_user(username=username, password=password)
 
-    def help_create_user_and_make_post(self, username, password=None, post_data={}, return_user=False):
+    def help_create_user_and_make_post(self, username, password=None,
+                                       post_data={},
+                                       log_user_in=False,
+                                       return_user=False,
+                                       assign_visit_permission=False):
+        proj = Project.objects.create(name="project_1")
         user = self.help_create_user(username=username, password=password)
-        response = self.make_post_request_to_sample_create_view(post_data)
+        if log_user_in:
+            self.client.login(username=username, password=password)
+        if assign_visit_permission:
+            assign_perm("can_visit_project", user, proj)
+        response = self.help_make_post_request_to_sample_create_view(post_data)
         if return_user:
             return response, user
         return response

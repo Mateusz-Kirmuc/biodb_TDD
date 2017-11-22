@@ -62,9 +62,11 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
 
 
 def sample_create_view(request, project_name, robject_id):
-    if request.method == "POST":
+    owner_options = [user for user in User.objects.all(
+    ) if user.username != "AnonymousUser"]
 
-        r = Robject.objects.create()
+    if request.method == "POST":
+        # r = Robject.objects.create()
         s = Sample.objects.create(
             code=request.POST.get("code", ""),
             robject=Robject.objects.get(id=robject_id),
@@ -74,21 +76,15 @@ def sample_create_view(request, project_name, robject_id):
             s.modify_by = request.user
             s.save()
 
+        if s.code == "":
+            return render(request, "samples/sample_create.html", {
+                "owners": owner_options,
+            })
+
         redirect_to = reverse(
             "projects:samples:sample_details",
             kwargs={"project_name": project_name, "sample_id": s.id})
 
-        if s.code == "":
-            return render(request, "samples/sample_create.html", {
-                "owners":
-                [user for user in User.objects.all() if user.username !=
-                 "AnonymousUser"],
-                "error": True
-            })
-
         return redirect(redirect_to)
 
-    return render(request, "samples/sample_create.html", {
-        "owners":
-        [user for user in User.objects.all() if user.username != "AnonymousUser"]
-    })
+    return render(request, "samples/sample_create.html", {"owners": owner_options})
