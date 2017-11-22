@@ -248,3 +248,7 @@ class SampleCreateViewTestCase(FunctionalTest):
         if return_user:
             return response, user
         return response
+
+    def test_view_passes_error_false_boolean_to_template_on_get(self):
+        response = self.client.get(self.SAMPLE_CREATE_URL)
+        self.assertEqual(response.context["error"], False)

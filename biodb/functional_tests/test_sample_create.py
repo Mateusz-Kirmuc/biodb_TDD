@@ -8,6 +8,7 @@ from django.test import tag
 from robjects.models import Robject
 from guardian.shortcuts import assign_perm
 from biodb import settings
+from selenium.common.exceptions import NoSuchElementException
 
 
 class SampleCreateTestCase(FunctionalTest):
@@ -206,6 +207,28 @@ class SampleCreateTestCase(FunctionalTest):
         self.help_confirm_sample_code("sample_code")
 
         # Satisfied user logs out.
+
+    def test_user_sees_error_message_only_when_submit_empty_form(self):
+        # Admin register new user.
+        # User wants to add new sample so he goes to sample create form.
+        self.help_register_new_user_and_get_sample_create(
+            "user_1", password="passwd_1")
+
+        # He makes sure he doesn't see paragraph with error message above code
+        # input.
+        with self.assertRaises(NoSuchElementException):
+            self.browser.find_element_by_xpath(
+                "//input[@name='code']/preceding-sibling::p")
+
+        # User decides to submit empty form.
+        self.help_submit_form()
+
+        # Now, he sees error message above code input.
+        error_element = self.browser.find_element_by_xpath(
+            "//input[@name='code']/preceding-sibling::p")
+        self.assertEqual(error_element.text, "This field is required")
+
+        # User logs out.
 
     def help_enter_sample_code(self, code):
         self.find_by_css("input[placeholder='code']").send_keys(code)

@@ -87,4 +87,4 @@ def sample_create_view(request, project_name, robject_id):
 
         return redirect(redirect_to)
 
-    return render(request, "samples/sample_create.html", {"owners": owner_options})
+    return render(request, "samples/sample_create.html", {"owners": owner_options, "error": False})
