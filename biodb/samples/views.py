@@ -79,6 +79,7 @@ def sample_create_view(request, project_name, robject_id):
         if s.code == "":
             return render(request, "samples/sample_create.html", {
                 "owners": owner_options,
+                "error": True
             })
 
         redirect_to = reverse(

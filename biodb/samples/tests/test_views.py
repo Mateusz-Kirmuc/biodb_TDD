@@ -251,4 +251,13 @@ class SampleCreateViewTestCase(FunctionalTest):
 
     def test_view_passes_error_false_boolean_to_template_on_get(self):
         response = self.client.get(self.SAMPLE_CREATE_URL)
-        self.assertEqual(response.context["error"], False)
+        self.help_confirm_in_context(response, "error", False)
+
+    def test_view_passes_error_true_boolean_to_template_when_invalid_post(self):
+        response = self.help_create_user_and_make_post(username="user_1",
+                                                       password="passwd",
+                                                       post_data={"owner": "user_1"})
+        self.help_confirm_in_context(response, "error", True)
+
+    def help_confirm_in_context(self, response, key, value):
+        self.assertEqual(response.context[key], value)
