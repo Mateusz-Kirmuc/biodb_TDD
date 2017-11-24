@@ -65,7 +65,8 @@ def sample_create_view(request, project_name, robject_id):
     owner_options = [user for user in User.objects.all(
     ) if user.username != "AnonymousUser"]
     if request.user.is_anonymous == True:
-        return redirect(reverse("login"))
+        redirect_to = f"{reverse('login')}?next={request.path}"
+        return redirect(redirect_to)
 
     if request.method == "POST":
         # r = Robject.objects.create()

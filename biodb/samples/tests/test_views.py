@@ -269,7 +269,8 @@ class SampleCreateViewTestCase(FunctionalTest):
 
     def test_view_redirects_to_login_page_when_user_is_annonymous(self):
         response = self.help_make_get_request_to_sample_create()
-        self.assertRedirects(response, reverse("login"))
+        redirect_to = f"{reverse('login')}?next={self.SAMPLE_CREATE_URL}"
+        self.assertRedirects(response, redirect_to)
 
     def help_make_get_request_to_sample_create(self):
         response = self.client.get(self.SAMPLE_CREATE_URL)

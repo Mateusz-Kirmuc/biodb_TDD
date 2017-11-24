@@ -258,11 +258,18 @@ class SampleCreateTestCase(FunctionalTest):
         # He heard about project named 'project_1' and research object with id=1
         # within 'project_1'.
         # User knows about sample create url and uses those data within url.
-        self.browser.get(self.live_server_url + reverse(
-            "projects:robjects:sample_create", kwargs={"project_name": "project_1",
-                                                       "robject_id": 1}))
+        sample_create_url = self.live_server_url + reverse("projects:robjects:sample_create",
+                                                           kwargs={"project_name": "project_1", "robject_id": 1})
+        self.browser.get(sample_create_url)
+
         # Instead expected form user encounters login form.
         self.assertEqual(self.find_tag("h1").text, "Welcome to BioDB")
 
         # He enters his creadentials and submit login form.
-        # Now, he finally sees sample create form.
+        inputs = self.browser.find_elements_by_tag_name("input")
+        inputs[0].send_keys("user_1")
+        inputs[1].send_keys("passwd_1")
+        self.help_submit_form()
+
+        # Now, he finally sees sample create form and its url.
+        self.assertEqual(self.browser.current_url, sample_create_url)
