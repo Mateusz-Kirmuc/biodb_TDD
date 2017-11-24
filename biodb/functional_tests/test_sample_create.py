@@ -53,10 +53,8 @@ class SampleCreateTestCase(FunctionalTest):
         for idx, choice in enumerate(choices):
             self.assertEqual(choice, status_options[idx].text)
 
-        button = self.find_tag("button")
-        self.assertEqual(button.text, "Submit")
-
         # Content user logs out.
+        self.logout()
 
     @tag("ft_sample_create_2")
     def test_user_creates_full_sample(self):
