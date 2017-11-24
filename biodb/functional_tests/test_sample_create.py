@@ -249,3 +249,20 @@ class SampleCreateTestCase(FunctionalTest):
         time.sleep(0.2)
         self.get_sample_create_page(user, password)
         return user
+
+    def test_annonymous_user_tries_to_get_sample_create_form(self):
+        # Admin register new user.
+        self.help_register_new_user(username="user_1", password="passwd_1")
+        # User tries to get sample create form using url but he forgets to log
+        # in.
+        # He heard about project named 'project_1' and research object with id=1
+        # within 'project_1'.
+        # User knows about sample create url and uses those data within url.
+        self.browser.get(self.live_server_url + reverse(
+            "projects:robjects:sample_create", kwargs={"project_name": "project_1",
+                                                       "robject_id": 1}))
+        # Instead expected form user encounters login form.
+        self.assertEqual(self.find_tag("h1").text, "Welcome to BioDB")
+
+        # He enters his creadentials and submit login form.
+        # Now, he finally sees sample create form.

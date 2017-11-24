@@ -148,13 +148,17 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertEqual(found.func, sample_create_view)
 
     def test_view_renders_sample_create_template(self):
-        response = self.client.get(self.SAMPLE_CREATE_URL)
+        response = self.help_create_user_log_him_and_make_get_request(
+            username="user_1", password="passwd_1")
         self.assertTemplateUsed(response, "samples/sample_create.html")
 
     def test_view_creates_new_sample_on_post(self):
         self.assertEqual(Sample.objects.count(), 0)
         self.help_create_user_and_make_post(
-            "USERNAME", post_data={"owner": "USERNAME"})
+            username="USERNAME",
+            password="passwd_1",
+            log_user_in=True,
+            post_data={"owner": "USERNAME"})
         self.assertEqual(Sample.objects.count(), 1)
 
     def test_view_redirects_on_post(self):
@@ -170,7 +174,6 @@ class SampleCreateViewTestCase(FunctionalTest):
             "projects:samples:sample_details",
             kwargs={"project_name": "project_1", "sample_id": last_sample_id})
         self.assertRedirects(response, expected_redirect_url)
-        response = self.client.get(self.SAMPLE_DETAILS_URL)
 
     def test_sample_create_resolver_match_contains_url_name(self):
         found = resolve(self.SAMPLE_CREATE_URL)
@@ -207,9 +210,10 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertEqual(sample.modify_by.username, "USERNAME")
 
     def test_view_pass_to_template_all_created_users(self):
-        u_first = self.help_create_user(username="first_created_user")
-        u_second = self.help_create_user(username="second_created_user")
-        response = self.client.get(self.SAMPLE_CREATE_URL)
+        u_first = self.help_create_user(
+            username="first_created_user", password="passwd_1")
+        response, u_second = self.help_create_user_log_him_and_make_get_request(
+            username="second_created_user", password="passwd_2", return_user=True)
         self.assertEqual(len(response.context["owners"]), 2)
         self.assertIn(u_first, response.context["owners"])
         self.assertIn(u_second, response.context["owners"])
@@ -217,16 +221,15 @@ class SampleCreateViewTestCase(FunctionalTest):
     def test_view_attach_authenticated_user_to_modify_by_sample_field(self):
         response, u = self.help_create_user_and_make_post(
             username="user", password="user_passwd",
-            post_data={"owner": "user"}, return_user=True)
-        self.assertEqual(Sample.objects.last().modify_by, None)
-        self.client.login(username="user", password="user_passwd")
-        response = self.help_make_post_request_to_sample_create_view(
-            {"owner": "user"})
+            post_data={"owner": "user"}, return_user=True, log_user_in=True)
         self.assertEqual(Sample.objects.last().modify_by, u)
 
     def test_when_view_gets_empty_sample_code_it_renders_the_same_page(self):
         response = self.help_create_user_and_make_post(
-            username="user_1", post_data={"code": "", "owner": "user_1"})
+            username="user_1",
+            password="passwd_1",
+            post_data={"code": "", "owner": "user_1"},
+            log_user_in=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "samples/sample_create.html")
 
@@ -250,14 +253,32 @@ class SampleCreateViewTestCase(FunctionalTest):
         return response
 
     def test_view_passes_error_false_boolean_to_template_on_get(self):
-        response = self.client.get(self.SAMPLE_CREATE_URL)
+        response = self.help_create_user_log_him_and_make_get_request(
+            username="user_1", password="passwd_1")
         self.help_confirm_in_context(response, "error", False)
 
     def test_view_passes_error_true_boolean_to_template_when_invalid_post(self):
         response = self.help_create_user_and_make_post(username="user_1",
                                                        password="passwd",
+                                                       log_user_in=True,
                                                        post_data={"owner": "user_1"})
         self.help_confirm_in_context(response, "error", True)
 
     def help_confirm_in_context(self, response, key, value):
         self.assertEqual(response.context[key], value)
+
+    def test_view_redirects_to_login_page_when_user_is_annonymous(self):
+        response = self.help_make_get_request_to_sample_create()
+        self.assertRedirects(response, reverse("login"))
+
+    def help_make_get_request_to_sample_create(self):
+        response = self.client.get(self.SAMPLE_CREATE_URL)
+        return response
+
+    def help_create_user_log_him_and_make_get_request(self, username, password, return_user=False):
+        user = User.objects.create_user(username=username, password=password)
+        self.client.login(username=username, password=password)
+        response = self.help_make_get_request_to_sample_create()
+        if return_user:
+            return response, user
+        return response

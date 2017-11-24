@@ -64,6 +64,8 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
 def sample_create_view(request, project_name, robject_id):
     owner_options = [user for user in User.objects.all(
     ) if user.username != "AnonymousUser"]
+    if request.user.is_anonymous == True:
+        return redirect(reverse("login"))
 
     if request.method == "POST":
         # r = Robject.objects.create()
