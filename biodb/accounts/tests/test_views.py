@@ -1,19 +1,21 @@
-from django.test import TestCase
+from unit_tests.base import FunctionalTest
 from accounts.forms import SignUpForm
 from django.core import mail
 from biodb import settings
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib import auth
-
+from django.core.urlresolvers import reverse
+from projects.models import Project
+from guardian.shortcuts import assign_perm
 # Create your tests here.
 
 
-class LoginViewTests(TestCase):
-    def send_login_request(self):
+class LoginViewTests(FunctionalTest):
+    def send_login_request(self, follow=False):
         response = self.client.post("/accounts/login/", {
             "username": "NapoleonBonaparte",
             "password": "liberte"
-        })
+        }, follow=follow)
         return response
 
     def test_renders_welcome_template_on_get(self):
@@ -26,7 +28,7 @@ class LoginViewTests(TestCase):
             username="NapoleonBonaparte",
             password="liberte"
         )
-        response = self.send_login_request()
+        response = self.send_login_request(follow=True)
         self.assertRedirects(response, "/projects/")
 
     def test_render_proper_template_if_validation_fails(self):
@@ -61,7 +63,8 @@ class LoginViewTests(TestCase):
             "password": "rockandroll"
         })
         f = response.context["form"]
-        self.assertEqual(f.errors["__all__"], ["Invalid username or password."])
+        self.assertEqual(f.errors["__all__"], [
+                         "Invalid username or password."])
 
     def test_user_is_logged_after_view_call(self):
         user = User.objects.create_user(
@@ -92,9 +95,20 @@ class LoginViewTests(TestCase):
         user.save()
         response = self.send_login_request()
         f = response.context["form"]
-        self.assertEqual(f.errors["__all__"], ["Invalid username or password."])
+        self.assertEqual(f.errors["__all__"], [
+                         "Invalid username or password."])
 
-class SignUpViewTests(TestCase):
+    def test_view_redirect_to_page_included_in_GET_data(self):
+        project = Project.objects.create(name="project_1")
+        url = f"{reverse('login')}?next={self.ROBJECT_LIST_URL}"
+        user = User.objects.create_user(username="user_1", password="passwd_1")
+        assign_perm("projects.can_visit_project", user, project)
+        response = self.client.post(
+            url, {"username": "user_1", "password": "passwd_1"})
+        self.assertRedirects(response, self.ROBJECT_LIST_URL)
+
+
+class SignUpViewTests(FunctionalTest):
     def test_render_valid_template_on_get(self):
         response = self.client.get("/accounts/sign-up/")
         self.assertEqual(response.status_code, 200)
@@ -165,7 +179,8 @@ class SignUpViewTests(TestCase):
             [admin_data[1] for admin_data in settings.ADMINS]
         )
 
-class LogoutViewTests(TestCase):
+
+class LogoutViewTests(FunctionalTest):
     def test_view_logs_out_user(self):
         u = User.objects.create_user(username="USERNAME", password="PASSWORD")
         self.client.login(username="USERNAME", password="PASSWORD")
