@@ -347,6 +347,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         """
         self.get_robject_details_page(
             user, password, project_name, robject_name)
+        assign_perm("can_modify_project", user, self.project)
         self.browser.find_element_by_link_text("Create sample").click()
 
     def logout(self):

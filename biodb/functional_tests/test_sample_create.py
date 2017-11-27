@@ -341,8 +341,27 @@ class SampleCreateTestCase(FunctionalTest):
         self.get_sample_create_page(user, "passwd")
 
         # He finally achieves his goal.
-        time.sleep(10)
         self.find_by_css("input[placeholder='code']")
 
         # Now, user can safely logs out.
         self.logout()
+
+    def test_user_leaves_textual_fields_empty_and_submit_form(self):
+        # Admin creates user.
+        user = User.objects.create_user(
+            username="sample_user", password="passwd_1")
+
+        # User goes to sample create form.
+        self.get_sample_create_page(user, password="passwd_1")
+
+        # He enters code and submit form.
+        self.help_enter_sample_code("sample_code_1")
+        self.help_submit_form()
+
+        # Inside sample details page user wants to confirm that textual fields
+        # are not None but empty string.
+        self.assertNotIn("None", self.find_by_css("li.notes").text)
+        self.assertNotIn("None", self.find_by_css("li.form").text)
+        self.assertNotIn("None", self.find_by_css("li.source").text)
+
+        # Satisfied user logout.

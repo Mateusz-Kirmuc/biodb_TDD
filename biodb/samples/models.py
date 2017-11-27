@@ -41,7 +41,7 @@ class Sample(models.Model):
     create_date = models.DateTimeField(null=True, auto_now_add=True)
     modify_date = models.DateTimeField(null=True, auto_now=True)
     modify_by = models.ForeignKey(to=User, null=True)
-    notes = RichTextField(null=True, blank=True)
+    notes = RichTextField(blank=True)
     form = models.CharField(max_length=100, blank=True)
     source = models.CharField(max_length=100, blank=True)
     status = models.IntegerField(default=1, choices=STATUS_CHOICES)
