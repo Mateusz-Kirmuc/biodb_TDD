@@ -278,9 +278,6 @@ class SampleCreateTestCase(FunctionalTest):
         # Admin register new user on demand.
         user = User.objects.create_user(username="user_1", password="passwd_1")
 
-        # New user logs in.
-        self.login(user, "passwd_1")
-
         # His friend ask him to create new sample instead of him.
         # For this purpose friend has sent the user link to the page with this
         # form.
@@ -291,9 +288,9 @@ class SampleCreateTestCase(FunctionalTest):
             "project_name": project.name,
             "robject_id": robject.id
         })
-
+        # New user logs in.
         # User use this ling to get to sample create form.
-        self.browser.get(self.live_server_url + link)
+        self.help_log_user_and_get_to_page(user, "passwd_1", link)
 
         # Unexpectedly, user encounets message stating that user does not have
         # required 'project visit permission'.
@@ -306,8 +303,7 @@ class SampleCreateTestCase(FunctionalTest):
         assign_perm("can_visit_project", user, project)
 
         # Now, user logs in and goes to sample create form again.
-        self.login(user, "passwd_1")
-        self.browser.get(self.live_server_url + link)
+        self.help_log_user_and_get_to_page(user, "passwd_1", link)
 
         # Once again user notice message, this time about 'project modify
         # permission'
@@ -321,14 +317,17 @@ class SampleCreateTestCase(FunctionalTest):
         assign_perm("can_modify_project", user, project)
 
         # Finally, impatient user logs in and goes to sample form using link.
-        self.login(user, "passwd_1")
-        self.browser.get(self.live_server_url + link)
+        self.help_log_user_and_get_to_page(user, "passwd_1", link)
 
         # I works! User is able to get to sample form.
         self.find_by_css("input[placeholder='code']")
 
         # Now, user can safely logs out.
         self.logout()
+
+    def help_log_user_and_get_to_page(self, user, password, path):
+        self.login(user, password)
+        self.browser.get(self.live_server_url + path)
 
     def test_user_leaves_textual_fields_empty_and_submit_form(self):
         # Admin creates user.
