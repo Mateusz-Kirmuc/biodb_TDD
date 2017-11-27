@@ -70,7 +70,6 @@ def sample_create_view(request, project_name, robject_id):
         return redirect(redirect_to)
 
     if request.method == "POST":
-        # r = Robject.objects.create()
         s = Sample.objects.create(
             code=request.POST.get("code", ""),
             robject=Robject.objects.get(id=robject_id),
@@ -91,8 +90,12 @@ def sample_create_view(request, project_name, robject_id):
             kwargs={"project_name": project_name, "sample_id": s.id})
 
         return redirect(redirect_to)
+
     permission_against = Project.objects.get(name=project_name)
+
     if not request.user.has_perm("projects.can_visit_project", permission_against):
         return render(request, template_name="biodb/visit_permission_error.html")
+    if not request.user.has_perm("projects.can_modify_project", permission_against):
+        return render(request, "biodb/modify_permission_error.html")
 
     return render(request, "samples/sample_create.html", {"owners": owner_options, "error": False})

@@ -279,6 +279,7 @@ class SampleCreateViewTestCase(FunctionalTest):
     def help_create_logged_authorized_user_and_make_get_request(self, username, password, return_user=False):
         project, user = self.help_create_default_project_and_user_then_log_user_in()
         assign_perm("projects.can_visit_project", user, project)
+        assign_perm("projects.can_modify_project", user, project)
         response = self.help_make_get_request_to_sample_create()
         if return_user:
             return response, user
@@ -301,3 +302,17 @@ class SampleCreateViewTestCase(FunctionalTest):
         user = self.help_create_user(username, password)
         self.client.login(username=username, password=password)
         return project, user
+
+    def test_view_display_modify_permission_required_msg_on_GET(self):
+        project, user = self.help_create_default_project_and_user_then_log_user_in()
+        assign_perm("can_visit_project", user, project)
+        response = self.help_make_get_request_to_sample_create()
+        self.assertContains(
+            response, "<h1>User doesn't have permission: can modify project</h1>")
+
+    def test_view_renders_permission_modify_template(self):
+        project, user = self.help_create_default_project_and_user_then_log_user_in()
+        assign_perm("can_visit_project", user, project)
+        response = self.help_make_get_request_to_sample_create()
+        self.assertTemplateUsed(
+            response, template_name="biodb/modify_permission_error.html")

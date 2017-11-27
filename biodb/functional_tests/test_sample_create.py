@@ -296,7 +296,7 @@ class SampleCreateTestCase(FunctionalTest):
         self.browser.get(self.live_server_url + link)
 
         # Unexpectedly, user encounets message stating that user does not have
-        # required 'project visit message'.
+        # required 'project visit permission'.
         self.assertEqual(self.find_tag("h1").text,
                          "User doesn't have permission: can visit project")
         # Disappointed user logs out and sends message to admin what's going on.
@@ -310,6 +310,38 @@ class SampleCreateTestCase(FunctionalTest):
         self.browser.get(self.live_server_url + link)
 
         # He finally achieves his goal.
+        self.find_by_css("input[placeholder='code']")
+
+        # Now, user can safely logs out.
+        self.logout()
+
+    def test_user_without_project_modify_permission_tries_to_get_form(self):
+        # Admin creates new user.
+        user = User.objects.create_user(username="user_1", password="passwd")
+
+        # New user logs in.
+        # He tries to create new sample so he goes to the form page.
+        # NOTE: one of call back method in the stack below assign
+        # 'visit permission' to user
+        self.get_sample_create_page(user, "passwd")
+
+        # Unexpectedly, user encounets message stating that user does not have
+        # required 'project modify permission'.
+        self.assertEqual(self.find_tag("h1").text,
+                         "User doesn't have permission: can modify project")
+
+        # Disappointed user logs out and sends message to admin what's going on.
+        self.logout()
+
+        # Admin assign required permission to user and lets him know about this
+        # fact.
+        assign_perm("can_modify_project", user, self.project)
+
+        # Now, user logs in and goes to sample create form again.
+        self.get_sample_create_page(user, "passwd")
+
+        # He finally achieves his goal.
+        time.sleep(10)
         self.find_by_css("input[placeholder='code']")
 
         # Now, user can safely logs out.
