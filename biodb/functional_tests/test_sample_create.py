@@ -108,7 +108,7 @@ class SampleCreateTestCase(FunctionalTest):
 
         self.assertEqual(
             rest_sample_data_in_template[5].text,
-            f"Notes : {last_sample.notes}"
+            f"Notes :{last_sample.notes}"
         )
 
         self.assertEqual(
@@ -274,7 +274,7 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(self.browser.current_url, sample_create_url)
 
     @override_settings(DEBUG=True)
-    def test_user_without_project_visit_permission_tries_to_get_form(self):
+    def test_non_authenticate_user_tries_to_get_form(self):
         # Admin register new user on demand.
         user = User.objects.create_user(username="user_1", password="passwd_1")
 
@@ -309,38 +309,22 @@ class SampleCreateTestCase(FunctionalTest):
         self.login(user, "passwd_1")
         self.browser.get(self.live_server_url + link)
 
-        # He finally achieves his goal.
-        self.find_by_css("input[placeholder='code']")
-
-        # Now, user can safely logs out.
-        self.logout()
-
-    def test_user_without_project_modify_permission_tries_to_get_form(self):
-        # Admin creates new user.
-        user = User.objects.create_user(username="user_1", password="passwd")
-
-        # New user logs in.
-        # He tries to create new sample so he goes to the form page.
-        # NOTE: one of call back method in the stack below assign
-        # 'visit permission' to user
-        self.get_sample_create_page(user, "passwd")
-
-        # Unexpectedly, user encounets message stating that user does not have
-        # required 'project modify permission'.
+        # Once again user notice message, this time about 'project modify
+        # permission'
         self.assertEqual(self.find_tag("h1").text,
                          "User doesn't have permission: can modify project")
 
-        # Disappointed user logs out and sends message to admin what's going on.
+        # Disappointed user logs out and sends second message to admin.
         self.logout()
-
         # Admin assign required permission to user and lets him know about this
         # fact.
-        assign_perm("can_modify_project", user, self.project)
+        assign_perm("can_modify_project", user, project)
 
-        # Now, user logs in and goes to sample create form again.
-        self.get_sample_create_page(user, "passwd")
+        # Finally, impatient user logs in and goes to sample form using link.
+        self.login(user, "passwd_1")
+        self.browser.get(self.live_server_url + link)
 
-        # He finally achieves his goal.
+        # I works! User is able to get to sample form.
         self.find_by_css("input[placeholder='code']")
 
         # Now, user can safely logs out.
