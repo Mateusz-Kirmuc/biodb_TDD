@@ -64,6 +64,7 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
 def sample_create_view(request, project_name, robject_id):
     owner_options = [user for user in User.objects.all(
     ) if user.username != "AnonymousUser"]
+
     if request.user.is_anonymous == True:
         redirect_to = f"{reverse('login')}?next={request.path}"
         return redirect(redirect_to)
@@ -90,5 +91,8 @@ def sample_create_view(request, project_name, robject_id):
             kwargs={"project_name": project_name, "sample_id": s.id})
 
         return redirect(redirect_to)
+    permission_against = Project.objects.get(name=project_name)
+    if not request.user.has_perm("projects.can_visit_project", permission_against):
+        return render(request, template_name="biodb/visit_permission_error.html")
 
     return render(request, "samples/sample_create.html", {"owners": owner_options, "error": False})

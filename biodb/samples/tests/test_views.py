@@ -148,7 +148,7 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertEqual(found.func, sample_create_view)
 
     def test_view_renders_sample_create_template(self):
-        response = self.help_create_user_log_him_and_make_get_request(
+        response = self.help_create_logged_authorized_user_and_make_get_request(
             username="user_1", password="passwd_1")
         self.assertTemplateUsed(response, "samples/sample_create.html")
 
@@ -212,7 +212,7 @@ class SampleCreateViewTestCase(FunctionalTest):
     def test_view_pass_to_template_all_created_users(self):
         u_first = self.help_create_user(
             username="first_created_user", password="passwd_1")
-        response, u_second = self.help_create_user_log_him_and_make_get_request(
+        response, u_second = self.help_create_logged_authorized_user_and_make_get_request(
             username="second_created_user", password="passwd_2", return_user=True)
         self.assertEqual(len(response.context["owners"]), 2)
         self.assertIn(u_first, response.context["owners"])
@@ -253,7 +253,7 @@ class SampleCreateViewTestCase(FunctionalTest):
         return response
 
     def test_view_passes_error_false_boolean_to_template_on_get(self):
-        response = self.help_create_user_log_him_and_make_get_request(
+        response = self.help_create_logged_authorized_user_and_make_get_request(
             username="user_1", password="passwd_1")
         self.help_confirm_in_context(response, "error", False)
 
@@ -276,10 +276,28 @@ class SampleCreateViewTestCase(FunctionalTest):
         response = self.client.get(self.SAMPLE_CREATE_URL)
         return response
 
-    def help_create_user_log_him_and_make_get_request(self, username, password, return_user=False):
-        user = User.objects.create_user(username=username, password=password)
-        self.client.login(username=username, password=password)
+    def help_create_logged_authorized_user_and_make_get_request(self, username, password, return_user=False):
+        project, user = self.help_create_default_project_and_user_then_log_user_in()
+        assign_perm("projects.can_visit_project", user, project)
         response = self.help_make_get_request_to_sample_create()
         if return_user:
             return response, user
         return response
+
+    def test_view_displays_permission_required_message_on_GET(self):
+        self.help_create_default_project_and_user_then_log_user_in()
+        response = self.help_make_get_request_to_sample_create()
+        self.assertContains(
+            response, "<h1>User doesn't have permission: can visit project</h1>")
+
+    def test_view_renders_permission_visit_template(self):
+        self.help_create_default_project_and_user_then_log_user_in()
+        response = self.help_make_get_request_to_sample_create()
+        self.assertTemplateUsed(
+            response, template_name="biodb/visit_permission_error.html")
+
+    def help_create_default_project_and_user_then_log_user_in(self, username="user_1", password="passwd_1"):
+        project = Project.objects.create(name="project_1")
+        user = self.help_create_user(username, password)
+        self.client.login(username=username, password=password)
+        return project, user

@@ -9,6 +9,7 @@ from robjects.models import Robject
 from guardian.shortcuts import assign_perm
 from biodb import settings
 from selenium.common.exceptions import NoSuchElementException
+from django.test import override_settings
 
 
 class SampleCreateTestCase(FunctionalTest):
@@ -271,3 +272,45 @@ class SampleCreateTestCase(FunctionalTest):
 
         # Now, he finally sees sample create form and its url.
         self.assertEqual(self.browser.current_url, sample_create_url)
+
+    @override_settings(DEBUG=True)
+    def test_user_without_project_visit_permission_tries_to_get_form(self):
+        # Admin register new user on demand.
+        user = User.objects.create_user(username="user_1", password="passwd_1")
+
+        # New user logs in.
+        self.login(user, "passwd_1")
+
+        # His friend ask him to create new sample instead of him.
+        # For this purpose friend has sent the user link to the page with this
+        # form.
+        # HERE DB NEEDS SOME SETUP
+        project = Project.objects.create(name="project_1")
+        robject = Robject.objects.create(project=project)
+        link = reverse("projects:robjects:sample_create", kwargs={
+            "project_name": project.name,
+            "robject_id": robject.id
+        })
+
+        # User use this ling to get to sample create form.
+        self.browser.get(self.live_server_url + link)
+
+        # Unexpectedly, user encounets message stating that user does not have
+        # required 'project visit message'.
+        self.assertEqual(self.find_tag("h1").text,
+                         "User doesn't have permission: can visit project")
+        # Disappointed user logs out and sends message to admin what's going on.
+        self.logout()
+        # Admin assign required permission to user and lets him know about this
+        # fact.
+        assign_perm("can_visit_project", user, project)
+
+        # Now, user logs in and goes to sample create form again.
+        self.login(user, "passwd_1")
+        self.browser.get(self.live_server_url + link)
+
+        # He finally achieves his goal.
+        self.find_by_css("input[placeholder='code']")
+
+        # Now, user can safely logs out.
+        self.logout()
