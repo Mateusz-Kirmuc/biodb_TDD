@@ -385,6 +385,28 @@ class SampleCreateTestCase(FunctionalTest):
                 f"//option[contains(text(), '{option_name}')]").click()
             self.help_submit_form()
             # In details page user confirms that sample has status of
-            # 'completed'.
+            # required status.
             self.assertEqual(self.find_by_css(
                 "li:last-child").text, f"Status : {option_name}")
+
+        # Satisfied user logs out
+
+    def test_user_creates_sample_and_confirms_in_sample_list(self):
+        # Admin register new user.
+        user = self.help_register_new_user("user_1", "passwd")
+        # User goes to sample create page and clicks submit button.
+        self.get_sample_create_page(user, "passwd")
+        self.help_submit_form()
+
+        # Unfortunately, he forgets to enter code and sees error message.
+        # User fix his mistake and resubmits form.
+        self.help_enter_sample_code("whatever")
+        self.help_submit_form()
+        # Now, he goes to sample table using link.
+        self.browser.find_element_by_link_text("Back to sample table").click()
+
+        # In the table he sees only one sample row (header + sample row).
+        rows = self.browser.find_elements_by_tag_name("tr")
+        self.assertEqual(len(rows), 2)
+
+        # Satisfied user logs out.

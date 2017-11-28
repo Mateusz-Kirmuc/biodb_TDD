@@ -68,10 +68,16 @@ def sample_create_view(request, project_name, robject_id):
     if request.user.is_anonymous == True:
         redirect_to = f"{reverse('login')}?next={request.path}"
         return redirect(redirect_to)
-
     if request.method == "POST":
+        code = request.POST.get("code", "")
+        if not code:
+            return render(request, "samples/sample_create.html", {
+                "owners": owner_options,
+                "error": True
+            })
+
         s = Sample.objects.create(
-            code=request.POST.get("code", ""),
+            code=code,
             robject=Robject.objects.get(id=robject_id),
             owner=User.objects.get(username=request.POST.get("owner")),
             status=request.POST.get("status")
@@ -79,12 +85,6 @@ def sample_create_view(request, project_name, robject_id):
         if request.user.is_authenticated:
             s.modify_by = request.user
             s.save()
-
-        if s.code == "":
-            return render(request, "samples/sample_create.html", {
-                "owners": owner_options,
-                "error": True
-            })
 
         redirect_to = reverse(
             "projects:samples:sample_details",

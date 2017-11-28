@@ -153,20 +153,18 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertTemplateUsed(response, "samples/sample_create.html")
 
     def test_view_creates_new_sample_on_post(self):
-        self.assertEqual(Sample.objects.count(), 0)
+        self.help_assert_number_of_all_samples_in_db(0)
         self.help_create_user_and_make_post(
             username="USERNAME",
             password="passwd_1",
-            log_user_in=True,
-            post_data={"owner": "USERNAME"})
-        self.assertEqual(Sample.objects.count(), 1)
+            post_data={"code": "1234ABCD"})
+        self.help_assert_number_of_all_samples_in_db(1)
 
     def test_view_redirects_on_post(self):
         response = self.help_create_user_and_make_post(
             username="USERNAME",
             password="PASSWORD",
             post_data={"owner": "USERNAME", "code": "12334"},
-            log_user_in=True,
             assign_visit_permission=True
         )
         last_sample_id = Sample.objects.last().id
@@ -183,7 +181,7 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.help_create_user_and_make_post(username="user_1",
                                             password="passwd_1",
                                             post_data={"code": "ABCD"},
-                                            log_user_in=True)
+                                            )
         sample = Sample.objects.last()
         self.assertEqual(sample.code, "ABCD")
 
@@ -191,7 +189,7 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.help_create_user_and_make_post(username="user_1",
                                             password="passwd_1",
                                             post_data={"code": "ABCD"},
-                                            log_user_in=True)
+                                            )
         sample = Sample.objects.last()
         self.assertIsNotNone(sample.robject)
         self.assertTrue(isinstance(sample.robject, Robject))
@@ -200,8 +198,8 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.help_create_user_and_make_post(
             username="user_1",
             password="passwd_1",
-            log_user_in=True,
             send_default_owner=False,
+            send_default_code=True,
             post_data={"owner": "user_1"}
         )
         sample = Sample.objects.last()
@@ -211,9 +209,9 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.help_create_user_and_make_post(
             username="user_1",
             password="passwd_1",
-            log_user_in=True,
             send_default_owner=False,
-            post_data={"owner": "user_1"}
+            post_data={"owner": "user_1"},
+            send_default_code=True
         )
         sample = Sample.objects.last()
         self.assertEqual(sample.modify_by.username, "user_1")
@@ -230,7 +228,9 @@ class SampleCreateViewTestCase(FunctionalTest):
     def test_view_attach_authenticated_user_to_modify_by_sample_field(self):
         response, u = self.help_create_user_and_make_post(
             username="user", password="user_passwd",
-            post_data={"owner": "user"}, return_user=True, log_user_in=True)
+            post_data={"owner": "user"},
+            return_user=True,
+            send_default_code=True)
         self.assertEqual(Sample.objects.last().modify_by, u)
 
     def test_when_view_gets_empty_sample_code_it_renders_the_same_page(self):
@@ -238,7 +238,7 @@ class SampleCreateViewTestCase(FunctionalTest):
             username="user_1",
             password="passwd_1",
             post_data={"code": "", "owner": "user_1"},
-            log_user_in=True)
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "samples/sample_create.html")
 
@@ -247,16 +247,20 @@ class SampleCreateViewTestCase(FunctionalTest):
 
     def help_create_user_and_make_post(self, username, password=None,
                                        post_data={},
-                                       log_user_in=False,
+                                       log_user_in=True,
                                        return_user=False,
                                        assign_visit_permission=False,
                                        send_default_status=True,
-                                       send_default_owner=True):
+                                       send_default_owner=True,
+                                       send_default_code=False,
+                                       project_name="project_1"):
         if send_default_status:
             post_data.update({"status": 1})
         if send_default_owner:
             post_data.update({"owner": username})
-        proj = Project.objects.create(name="project_1")
+        if send_default_code:
+            post_data.update({"code": "1234ABCD"})
+        proj = Project.objects.create(name=project_name)
         user = self.help_create_user(username=username, password=password)
         if log_user_in:
             self.client.login(username=username, password=password)
@@ -275,7 +279,6 @@ class SampleCreateViewTestCase(FunctionalTest):
     def test_view_passes_error_true_boolean_to_template_when_invalid_post(self):
         response = self.help_create_user_and_make_post(username="user_1",
                                                        password="passwd",
-                                                       log_user_in=True,
                                                        post_data={"owner": "user_1"})
         self.help_confirm_in_context(response, "error", True)
 
@@ -336,8 +339,31 @@ class SampleCreateViewTestCase(FunctionalTest):
         response = self.help_create_user_and_make_post(
             username="user_1",
             password="passwd_1",
-            log_user_in=True,
             post_data={"status": getattr(Sample, "COMPLETED")},
-            send_default_status=False)
+            send_default_status=False,
+            send_default_code=True)
         sample = Sample.objects.last()
         self.assertEqual(sample.status, getattr(Sample, "COMPLETED"))
+
+    def test_view_not_saves_sample_when_post_data_is_invalid(self):
+        self.help_assert_number_of_all_samples_in_db(0)
+
+        # send invalid post request without sample code
+        self.help_create_user_and_make_post(
+            username="user_1",
+            password="passwd",
+        )
+        self.help_assert_number_of_all_samples_in_db(0)
+        Project.objects.last().delete()
+        User.objects.last().delete()
+
+        # send valid post request with sample code
+        self.help_create_user_and_make_post(
+            username="user_1",
+            password="passwd",
+            post_data={"code": "ABCD"},
+        )
+        self.help_assert_number_of_all_samples_in_db(1)
+
+    def help_assert_number_of_all_samples_in_db(self, number):
+        self.assertEqual(Sample.objects.count(), number)
