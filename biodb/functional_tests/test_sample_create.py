@@ -348,3 +348,22 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertNotIn("None", self.find_by_css("li.source").text)
 
         # Satisfied user logout.
+
+    @override_settings(DEBUG=True)
+    def test_user_creates_sample_with_non_default_status(self):
+        # Admin creates new user.
+        user = self.help_register_new_user("user_1", "passwd_1")
+
+        # User goes to sample create page.
+        self.get_sample_create_page(user, "passwd_1")
+
+        # He wants to create sample with non-default status: e.g. completed.
+        # User type code, chooses status from options list and clicks submit.
+        self.help_enter_sample_code("code1234")
+        self.browser.find_element_by_xpath(
+            "//option[contains(text(), 'Complete')]").click()
+        self.help_submit_form()
+
+        # In details page user confirms that sample has status of 'completed'.
+        self.assertEqual(self.find_by_css(
+            "li:last-child").text, "Status : Completed")

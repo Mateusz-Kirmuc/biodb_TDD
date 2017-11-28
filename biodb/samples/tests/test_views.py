@@ -180,34 +180,43 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.assertEqual(found.url_name, "sample_create")
 
     def test_view_save_sample_code_in_db(self):
-        self.default_set_up_for_projects_pages()
-        self.help_make_post_request_to_sample_create_view(
-            {"code": "ABCD", "owner": "USERNAME"})
+        self.help_create_user_and_make_post(username="user_1",
+                                            password="passwd_1",
+                                            post_data={"code": "ABCD"},
+                                            log_user_in=True)
         sample = Sample.objects.last()
         self.assertEqual(sample.code, "ABCD")
 
     def test_view_attach_robject_to_new_sample(self):
-        self.default_set_up_for_projects_pages()
-        robj = Robject.objects.create()
-        response = self.help_make_post_request_to_sample_create_view(
-            {"code": "ABCD", "owner": "USERNAME"})
+        self.help_create_user_and_make_post(username="user_1",
+                                            password="passwd_1",
+                                            post_data={"code": "ABCD"},
+                                            log_user_in=True)
         sample = Sample.objects.last()
         self.assertIsNotNone(sample.robject)
-        self.assertEqual(sample.robject, robj)
+        self.assertTrue(isinstance(sample.robject, Robject))
 
     def test_view_attach_owner_to_new_sample(self):
-        self.default_set_up_for_projects_pages()
-        self.help_make_post_request_to_sample_create_view(
-            {"owner": "USERNAME"})
+        self.help_create_user_and_make_post(
+            username="user_1",
+            password="passwd_1",
+            log_user_in=True,
+            send_default_owner=False,
+            post_data={"owner": "user_1"}
+        )
         sample = Sample.objects.last()
-        self.assertEqual(sample.owner.username, "USERNAME")
+        self.assertEqual(sample.owner.username, "user_1")
 
     def test_view_assign_user_object_to_modify_by_field_in_sample(self):
-        self.default_set_up_for_projects_pages()
-        self.help_make_post_request_to_sample_create_view(
-            {"code": "ABCD", "owner": "USERNAME"})
+        self.help_create_user_and_make_post(
+            username="user_1",
+            password="passwd_1",
+            log_user_in=True,
+            send_default_owner=False,
+            post_data={"owner": "user_1"}
+        )
         sample = Sample.objects.last()
-        self.assertEqual(sample.modify_by.username, "USERNAME")
+        self.assertEqual(sample.modify_by.username, "user_1")
 
     def test_view_pass_to_template_all_created_users(self):
         u_first = self.help_create_user(
@@ -240,7 +249,13 @@ class SampleCreateViewTestCase(FunctionalTest):
                                        post_data={},
                                        log_user_in=False,
                                        return_user=False,
-                                       assign_visit_permission=False):
+                                       assign_visit_permission=False,
+                                       send_default_status=True,
+                                       send_default_owner=True):
+        if send_default_status:
+            post_data.update({"status": 1})
+        if send_default_owner:
+            post_data.update({"owner": username})
         proj = Project.objects.create(name="project_1")
         user = self.help_create_user(username=username, password=password)
         if log_user_in:
@@ -316,3 +331,13 @@ class SampleCreateViewTestCase(FunctionalTest):
         response = self.help_make_get_request_to_sample_create()
         self.assertTemplateUsed(
             response, template_name="biodb/modify_permission_error.html")
+
+    def test_view_creates_sample_with_proper_status_on_post(self):
+        response = self.help_create_user_and_make_post(
+            username="user_1",
+            password="passwd_1",
+            log_user_in=True,
+            post_data={"status": getattr(Sample, "COMPLETED")},
+            send_default_status=False)
+        sample = Sample.objects.last()
+        self.assertEqual(sample.status, getattr(Sample, "COMPLETED"))

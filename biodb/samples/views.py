@@ -74,6 +74,7 @@ def sample_create_view(request, project_name, robject_id):
             code=request.POST.get("code", ""),
             robject=Robject.objects.get(id=robject_id),
             owner=User.objects.get(username=request.POST.get("owner")),
+            status=request.POST.get("status")
         )
         if request.user.is_authenticated:
             s.modify_by = request.user
