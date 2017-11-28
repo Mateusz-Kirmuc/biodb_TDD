@@ -123,7 +123,7 @@ class SampleCreateTestCase(FunctionalTest):
 
         self.assertEqual(
             rest_sample_data_in_template[8].text,
-            f"Status : {Sample.STATUS_CHOICES[last_sample.status-1][1]}"
+            f"Status : Production"
         )
 
         # When he finish, he logs out.
