@@ -356,14 +356,35 @@ class SampleCreateTestCase(FunctionalTest):
 
         # User goes to sample create page.
         self.get_sample_create_page(user, "passwd_1")
+        link = self.browser.current_url
 
         # He wants to create sample with non-default status: e.g. completed.
         # User type code, chooses status from options list and clicks submit.
         self.help_enter_sample_code("code1234")
         self.browser.find_element_by_xpath(
             "//option[contains(text(), 'Complete')]").click()
+
+        status_options = self.browser.find_elements_by_css_selector(
+            "select.statuses option")
+        option_names = [option.text for option in status_options]
+
         self.help_submit_form()
 
         # In details page user confirms that sample has status of 'completed'.
         self.assertEqual(self.find_by_css(
             "li:last-child").text, "Status : Completed")
+
+        # However user is not fully satisfied.
+        # What if he choose different status?
+        # User goes several times back and forth and checks all that statuses
+        # can be saved.
+        for option_name in option_names:
+            self.browser.get(link)
+            self.help_enter_sample_code("code1234")
+            self.browser.find_element_by_xpath(
+                f"//option[contains(text(), '{option_name}')]").click()
+            self.help_submit_form()
+            # In details page user confirms that sample has status of
+            # 'completed'.
+            self.assertEqual(self.find_by_css(
+                "li:last-child").text, f"Status : {option_name}")
