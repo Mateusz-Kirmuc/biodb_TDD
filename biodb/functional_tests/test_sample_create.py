@@ -84,7 +84,7 @@ class SampleCreateTestCase(FunctionalTest):
 
         # He notice he was redirected to sample detail page.
         # In this page he wants to confirm all previous submitted data.
-        self.help_confirm_sample_code("test_code")
+        self.help_confirm_page_header("test_code")
         rest_sample_data_in_template = self.find_tags("li")
         self.assertEqual(
             rest_sample_data_in_template[0].text,
@@ -144,11 +144,10 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(owner_option.text, "user_1")
 
         # User enters sample code and submit form.
-        self.help_enter_sample_code("1234ABCD")
-        self.help_submit_form()
+        self.help_enter_code_and_submit_form("1234ABCD")
 
         # Now he can see his sample in sample details page.
-        self.help_confirm_sample_code("1234ABCD")
+        self.help_confirm_page_header("1234ABCD")
 
         # User 1 logs out.
         self.logout()
@@ -170,11 +169,10 @@ class SampleCreateTestCase(FunctionalTest):
         self.browser.find_element_by_xpath(
             "//option[contains(text(), 'user_2')]").click()
         # Then he pass sample code and submit form.
-        self.help_enter_sample_code("xyz123")
-        self.help_submit_form()
+        self.help_enter_code_and_submit_form("xyz123")
 
         # Now user_2 can see his sample in sample details page.
-        self.help_confirm_sample_code("xyz123")
+        self.help_confirm_page_header("xyz123")
         self.assertEqual(self.find_by_css(".owner").text, "Owner : user_2")
 
         # User 2 logs out.
@@ -200,11 +198,10 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(error_element.text, "This field is required")
 
         # User corrects form and resubmits.
-        self.help_enter_sample_code("sample_code")
-        self.help_submit_form()
+        self.help_enter_code_and_submit_form("sample_code")
 
         # Now, he can confirm submitted data in sample details page.
-        self.help_confirm_sample_code("sample_code")
+        self.help_confirm_page_header("sample_code")
 
         # Satisfied user logs out.
 
@@ -231,7 +228,7 @@ class SampleCreateTestCase(FunctionalTest):
         # User logs out.
 
     def help_enter_sample_code(self, code):
-        self.find_by_css("input[placeholder='code']").send_keys(code)
+        self.help_find_code_input().send_keys(code)
 
     def help_submit_form(self):
         self.find_tag("button").click()
@@ -241,8 +238,8 @@ class SampleCreateTestCase(FunctionalTest):
             username=username, password=password)
         return user
 
-    def help_confirm_sample_code(self, code):
-        self.assertEqual(self.find_tag("h1").text, code)
+    def help_confirm_page_header(self, text):
+        self.assertEqual(self.find_tag("h1").text, text)
 
     def help_register_new_user_and_get_sample_create(self, username, password):
         user = self.help_register_new_user(username, password)
@@ -321,7 +318,7 @@ class SampleCreateTestCase(FunctionalTest):
         self.help_log_user_and_get_to_page(user, "passwd_1", link)
 
         # I works! User is able to get to sample form.
-        self.find_by_css("input[placeholder='code']")
+        self.help_find_code_input()
 
         # Now, user can safely logs out.
         self.logout()
@@ -339,8 +336,7 @@ class SampleCreateTestCase(FunctionalTest):
         self.get_sample_create_page(user, password="passwd_1")
 
         # He enters code and submit form.
-        self.help_enter_sample_code("sample_code_1")
-        self.help_submit_form()
+        self.help_enter_code_and_submit_form("sample_code_1")
 
         # Inside sample details page user wants to confirm that textual fields
         # are not None but empty string.
@@ -401,8 +397,7 @@ class SampleCreateTestCase(FunctionalTest):
 
         # Unfortunately, he forgets to enter code and sees error message.
         # User fix his mistake and resubmits form.
-        self.help_enter_sample_code("whatever")
-        self.help_submit_form()
+        self.help_enter_code_and_submit_form("whatever")
         # Now, he goes to sample table using link.
         self.browser.find_element_by_link_text("Back to sample table").click()
 
@@ -420,9 +415,7 @@ class SampleCreateTestCase(FunctionalTest):
         # User goes to robject create page and creates sample giving it code
         # ABCD1234.
         self.get_sample_create_page(user1, "passwd1")
-        input_tag = self.browser.find_element_by_tag_name("input")
-        self.help_enter_sample_code("ABCD1234")
-        self.help_submit_form()
+        self.help_enter_code_and_submit_form("ABCD1234")
 
         # Satisfied user logs out.
         self.logout()
@@ -435,25 +428,27 @@ class SampleCreateTestCase(FunctionalTest):
         # He goes to sample create form, but unfortunately uses the same code as
         # User 1.
         self.get_sample_create_page(user2, "passwd2")
-        self.help_enter_sample_code("ABCD1234")
-        self.help_submit_form()
+        self.help_enter_code_and_submit_form("ABCD1234")
 
         # Surprised User2 sees sample create form again, instead of sample
         # details.
-        self.assertEqual(
-            self.browser.find_element_by_tag_name("h1").text,
-            "Sample create form"
-        )
+        self.help_confirm_page_header("Sample create form")
 
         # This time, above code input there is a message saying that sample code
         # must be uniqe.
-        code_input = self.find_by_css("input[placeholder='code']")
+        code_input = self.help_find_code_input()
         self.assertEqual(_(code_input).previous_sibling().text,
                          "Sample code must be uniqe")
 
         # User2 changes his code choice and resubmits form.
-        self.help_enter_sample_code("XYZ987")
-        self.help_submit_form()
+        self.help_enter_code_and_submit_form("XYZ987")
 
         # Now, he sees sample details page.
-        self.help_confirm_sample_code("XYZ987")
+        self.help_confirm_page_header("XYZ987")
+
+    def help_find_code_input(self):
+        return self.find_by_css("input[placeholder='code']")
+
+    def help_enter_code_and_submit_form(self, code):
+        self.help_enter_sample_code(code)
+        self.help_submit_form()
