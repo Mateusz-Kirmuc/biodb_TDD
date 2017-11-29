@@ -33,6 +33,8 @@ def augment_selenium_location_methods(web_element):
     """
     web_element.next_sibling = lambda: web_element.find_element_by_xpath(
         "following-sibling::*[1]")
+    web_element.previous_sibling = lambda: web_element.find_element_by_xpath(
+        "preceding-sibling::*[1]")
     return web_element
 
 
