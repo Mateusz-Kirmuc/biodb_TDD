@@ -14,6 +14,28 @@ from robjects.models import Robject
 from urllib.parse import urlparse
 
 
+def augment_selenium_location_methods(web_element):
+    """ Function adds new methods to current selenium location methods set
+
+        It works similar to function decorator, except the fact it operates on
+        objects instead of functions.
+
+        Functions works as follows: accept selected selenium HTML element,
+        defines new function and assign this function as method to web element.
+        Finally web_element is returned and contains desired method.
+
+        Excample:
+            from functional_tests.base import augment_.._methods as _
+
+            input_element = self.browser.find_element_by_tag_name("input")
+            input_sibling = _(input_element).next_sibling()
+
+    """
+    web_element.next_sibling = lambda: web_element.find_element_by_xpath(
+        "following-sibling::*[1]")
+    return web_element
+
+
 @override_settings(DEBUG=False)
 class FunctionalTest(StaticLiveServerTestCase):
     """
