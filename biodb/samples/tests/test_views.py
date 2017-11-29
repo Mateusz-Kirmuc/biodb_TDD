@@ -271,16 +271,12 @@ class SampleCreateViewTestCase(FunctionalTest):
             return response, user
         return response
 
-    def test_view_passes_error_false_boolean_to_template_on_get(self):
-        response = self.help_create_logged_authorized_user_and_make_get_request(
-            username="user_1", password="passwd_1")
-        self.help_confirm_in_context(response, "error", False)
-
-    def test_view_passes_error_true_boolean_to_template_when_invalid_post(self):
+    def test_view_passes_error_msg_to_template_when_post_has_no_code(self):
         response = self.help_create_user_and_make_post(username="user_1",
                                                        password="passwd",
                                                        post_data={"owner": "user_1"})
-        self.help_confirm_in_context(response, "error", True)
+        self.help_confirm_in_context(
+            response, "error", "This field is required")
 
     def help_confirm_in_context(self, response, key, value):
         self.assertEqual(response.context[key], value)
@@ -367,3 +363,13 @@ class SampleCreateViewTestCase(FunctionalTest):
 
     def help_assert_number_of_all_samples_in_db(self, number):
         self.assertEqual(Sample.objects.count(), number)
+
+    def test_view_not_redirects_when_it_gets_taken_code_on_post(self):
+        Sample.objects.create(code="taken_code")
+        response = self.help_create_user_and_make_post(
+            username="user1",
+            password="passwd1",
+            post_data={"code": "taken_code"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Sample code must be uniqe")

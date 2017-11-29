@@ -5,6 +5,7 @@ from django.test import TestCase
 from samples.models import Sample
 from robjects.models import Robject
 from projects.models import Project
+from django.db.utils import IntegrityError
 
 
 class SampleModelTestCase(TestCase):
@@ -85,3 +86,8 @@ class SampleModelTestCase(TestCase):
 
         # check equal
         self.assertCountEqual(fields_verbose, method_fields_names_list)
+
+    def test_sample_code_must_be_uniqe(self):
+        Sample.objects.create(code="xyz123")
+        with self.assertRaises(IntegrityError):
+            Sample.objects.create(code="xyz123")

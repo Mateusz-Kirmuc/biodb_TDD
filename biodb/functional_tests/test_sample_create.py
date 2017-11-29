@@ -10,6 +10,7 @@ from guardian.shortcuts import assign_perm
 from biodb import settings
 from selenium.common.exceptions import NoSuchElementException
 from django.test import override_settings
+from functional_tests.base import augment_selenium_location_methods as _
 
 
 class SampleCreateTestCase(FunctionalTest):
@@ -378,9 +379,9 @@ class SampleCreateTestCase(FunctionalTest):
         # What if he choose different status?
         # User goes several times back and forth and checks all that statuses
         # can be saved.
-        for option_name in option_names:
+        for index, option_name in enumerate(option_names):
             self.browser.get(link)
-            self.help_enter_sample_code("code1234")
+            self.help_enter_sample_code(f"code{index}")  # code must be uniqe
             self.browser.find_element_by_xpath(
                 f"//option[contains(text(), '{option_name}')]").click()
             self.help_submit_form()
@@ -410,3 +411,49 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(len(rows), 2)
 
         # Satisfied user logs out.
+
+    def test_user_creates_sample_using_already_taken_code(self):
+        # Admin register user.
+        user1 = self.help_register_new_user(
+            username="user_1", password="passwd1")
+
+        # User goes to robject create page and creates sample giving it code
+        # ABCD1234.
+        self.get_sample_create_page(user1, "passwd1")
+        input_tag = self.browser.find_element_by_tag_name("input")
+        self.help_enter_sample_code("ABCD1234")
+        self.help_submit_form()
+
+        # Satisfied user logs out.
+        self.logout()
+
+        # Meanwhile admin register second user.
+        user2 = self.help_register_new_user(
+            username="user2", password="passwd2")
+
+        # Second user also wants to create new sample.
+        # He goes to sample create form, but unfortunately uses the same code as
+        # User 1.
+        self.get_sample_create_page(user2, "passwd2")
+        self.help_enter_sample_code("ABCD1234")
+        self.help_submit_form()
+
+        # Surprised User2 sees sample create form again, instead of sample
+        # details.
+        self.assertEqual(
+            self.browser.find_element_by_tag_name("h1").text,
+            "Sample create form"
+        )
+
+        # This time, above code input there is a message saying that sample code
+        # must be uniqe.
+        code_input = self.find_by_css("input[placeholder='code']")
+        self.assertEqual(_(code_input).previous_sibling().text,
+                         "Sample code must be uniqe")
+
+        # User2 changes his code choice and resubmits form.
+        self.help_enter_sample_code("XYZ987")
+        self.help_submit_form()
+
+        # Now, he sees sample details page.
+        self.help_confirm_sample_code("XYZ987")

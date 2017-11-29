@@ -34,7 +34,7 @@ class Sample(models.Model):
                       (ON_HOLD, 'ON_HOLD'),
                       (LIBRARY, 'Library'))
 
-    code = models.CharField(max_length=100, blank=True)
+    code = models.CharField(max_length=100, blank=True, unique=True)
     robject = models.ForeignKey(to=Robject, null=True)
     owner = models.ForeignKey(
         to=User, null=True, related_name="sample_in_which_user_is_owner")

@@ -13,6 +13,7 @@ from samples.models import Sample
 from samples.tables import SampleTable
 from robjects.models import Robject
 from django.contrib.auth.models import User
+from django.db.utils import IntegrityError
 
 
 class SampleListView(LoginPermissionRequiredMixin, SingleTableView, ListView):
@@ -73,15 +74,21 @@ def sample_create_view(request, project_name, robject_id):
         if not code:
             return render(request, "samples/sample_create.html", {
                 "owners": owner_options,
-                "error": True
+                "error": "This field is required"
             })
 
-        s = Sample.objects.create(
-            code=code,
-            robject=Robject.objects.get(id=robject_id),
-            owner=User.objects.get(username=request.POST.get("owner")),
-            status=request.POST.get("status")
-        )
+        try:
+            s = Sample.objects.create(
+                code=code,
+                robject=Robject.objects.get(id=robject_id),
+                owner=User.objects.get(username=request.POST.get("owner")),
+                status=request.POST.get("status")
+            )
+        except IntegrityError:
+            return render(request, "samples/sample_create.html", {
+                "owners": owner_options,
+                "error": "Sample code must be uniqe"
+            })
         if request.user.is_authenticated:
             s.modify_by = request.user
             s.save()
@@ -99,4 +106,4 @@ def sample_create_view(request, project_name, robject_id):
     if not request.user.has_perm("projects.can_modify_project", permission_against):
         return render(request, "biodb/modify_permission_error.html")
 
-    return render(request, "samples/sample_create.html", {"owners": owner_options, "error": False})
+    return render(request, "samples/sample_create.html", {"owners": owner_options})
