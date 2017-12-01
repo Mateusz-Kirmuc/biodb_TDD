@@ -222,8 +222,8 @@ class SampleCreateViewTestCase(FunctionalTest):
         response, u_second = self.help_create_logged_authorized_user_and_make_get_request(
             username="second_created_user", password="passwd_2", return_user=True)
         self.assertEqual(len(response.context["owners"]), 2)
-        self.assertIn(u_first, response.context["owners"])
-        self.assertIn(u_second, response.context["owners"])
+        self.assertIn(u_first.username, response.context["owners"])
+        self.assertIn(u_second.username, response.context["owners"])
 
     def test_view_attach_authenticated_user_to_modify_by_sample_field(self):
         response, u = self.help_create_user_and_make_post(
@@ -409,30 +409,23 @@ class SampleCreateViewTestCase(FunctionalTest):
         self.help_confirm_in_context(
             response, f"{post_key}_value", post_value)
 
-    def test_view_pass_owner_selected_variable_to_template_when_invalid_post(self):
+    def test_view_pass_to_template_selected_owner_variable_when_invalid_post(self):
+        self.help_assert_variable_is_passed_to_template_when_invalid_post(
+            "selected_owner")
+
+    def test_selected_user_var_has_owner_name_from_post(self):
         response = self.help_create_user_and_make_post(
             username="user1",
             password="passwd1",
-            post_data={"owner": "user1"},
-            send_default_owner=False
-        )
-        self.assertIn("user1", response.context)
+            post_data={"owner": "user1"})
+        self.help_confirm_in_context(
+            response, "selected_owner", "user1")
 
-        # the same but send different owner
         response = self.help_create_user_and_make_post(
             username="user2",
             password="passwd2",
             post_data={"owner": "user2"},
-            send_default_owner=False,
-            project_name="project_2"
-        )
-        self.assertIn("user2", response.context)
+            project_name="project_2")
 
-    def test_owner_selected_variable_has_value_selected(self):
-        response = self.help_create_user_and_make_post(
-            username="user1",
-            password="passwd1",
-            post_data={"owner": "user1"},
-            send_default_owner=False
-        )
-        self.assertEqual(response.context["user1"], "selected")
+        self.help_confirm_in_context(
+            response, "selected_owner", "user2")

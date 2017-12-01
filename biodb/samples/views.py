@@ -63,7 +63,7 @@ class SampleDetailView(LoginPermissionRequiredMixin, DetailView):
 
 
 def sample_create_view(request, project_name, robject_id):
-    owner_options = [user for user in User.objects.all(
+    owner_options = [user.username for user in User.objects.all(
     ) if user.username != "AnonymousUser"]
 
     if request.user.is_anonymous == True:
@@ -78,7 +78,7 @@ def sample_create_view(request, project_name, robject_id):
                 "notes_value": request.POST.get("notes"),
                 "form_value": request.POST.get("form"),
                 "source_value": request.POST.get("source"),
-                f"{request.POST.get('owner')}": "selected"
+                "selected_owner": request.POST.get("owner")
             })
 
         try:
