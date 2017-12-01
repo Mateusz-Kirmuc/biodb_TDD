@@ -452,3 +452,53 @@ class SampleCreateTestCase(FunctionalTest):
     def help_enter_code_and_submit_form(self, code):
         self.help_enter_sample_code(code)
         self.help_submit_form()
+
+    def test_user_can_reuse_submitted_data_when_form_is_invalid(self):
+        # Admin creates two users.
+        user1 = self.help_register_new_user(
+            username="user1", password="passwd1")
+        user2 = self.help_register_new_user(
+            username="user2", password="passwd2")
+        # First user goes to sample create form.
+        self.get_sample_create_page(user1, "passwd1")
+
+        # He enters all data except code and submits form.
+        self.help_find_field_using_placeholder_and_fill_it("notes", "bla")
+        self.help_find_field_using_placeholder_and_fill_it("form", "whatsup")
+        self.help_find_field_using_placeholder_and_fill_it("source", "hehe")
+        self.browser.find_element_by_xpath(
+            "//option[contains(text(), 'user2')]").click()
+        self.browser.find_element_by_xpath(
+            "//option[contains(text(), 'Preperation')]").click()
+
+        self.help_submit_form()
+
+        # Now, when browser display error message above form, this form is
+        # filled with previous data.
+        time.sleep(10)
+        self.assertEqual(self.find_by_css(
+            "textarea[placeholder='notes']").text, "bla")
+        self.assertEqual(self.find_by_css(
+            "input[placeholder='form']").get_attribute("value"), "whatsup")
+        self.assertEqual(self.find_by_css(
+            "input[placeholder='source']").get_attribute("value"), "hehe")
+        self.assertEqual(self.find_by_css(
+            ".owner option[selected='true']").text, 'user2')
+        self.assertEqual(self.find_by_css(
+            ".statuses option[selected='true']").text, 'Preperation')
+
+        # User enters code and resubmits form.
+        # Next page is sample details page.
+        # Happy user logs out.
+        # After a while, user wants to add another sample.
+        # He logs in and goes to sample create form.
+        # User fills all fields, but uses the same code as in the previous case.
+        # Again, when browser display error message above form, this form is
+        # filled with previous data.
+        # User enters new code and resubmits form.
+        # Next page is sample details page.
+        # Happy user logs out.
+
+    def help_find_field_using_placeholder_and_fill_it(self, placeholder, text):
+        inpt = self.find_by_css(f"*[placeholder='{placeholder}']")
+        inpt.send_keys(text)

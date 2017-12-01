@@ -9,9 +9,9 @@
       <option selected>{{owner}}</option>
       {% endfor %}
     </select>
-    <textarea placeholder="notes"></textarea>
-    <input placeholder="form">
-    <input placeholder="source">
+    <textarea name="notes" placeholder="notes">{{ notes_value }}</textarea>
+    <input name="form" value="{{ form_value }}" placeholder="form">
+    <input name="source" placeholder="source" value="{{ source_value }}">
     <select class="statuses" name="status">
       <option value="1">Unassigned</option>
       <option value="2">Requested</option>

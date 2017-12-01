@@ -74,7 +74,11 @@ def sample_create_view(request, project_name, robject_id):
         if not code:
             return render(request, "samples/sample_create.html", {
                 "owners": owner_options,
-                "error": "This field is required"
+                "error": "This field is required",
+                "notes_value": request.POST.get("notes"),
+                "form_value": request.POST.get("form"),
+                "source_value": request.POST.get("source"),
+                f"{request.POST.get('owner')}": "selected"
             })
 
         try:

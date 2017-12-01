@@ -373,3 +373,66 @@ class SampleCreateViewTestCase(FunctionalTest):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Sample code must be uniqe")
+
+    def test_view_pass_notes_value_variable_to_template_when_invalid_post(self):
+        self.help_assert_variable_is_passed_to_template_when_invalid_post(
+            "notes_value")
+
+    def test_notes_value_variable_has_value_from_post_submitted_data(self):
+        self.help_assert_templ_input_value_comes_from_post_data(
+            "notes", post_value="These are notes!")
+
+    def test_view_pass_form_value_variable_to_template_when_invalid_post(self):
+        self.help_assert_variable_is_passed_to_template_when_invalid_post(
+            "form_value")
+
+    def test_form_value_variable_has_value_from_post_submitted_data(self):
+        self.help_assert_templ_input_value_comes_from_post_data(
+            "form", post_value="This is form!")
+
+    def test_view_pass_source_value_variable_to_template_when_invalid_post(self):
+        self.help_assert_variable_is_passed_to_template_when_invalid_post(
+            "source_value")
+
+    def help_assert_variable_is_passed_to_template_when_invalid_post(self, var_name):
+        response = self.help_create_user_and_make_post("user1", "passwd1")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(var_name, response.context)
+
+    def test_source_value_variable_has_value_from_post_submitted_data(self):
+        self.help_assert_templ_input_value_comes_from_post_data(
+            "source", post_value="This is source!")
+
+    def help_assert_templ_input_value_comes_from_post_data(self, post_key, post_value):
+        response = self.help_create_user_and_make_post(
+            "user1", "passwd1", post_data={post_key: post_value})
+        self.help_confirm_in_context(
+            response, f"{post_key}_value", post_value)
+
+    def test_view_pass_owner_selected_variable_to_template_when_invalid_post(self):
+        response = self.help_create_user_and_make_post(
+            username="user1",
+            password="passwd1",
+            post_data={"owner": "user1"},
+            send_default_owner=False
+        )
+        self.assertIn("user1", response.context)
+
+        # the same but send different owner
+        response = self.help_create_user_and_make_post(
+            username="user2",
+            password="passwd2",
+            post_data={"owner": "user2"},
+            send_default_owner=False,
+            project_name="project_2"
+        )
+        self.assertIn("user2", response.context)
+
+    def test_owner_selected_variable_has_value_selected(self):
+        response = self.help_create_user_and_make_post(
+            username="user1",
+            password="passwd1",
+            post_data={"owner": "user1"},
+            send_default_owner=False
+        )
+        self.assertEqual(response.context["user1"], "selected")
