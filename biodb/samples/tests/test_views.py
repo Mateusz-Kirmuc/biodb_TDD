@@ -395,7 +395,18 @@ class SampleCreateViewTestCase(FunctionalTest):
             "source_value")
 
     def help_assert_variable_is_passed_to_template_when_invalid_post(self, var_name):
+        # empty code
         response = self.help_create_user_and_make_post("user1", "passwd1")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(var_name, response.context)
+
+        # different kind of invalid post (code repetition)
+        Sample.objects.create(code="1234")
+        response = self.help_create_user_and_make_post(
+            "user2",
+            "passwd2",
+            post_data={"code": "1234"},
+            project_name="project_2")
         self.assertEqual(response.status_code, 200)
         self.assertIn(var_name, response.context)
 
@@ -404,8 +415,20 @@ class SampleCreateViewTestCase(FunctionalTest):
             "source", post_value="This is source!")
 
     def help_assert_templ_input_value_comes_from_post_data(self, post_key, post_value):
+        # missing code
         response = self.help_create_user_and_make_post(
             "user1", "passwd1", post_data={post_key: post_value})
+        self.help_confirm_in_context(
+            response, f"{post_key}_value", post_value)
+
+        # code repetition
+        Sample.objects.create(code="XYZ987")
+        response = self.help_create_user_and_make_post(
+            "user2",
+            "passwd2",
+            post_data={"code": "XYZ987", post_key: post_value},
+            project_name="project_2",
+        )
         self.help_confirm_in_context(
             response, f"{post_key}_value", post_value)
 
@@ -429,3 +452,28 @@ class SampleCreateViewTestCase(FunctionalTest):
 
         self.help_confirm_in_context(
             response, "selected_owner", "user2")
+
+        # repeated code
+        Sample.objects.create(code="C3P0")
+        response = self.help_create_user_and_make_post(
+            username="user3",
+            password="passwd3",
+            post_data={"code": "C3P0", "owner": "user3"},
+            project_name="project_3")
+
+        self.help_confirm_in_context(
+            response, "selected_owner", "user3")
+
+    def test_view_pass_select_status_variable_to_temp_on_invalid_post(self):
+        response = self.help_create_user_and_make_post(
+            "user1", "passwd1",
+            post_data={"status": 7},
+            send_default_status=False)
+        self.help_confirm_in_context(response, "select_7", "selected")
+        Sample.objects.create(code="123xyz")
+        response = self.help_create_user_and_make_post(
+            "user2", "passwd2",
+            post_data={"status": 2, "code": "123xyz"},
+            project_name="project_2",
+            send_default_status=False)
+        self.help_confirm_in_context(response, "select_2", "selected")

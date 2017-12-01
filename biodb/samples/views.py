@@ -78,7 +78,8 @@ def sample_create_view(request, project_name, robject_id):
                 "notes_value": request.POST.get("notes"),
                 "form_value": request.POST.get("form"),
                 "source_value": request.POST.get("source"),
-                "selected_owner": request.POST.get("owner")
+                "selected_owner": request.POST.get("owner"),
+                f"select_{request.POST.get('status')}": "selected"
             })
 
         try:
@@ -91,7 +92,12 @@ def sample_create_view(request, project_name, robject_id):
         except IntegrityError:
             return render(request, "samples/sample_create.html", {
                 "owners": owner_options,
-                "error": "Sample code must be uniqe"
+                "error": "Sample code must be uniqe",
+                "notes_value": request.POST.get("notes"),
+                "form_value": request.POST.get("form"),
+                "source_value": request.POST.get("source"),
+                "selected_owner": request.POST.get("owner"),
+                f"select_{request.POST.get('status')}": "selected"
             })
         if request.user.is_authenticated:
             s.modify_by = request.user

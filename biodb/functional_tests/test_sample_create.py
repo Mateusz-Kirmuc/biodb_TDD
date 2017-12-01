@@ -510,9 +510,30 @@ class SampleCreateTestCase(FunctionalTest):
 
         # Again, when browser display error message above form, this form is
         # filled with previous data.
+        code_input = self.help_find_code_input()
+        self.assertEqual(_(code_input).previous_sibling().text,
+                         "Sample code must be uniqe")
+
+        self.assertEqual(
+            self.help_find_element_using_placeholder("notes").text, "A")
+        self.assertEqual(self.help_find_element_using_placeholder(
+            "form").get_attribute("value"), "B")
+        self.assertEqual(self.help_find_element_using_placeholder(
+            "source").get_attribute("value"), "C")
+        self.assertEqual(self.find_by_css(
+            ".owner option[selected]").text, 'user2')
+        self.assertEqual(self.find_by_css(
+            ".statuses option[selected]").text, 'Production')
+
         # User enters new code and resubmits form.
+        self.help_enter_sample_code("cokolwiek")
+        self.help_submit_form()
+
         # Next page is sample details page.
+        self.help_confirm_page_header("cokolwiek")
+
         # Happy user logs out.
+        self.logout()
 
     def help_find_field_using_placeholder_and_fill_it(self, placeholder, text):
         inpt = self.find_by_css(f"*[placeholder='{placeholder}']")
