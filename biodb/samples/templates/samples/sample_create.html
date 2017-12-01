@@ -6,7 +6,7 @@
     <input type="text" placeholder="code" name="code">
     <select class="owner" name="owner">
       {% for owner in owners %}
-      <option {% if selected_owner == owner %}selected=true{% endif %}>{{owner}}</option>
+      <option {% if selected_owner == owner %}selected{% endif %}>{{owner}}</option>
       {% endfor %}
     </select>
     <textarea name="notes" placeholder="notes">{{ notes_value }}</textarea>

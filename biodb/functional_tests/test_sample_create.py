@@ -37,7 +37,7 @@ class SampleCreateTestCase(FunctionalTest):
         owner_options = owner_input.find_elements_by_tag_name("option")
         self.assertEqual(len(owner_options), 1)
         owner_option = owner_input.find_element_by_css_selector(
-            "option[selected]")
+            "option")
         self.assertEqual(owner_option.text, user.username)
 
         notes_input = self.find_tag("textarea")
@@ -140,7 +140,7 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(
             len(owner_input.find_elements_by_tag_name("option")), 1)
         owner_option = owner_input.find_element_by_css_selector(
-            "option[selected]")
+            "option")
         self.assertEqual(owner_option.text, "user_1")
 
         # User enters sample code and submit form.
@@ -475,7 +475,6 @@ class SampleCreateTestCase(FunctionalTest):
 
         # Now, when browser display error message above form, this form is
         # filled with previous data.
-        time.sleep(10)
         self.assertEqual(self.find_by_css(
             "textarea[placeholder='notes']").text, "bla")
         self.assertEqual(self.find_by_css(
@@ -483,7 +482,7 @@ class SampleCreateTestCase(FunctionalTest):
         self.assertEqual(self.find_by_css(
             "input[placeholder='source']").get_attribute("value"), "hehe")
         self.assertEqual(self.find_by_css(
-            ".owner option[selected='true']").text, 'user2')
+            ".owner option[selected]").text, 'user2')
         self.assertEqual(self.find_by_css(
             ".statuses option[selected='true']").text, 'Preperation')
 
