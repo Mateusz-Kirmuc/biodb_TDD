@@ -71,6 +71,7 @@ def sample_create_view(request, project_name, robject_id):
         return redirect(redirect_to)
     if request.method == "POST":
         code = request.POST.get("code", "")
+        # 1 case of invalid form submission: empty sample code
         if not code:
             return render(request, "samples/sample_create.html", {
                 "owners": owner_options,
@@ -82,6 +83,7 @@ def sample_create_view(request, project_name, robject_id):
                 f"select_{request.POST.get('status')}": "selected"
             })
 
+        # 2 case of invalid form submission: sample code repetition
         try:
             s = Sample.objects.create(
                 code=code,
@@ -99,9 +101,9 @@ def sample_create_view(request, project_name, robject_id):
                 "selected_owner": request.POST.get("owner"),
                 f"select_{request.POST.get('status')}": "selected"
             })
-        if request.user.is_authenticated:
-            s.modify_by = request.user
-            s.save()
+
+        s.modify_by = request.user
+        s.save()
 
         redirect_to = reverse(
             "projects:samples:sample_details",
