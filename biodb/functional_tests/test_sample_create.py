@@ -466,32 +466,48 @@ class SampleCreateTestCase(FunctionalTest):
         self.help_find_field_using_placeholder_and_fill_it("notes", "bla")
         self.help_find_field_using_placeholder_and_fill_it("form", "whatsup")
         self.help_find_field_using_placeholder_and_fill_it("source", "hehe")
-        self.browser.find_element_by_xpath(
-            "//option[contains(text(), 'user2')]").click()
-        self.browser.find_element_by_xpath(
-            "//option[contains(text(), 'Preperation')]").click()
+        self.help_select_option_using_option_text("user2")
+        self.help_select_option_using_option_text("Preperation")
 
         self.help_submit_form()
 
         # Now, when browser display error message above form, this form is
         # filled with previous data.
-        self.assertEqual(self.find_by_css(
-            "textarea[placeholder='notes']").text, "bla")
-        self.assertEqual(self.find_by_css(
-            "input[placeholder='form']").get_attribute("value"), "whatsup")
-        self.assertEqual(self.find_by_css(
-            "input[placeholder='source']").get_attribute("value"), "hehe")
+        self.assertEqual(
+            self.help_find_element_using_placeholder("notes").text, "bla")
+        self.assertEqual(self.help_find_element_using_placeholder(
+            "form").get_attribute("value"), "whatsup")
+        self.assertEqual(self.help_find_element_using_placeholder(
+            "source").get_attribute("value"), "hehe")
         self.assertEqual(self.find_by_css(
             ".owner option[selected]").text, 'user2')
         self.assertEqual(self.find_by_css(
-            ".statuses option[selected='true']").text, 'Preperation')
+            ".statuses option[selected]").text, 'Preperation')
 
         # User enters code and resubmits form.
+        self.help_enter_sample_code("code123ABC")
+        self.help_submit_form()
+
         # Next page is sample details page.
+        self.help_confirm_page_header("code123ABC")
+
         # Happy user logs out.
+        self.logout()
+
         # After a while, user wants to add another sample.
         # He logs in and goes to sample create form.
+        self.get_sample_create_page(user1, "passwd1")
+
         # User fills all fields, but uses the same code as in the previous case.
+        self.help_enter_sample_code("code123ABC")
+        self.help_find_field_using_placeholder_and_fill_it("notes", "A")
+        self.help_find_field_using_placeholder_and_fill_it("form", "B")
+        self.help_find_field_using_placeholder_and_fill_it("source", "C")
+        self.help_select_option_using_option_text("user2")
+        self.help_select_option_using_option_text("Production")
+
+        self.help_submit_form()
+
         # Again, when browser display error message above form, this form is
         # filled with previous data.
         # User enters new code and resubmits form.
@@ -501,3 +517,10 @@ class SampleCreateTestCase(FunctionalTest):
     def help_find_field_using_placeholder_and_fill_it(self, placeholder, text):
         inpt = self.find_by_css(f"*[placeholder='{placeholder}']")
         inpt.send_keys(text)
+
+    def help_find_element_using_placeholder(self, placeholder):
+        return self.find_by_css(f"[placeholder='{placeholder}']")
+
+    def help_select_option_using_option_text(self, text):
+        self.browser.find_element_by_xpath(
+            f"//option[contains(text(), '{text}')]").click()
